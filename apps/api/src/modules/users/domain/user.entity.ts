@@ -1,0 +1,25 @@
+import { Email } from './value-objects/email.value-object';
+
+export class User {
+  id?: string;
+  email: Email;
+  firstName: string | null;
+  lastName: string | null;
+
+  constructor({
+    id,
+    email,
+    firstName = null,
+    lastName = null,
+  }: {
+    id?: string;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+  }) {
+    this.id = id;
+    this.email = new Email(email);
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
+}
