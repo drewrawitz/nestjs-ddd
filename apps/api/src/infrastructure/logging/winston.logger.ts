@@ -1,4 +1,4 @@
-import { ILogger } from '../../application/interfaces/logger.interface';
+import { ILogger } from './logger.interface';
 import * as winston from 'winston';
 const { combine, json, colorize, timestamp, prettyPrint } = winston.format;
 
