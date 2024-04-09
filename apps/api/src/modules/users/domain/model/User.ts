@@ -5,6 +5,7 @@ export class User {
   email: Email;
   firstName: string | null;
   lastName: string | null;
+  emailVerifiedAt?: Date;
 
   constructor({
     id,
@@ -16,6 +17,7 @@ export class User {
     email: string;
     firstName: string | null;
     lastName: string | null;
+    emailVerifiedAt?: Date;
   }) {
     this.id = id;
     this.email = new Email(email);
@@ -25,5 +27,9 @@ export class User {
 
   get fullName(): string {
     return [this.firstName, this.lastName].filter(Boolean).join(' ');
+  }
+
+  get isEmailVerified(): boolean {
+    return Boolean(this.emailVerifiedAt);
   }
 }
