@@ -1,3 +1,10 @@
+export interface SendEmailProps {
+  to: string;
+  from: string;
+  subject: string;
+  message: string;
+}
+
 export interface IEmailService {
-  sendWelcomeEmail(recipient: string): Promise<void>;
+  sendEmail(props: SendEmailProps): Promise<void>;
 }

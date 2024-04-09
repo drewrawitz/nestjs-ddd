@@ -10,6 +10,14 @@ export class UserCreatedListener {
 
   @OnEvent('user.created')
   async handleUserCreatedEvent(event: UserCreatedEvent) {
-    await this.emailService.sendWelcomeEmail(event.user.email);
+    const to = event.user.email;
+
+    await this.emailService.sendEmail({
+      to,
+      from: '"The Class Digital Studio" <no-reply@theclass.com>',
+      subject: 'Welcome to The Class',
+      message:
+        '<strong>Welcome!</strong><br /><br />We are so happy to have you.',
+    });
   }
 }
