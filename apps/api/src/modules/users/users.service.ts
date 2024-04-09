@@ -18,6 +18,10 @@ export class UsersService {
     @Inject(EVENT_TOKEN) private eventPublisher: IEventPublisher,
   ) {}
 
+  async getUserById(userId: string) {
+    return await this.userRepository.getUserById(userId);
+  }
+
   async createUser(body: CreateUserRequestDto) {
     const { email, firstName, lastName } = body;
     const user = new User({

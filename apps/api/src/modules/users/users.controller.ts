@@ -1,4 +1,12 @@
-import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  UsePipes,
+} from '@nestjs/common';
 import { ZodValidationPipe } from 'src/libs/zod-validation-pipe';
 import {
   CreateUserRequestDto,
@@ -9,9 +17,15 @@ import { UsersService } from './users.service';
 @Controller('v1/users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
+
   @Post()
   @UsePipes(new ZodValidationPipe(createUserRequestSchema))
   async create(@Body() body: CreateUserRequestDto) {
-    return this.usersService.createUser(body);
+    return await this.usersService.createUser(body);
+  }
+
+  @Get('/:userId')
+  async getUserById(@Param('userId', ParseUUIDPipe) userId: string) {
+    return await this.usersService.getUserById(userId);
   }
 }
