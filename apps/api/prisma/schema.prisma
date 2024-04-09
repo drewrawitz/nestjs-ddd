@@ -8,11 +8,27 @@ datasource db {
 }
 
 model User {
-  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email            String    @unique
-  firstName        String?
-  lastName         String?
-  stripeCustomerId String?
-  emailVerifiedAt  DateTime?
-  createdAt        DateTime? @default(now())
+  id                  String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email               String               @unique
+  firstName           String?
+  lastName            String?
+  stripeCustomerId    String?              @unique
+  emailVerifiedAt     DateTime?
+  createdAt           DateTime?            @default(now())
+  stripeSubscriptions StripeSubscription[]
+}
+
+model StripeSubscription {
+  id               String    @id
+  status           String
+  stripeCustomerId String
+  startDate        DateTime
+  endDate          DateTime?
+  cancelAtDate     DateTime?
+  canceledAtDate   DateTime?
+  trialStartDate   DateTime?
+  trialEndDate     DateTime?
+  metadata         Json?
+  user             User      @relation(fields: [stripeCustomerId], references: [stripeCustomerId], onDelete: Cascade)
+  createdAt        DateTime  @default(now())
 }
