@@ -7,7 +7,7 @@ import { ILogger } from '../../infrastructure/logging/logger.interface';
 import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
 import { UserCreatedEvent } from './domain/events/user-created.event';
 import { EVENT_TOKEN } from 'src/infrastructure/events/event.token';
-import { IEventPublisher } from 'src/domain/interfaces/IEventPublisher';
+import { IEventPublisher } from 'src/application/interfaces/IEventPublisher';
 
 @Injectable()
 export class UsersService {

@@ -1,4 +1,4 @@
-import { IEventPublisher } from '../../domain/interfaces/IEventPublisher';
+import { IEventPublisher } from '../../application/interfaces/IEventPublisher';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 export class EventPublisher implements IEventPublisher {
