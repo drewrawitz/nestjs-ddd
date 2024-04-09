@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserRequestDto } from './commands/create-user/request.dto';
+import { CreateUserRequestDto } from './dto/create-user.dto';
 import { UsersRepository } from './users.repository';
-import { User } from './domain/user.entity';
+import { User } from './domain/model/User';
+import { UserDomainService } from './domain/services/user.domain.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private userRepository: UsersRepository) {}
+  constructor(
+    private userRepository: UsersRepository,
+    private userDomainService: UserDomainService,
+  ) {}
 
   async createUser(body: CreateUserRequestDto) {
     const { email, firstName, lastName } = body;
@@ -16,6 +20,12 @@ export class UsersService {
       lastName,
     });
 
-    return await this.userRepository.createUser(user);
+    try {
+      await this.userDomainService.canCreateUser(user);
+      return await this.userRepository.createUser(user);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 }

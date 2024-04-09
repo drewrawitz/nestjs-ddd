@@ -2,7 +2,7 @@ import { Body, Controller, Post, UsePipes } from '@nestjs/common';
 import {
   CreateUserRequestDto,
   createUserRequestSchema,
-} from './commands/create-user/request.dto';
+} from './dto/create-user.dto';
 import { ZodValidationPipe } from 'src/libs/zod-validation-pipe';
 import { UsersService } from './users.service';
 

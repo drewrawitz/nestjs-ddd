@@ -1,4 +1,4 @@
-import { Email } from './value-objects/email.value-object';
+import { Email } from './Email';
 
 export class User {
   id?: string;
