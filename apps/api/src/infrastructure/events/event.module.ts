@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { EVENT_TOKEN } from './event.token';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventPublisher } from './event.publisher';
+import { EVENT_TOKEN } from './event.token';
 
 @Module({
   providers: [

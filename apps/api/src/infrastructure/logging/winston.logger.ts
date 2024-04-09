@@ -1,5 +1,6 @@
-import { ILogger } from './logger.interface';
 import * as winston from 'winston';
+import { ILogger } from './logger.interface';
+
 const { combine, json, colorize, errors, timestamp, printf } = winston.format;
 
 const myFormat = printf((info) => {

@@ -1,9 +1,9 @@
 import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import { ZodValidationPipe } from 'src/libs/zod-validation-pipe';
 import {
   CreateUserRequestDto,
   createUserRequestSchema,
 } from './dto/create-user.dto';
-import { ZodValidationPipe } from 'src/libs/zod-validation-pipe';
 import { UsersService } from './users.service';
 
 @Controller('v1/users')

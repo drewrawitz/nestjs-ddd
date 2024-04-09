@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateUserRequestDto } from './dto/create-user.dto';
-import { UsersRepository } from './users.repository';
+import { IEventPublisher } from 'src/application/interfaces/IEventPublisher';
+import { EVENT_TOKEN } from 'src/infrastructure/events/event.token';
+import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
+import { ILogger } from '../../infrastructure/logging/logger.interface';
+import { UserCreatedEvent } from './domain/events/user-created.event';
 import { User } from './domain/model/User';
 import { UserDomainService } from './domain/services/user.domain.service';
-import { ILogger } from '../../infrastructure/logging/logger.interface';
-import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
-import { UserCreatedEvent } from './domain/events/user-created.event';
-import { EVENT_TOKEN } from 'src/infrastructure/events/event.token';
-import { IEventPublisher } from 'src/application/interfaces/IEventPublisher';
+import { CreateUserRequestDto } from './dto/create-user.dto';
+import { UsersRepository } from './users.repository';
 
 @Injectable()
 export class UsersService {

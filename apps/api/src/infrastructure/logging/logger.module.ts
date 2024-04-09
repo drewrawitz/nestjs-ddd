@@ -1,4 +1,4 @@
-import { Module, Global } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { LOGGER_TOKEN } from './logger.token';
 import { WinstonLogger } from './winston.logger';
 

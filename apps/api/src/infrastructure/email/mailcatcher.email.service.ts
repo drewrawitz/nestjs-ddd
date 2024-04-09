@@ -1,9 +1,9 @@
 import { Inject } from '@nestjs/common';
+import * as nodemailer from 'nodemailer';
 import {
   IEmailService,
   SendEmailProps,
 } from '../../application/interfaces/IEmailService';
-import * as nodemailer from 'nodemailer';
 import { ILogger } from '../logging/logger.interface';
 import { LOGGER_TOKEN } from '../logging/logger.token';
 
