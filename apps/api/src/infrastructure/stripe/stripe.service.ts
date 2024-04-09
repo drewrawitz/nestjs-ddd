@@ -6,24 +6,33 @@ import {
 } from '../../application/interfaces/IStripeService';
 import { ILogger } from '../logging/logger.interface';
 import { LOGGER_TOKEN } from '../logging/logger.token';
+import { EnvService } from '../env/env.service';
 
 export class StripeService implements IStripeService {
   private stripe: Stripe;
 
-  constructor(@Inject(LOGGER_TOKEN) private readonly logger: ILogger) {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
+  constructor(
+    private envService: EnvService,
+    @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
+  ) {
+    this.stripe = new Stripe(this.envService.get('STRIPE_SECRET_KEY'), {
       apiVersion: '2023-10-16',
     });
   }
 
   async createCustomer(props: ICreateStripeCustomer) {
-    const { email, name } = props;
+    const { email, name, internalUserId } = props;
 
     try {
       const customer = await this.stripe.customers.create({
         email,
         ...(name && {
           name,
+        }),
+        ...(internalUserId && {
+          metadata: {
+            internalUserId,
+          },
         }),
       });
 
