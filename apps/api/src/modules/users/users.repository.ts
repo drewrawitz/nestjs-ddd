@@ -37,4 +37,22 @@ export class UsersRepository implements IUsersRepository {
 
     return new UserResponseDto(domainUser);
   }
+
+  async updateUserWithStripeCustomerId(
+    userId: string,
+    stripeCustomerId: string,
+  ): Promise<void> {
+    try {
+      await this.db.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          stripeCustomerId,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }

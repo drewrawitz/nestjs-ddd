@@ -22,4 +22,8 @@ export class User {
     this.firstName = firstName;
     this.lastName = lastName;
   }
+
+  get fullName(): string {
+    return [this.firstName, this.lastName].filter(Boolean).join(' ');
+  }
 }

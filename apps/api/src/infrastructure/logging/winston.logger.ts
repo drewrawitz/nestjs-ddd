@@ -8,7 +8,7 @@ const myFormat = printf((info) => {
   let log = `${tmsmp} - ${level}:\t${message}`;
 
   if (context) {
-    if (context.error.stack) log = `${log}\n${context.error.stack}`;
+    if (context.error?.stack) log = `${log}\n${context.error.stack}`;
     if (process.env.NODE_ENV !== 'production')
       log = `${log}\n${JSON.stringify(context, null, 2)}`;
   }

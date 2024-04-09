@@ -8,9 +8,11 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email     String    @unique
-  firstName String?
-  lastName  String?
-  createdAt DateTime? @default(now())
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email            String    @unique
+  firstName        String?
+  lastName         String?
+  stripeCustomerId String?
+  emailVerifiedAt  DateTime?
+  createdAt        DateTime? @default(now())
 }

@@ -5,11 +5,13 @@ export class UserResponseDto {
   email: string;
   firstName: string | null;
   lastName: string | null;
+  fullName: string | null;
 
   constructor(user: User) {
     this.id = user.id!;
     this.email = user.email.getValue();
     this.firstName = user.firstName;
     this.lastName = user.lastName;
+    this.fullName = user.fullName;
   }
 }
