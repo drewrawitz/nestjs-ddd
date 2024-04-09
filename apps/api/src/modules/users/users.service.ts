@@ -30,6 +30,7 @@ export class UsersService {
     try {
       await this.userDomainService.validateCreateUser(user);
       const createUser = await this.userRepository.createUser(user);
+      this.logger.log('Successfully created user', { user: createUser });
 
       this.eventPublisher.publish(
         'user.created',
@@ -37,10 +38,10 @@ export class UsersService {
       );
 
       return createUser;
-    } catch (err) {
-      this.logger.error('error: createUser()', err.stack, { body });
+    } catch (error) {
+      this.logger.error('Failed to create user', { error, body });
 
-      throw err;
+      throw error;
     }
   }
 }

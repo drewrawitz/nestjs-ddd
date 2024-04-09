@@ -1,20 +1,41 @@
 import { ILogger } from './logger.interface';
 import * as winston from 'winston';
-const { combine, json, colorize, timestamp, prettyPrint } = winston.format;
+const { combine, json, colorize, errors, timestamp, printf } = winston.format;
+
+const myFormat = printf((info) => {
+  const { timestamp: tmsmp, level, message, context, ...rest } = info;
+  let log = `${tmsmp} - ${level}:\t${message}`;
+
+  if (context) {
+    if (context.error.stack) log = `${log}\n${context.error.stack}`;
+    if (process.env.NODE_ENV !== 'production')
+      log = `${log}\n${JSON.stringify(context, null, 2)}`;
+  }
+  // Check if rest is object
+  if (!(Object.keys(rest).length === 0 && rest.constructor === Object)) {
+    log = `${log}\n${JSON.stringify(rest, null, 2)}`;
+  }
+  return log;
+});
 
 export class WinstonLogger implements ILogger {
   private logger: winston.Logger;
 
   constructor() {
     this.logger = winston.createLogger({
-      level: 'info',
+      level: 'debug',
       format: combine(
         json(),
         timestamp(),
-        prettyPrint(),
+        errors({ stack: true }),
         colorize({ all: true }),
+        myFormat,
       ),
-      transports: [new winston.transports.Console()],
+      transports: [
+        new winston.transports.Console({
+          handleExceptions: true,
+        }),
+      ],
     });
   }
 
@@ -22,8 +43,8 @@ export class WinstonLogger implements ILogger {
     this.logger.info(message, { context });
   }
 
-  error(message: string, trace = '', context?: Record<string, any>): void {
-    this.logger.error(message, { trace, context });
+  error(message: string, context?: Record<string, any>): void {
+    this.logger.error(message, { context });
   }
 
   warn(message: string, context?: Record<string, any>): void {
