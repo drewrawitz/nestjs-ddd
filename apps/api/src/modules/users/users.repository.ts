@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { User as PrismaUser } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { IUsersRepository } from './domain/interfaces/users.repository.interface';
 import { User as DomainUser } from './domain/model/User';
@@ -7,6 +8,19 @@ import { UserResponseDto } from './dto/user-response.dto';
 @Injectable()
 export class UsersRepository implements IUsersRepository {
   constructor(private db: PrismaService) {}
+
+  private toDomainUser(user: PrismaUser): DomainUser {
+    return new DomainUser({
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    });
+  }
+
+  private toUserResponseDto(user: DomainUser): UserResponseDto {
+    return new UserResponseDto(user);
+  }
 
   async findByEmail(email: string) {
     const find = await this.db.user.findUnique({
@@ -29,14 +43,8 @@ export class UsersRepository implements IUsersRepository {
       throw new NotFoundException('User does not exist.');
     }
 
-    const domainUser = new DomainUser({
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    });
-
-    return new UserResponseDto(domainUser);
+    const domainUser = this.toDomainUser(user);
+    return this.toUserResponseDto(domainUser);
   }
 
   async createUser(body: DomainUser) {
@@ -49,14 +57,8 @@ export class UsersRepository implements IUsersRepository {
       },
     });
 
-    const domainUser = new DomainUser({
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    });
-
-    return new UserResponseDto(domainUser);
+    const domainUser = this.toDomainUser(user);
+    return this.toUserResponseDto(domainUser);
   }
 
   async updateUserWithStripeCustomerId(
