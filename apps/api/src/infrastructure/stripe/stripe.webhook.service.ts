@@ -19,9 +19,11 @@ export class StripeWebhookService {
 
   async constructEventFromPayload(signature: string, payload?: Buffer) {
     const webhookSecret = this.envService.get('STRIPE_WEBHOOK_SECRET');
-    console.log('constructEventFromPayload', { signature, payload });
 
     if (!payload) {
+      this.logger.error(
+        'Error constructing event from payload (Stripe Webhook). Missing payload.',
+      );
       throw new BadRequestException('Missing payload');
     }
 
@@ -30,5 +32,33 @@ export class StripeWebhookService {
       signature,
       webhookSecret,
     );
+  }
+
+  async handleWebhookEvent(event: Stripe.Event) {
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        return this.onPaymentIntentSucceeded(event);
+
+      default:
+        this.logger.warn(`Unhandled Stripe Webhook Event: ${event.type}`, {
+          id: event.id,
+          type: event.type,
+        });
+
+        return;
+    }
+  }
+
+  private async onPaymentIntentSucceeded(
+    event: Stripe.PaymentIntentSucceededEvent,
+  ) {
+    const data = event.data.object;
+
+    console.log('Handle event', data);
+
+    // TODO: do something with this
+    return {
+      data,
+    };
   }
 }

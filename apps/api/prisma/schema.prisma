@@ -32,3 +32,14 @@ model StripeSubscription {
   user             User      @relation(fields: [stripeCustomerId], references: [stripeCustomerId], onDelete: Cascade)
   createdAt        DateTime  @default(now())
 }
+
+model StripeEvent {
+  stripeEventId String   @id
+  type          String
+  payload       Json
+  processed     Boolean  @default(false)
+  retryCount    Int      @default(0)
+  lastError     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
