@@ -3,12 +3,15 @@ import { ILogger } from '../logging/logger.interface';
 import { LOGGER_TOKEN } from '../logging/logger.token';
 import Stripe from 'stripe';
 import { EnvService } from '../env/env.service';
+import { InjectStripeQueue } from '../jobs/jobs.config';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class StripeWebhookService {
   private stripe: Stripe;
 
   constructor(
+    @InjectStripeQueue() readonly stripeQueue: Queue,
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
     private envService: EnvService,
   ) {
@@ -35,30 +38,40 @@ export class StripeWebhookService {
   }
 
   async handleWebhookEvent(event: Stripe.Event) {
-    switch (event.type) {
-      case 'payment_intent.succeeded':
-        return this.onPaymentIntentSucceeded(event);
+    const acceptedEvents = ['payment_intent.succeeded'];
 
-      default:
-        this.logger.warn(`Unhandled Stripe Webhook Event: ${event.type}`, {
+    if (!acceptedEvents.includes(event.type)) {
+      this.logger.warn(`Unhandled Stripe Webhook Event: ${event.type}`, {
+        id: event.id,
+        type: event.type,
+      });
+
+      return true;
+    }
+
+    try {
+      // Add the job
+      await this.stripeQueue.add(
+        'processEvent',
+        {
           id: event.id,
           type: event.type,
-        });
-
-        return;
+          event,
+        },
+        {
+          jobId: event.id,
+          attempts: 1,
+        },
+      );
+    } catch (error) {
+      this.logger.error('Failed to add job to queue.', {
+        error,
+        eventId: event.id,
+      });
     }
-  }
 
-  private async onPaymentIntentSucceeded(
-    event: Stripe.PaymentIntentSucceededEvent,
-  ) {
-    const data = event.data.object;
-
-    console.log('Handle event', data);
-
-    // TODO: do something with this
     return {
-      data,
+      returned: true,
     };
   }
 }
