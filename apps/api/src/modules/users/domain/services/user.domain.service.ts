@@ -6,13 +6,11 @@ import { User } from '../model/User';
 export class UserDomainService {
   constructor(private userRepository: UsersRepository) {}
 
-  async canCreateUser(user: User): Promise<boolean> {
+  async validateCreateUser(user: User): Promise<void> {
     const exists = await this.userRepository.findByEmail(user.email.getValue());
 
     if (exists) {
       throw new BadRequestException('User with this email already exists.');
     }
-
-    return true;
   }
 }
