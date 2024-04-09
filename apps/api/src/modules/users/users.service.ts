@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IEventPublisher } from 'src/application/interfaces/IEventPublisher';
+import { IEventPublisher } from 'src/infrastructure/events/event.interface';
 import { EVENT_TOKEN } from 'src/infrastructure/events/event.token';
 import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
 import { ILogger } from '../../infrastructure/logging/logger.interface';

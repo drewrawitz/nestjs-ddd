@@ -1,9 +1,6 @@
 import { Inject } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import {
-  IEmailService,
-  SendEmailProps,
-} from '../../application/interfaces/IEmailService';
+import { IEmailService, ISendEmailProps } from './email.interface';
 import { ILogger } from '../logging/logger.interface';
 import { LOGGER_TOKEN } from '../logging/logger.token';
 
@@ -17,7 +14,7 @@ export class MailcatcherEmailService implements IEmailService {
     });
   }
 
-  async sendEmail(props: SendEmailProps): Promise<void> {
+  async sendEmail(props: ISendEmailProps): Promise<void> {
     const { from, to, subject, message } = props;
 
     try {

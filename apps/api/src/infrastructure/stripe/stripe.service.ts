@@ -1,9 +1,6 @@
 import { Inject } from '@nestjs/common';
 import Stripe from 'stripe';
-import {
-  ICreateStripeCustomer,
-  IStripeService,
-} from '../../application/interfaces/IStripeService';
+import { ICreateStripeCustomer, IStripeService } from './stripe.interface';
 import { ILogger } from '../logging/logger.interface';
 import { LOGGER_TOKEN } from '../logging/logger.token';
 import { EnvService } from '../env/env.service';

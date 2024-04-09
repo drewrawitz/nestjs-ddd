@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { IStripeService } from 'src/application/interfaces/IStripeService';
+import { IStripeService } from 'src/infrastructure/stripe/stripe.interface';
 import { EMAIL_TOKEN } from 'src/infrastructure/email/email.token';
 import { STRIPE_TOKEN } from 'src/infrastructure/stripe/stripe.token';
-import { IEmailService } from '../../../../application/interfaces/IEmailService';
+import { IEmailService } from 'src/infrastructure/email/email.interface';
 import { UsersRepository } from '../../users.repository';
 import { UserCreatedEvent } from '../events/user-created.event';
 

@@ -1,4 +1,4 @@
-export interface SendEmailProps {
+export interface ISendEmailProps {
   to: string;
   from: string;
   subject: string;
@@ -6,5 +6,5 @@ export interface SendEmailProps {
 }
 
 export interface IEmailService {
-  sendEmail(props: SendEmailProps): Promise<void>;
+  sendEmail(props: ISendEmailProps): Promise<void>;
 }
