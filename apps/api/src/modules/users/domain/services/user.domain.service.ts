@@ -1,10 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { UsersRepository } from '../../users.repository';
+import { BadRequestException, Injectable, Inject } from '@nestjs/common';
 import { User } from '../model/User';
+import { USER_REPO_TOKEN } from '../../users.constants';
+import { IUsersRepository } from '../interfaces/users.repository.interface';
 
 @Injectable()
 export class UserDomainService {
-  constructor(private userRepository: UsersRepository) {}
+  constructor(
+    @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
+  ) {}
 
   async validateCreateUser(user: User): Promise<void> {
     const exists = await this.userRepository.findByEmail(user.email.getValue());

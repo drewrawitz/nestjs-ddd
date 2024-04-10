@@ -8,12 +8,16 @@ import { UserDomainService } from './domain/services/user.domain.service';
 import { UsersController } from './users.controller';
 import { UsersRepository } from './users.repository';
 import { UsersService } from './users.service';
+import { USER_REPO_TOKEN } from './users.constants';
 
 @Module({
   imports: [PrismaModule, EventModule, EmailModule, StripeModule],
   controllers: [UsersController],
   providers: [
-    UsersRepository,
+    {
+      provide: USER_REPO_TOKEN,
+      useClass: UsersRepository,
+    },
     UserCreatedListener,
     UsersService,
     UserDomainService,

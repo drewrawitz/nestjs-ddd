@@ -7,13 +7,14 @@ import { UserCreatedEvent } from './domain/events/user-created.event';
 import { User } from './domain/model/User';
 import { UserDomainService } from './domain/services/user.domain.service';
 import { CreateUserRequestDto } from './dto/create-user.dto';
-import { UsersRepository } from './users.repository';
+import { USER_REPO_TOKEN } from './users.constants';
+import { IUsersRepository } from './domain/interfaces/users.repository.interface';
 
 @Injectable()
 export class UsersService {
   constructor(
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
-    private userRepository: UsersRepository,
+    @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
     private userDomainService: UserDomainService,
     @Inject(EVENT_TOKEN) private eventPublisher: IEventPublisher,
   ) {}

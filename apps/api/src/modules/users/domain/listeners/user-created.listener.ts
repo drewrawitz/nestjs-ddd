@@ -4,15 +4,16 @@ import { IStripeService } from 'src/infrastructure/stripe/stripe.interface';
 import { EMAIL_TOKEN } from 'src/infrastructure/email/email.token';
 import { STRIPE_TOKEN } from 'src/infrastructure/stripe/stripe.token';
 import { IEmailService } from 'src/infrastructure/email/email.interface';
-import { UsersRepository } from '../../users.repository';
 import { UserCreatedEvent } from '../events/user-created.event';
+import { USER_REPO_TOKEN } from '../../users.constants';
+import { IUsersRepository } from '../interfaces/users.repository.interface';
 
 @Injectable()
 export class UserCreatedListener {
   constructor(
     @Inject(STRIPE_TOKEN) private stripeService: IStripeService,
     @Inject(EMAIL_TOKEN) private emailService: IEmailService,
-    private readonly userRepo: UsersRepository,
+    @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
   ) {}
 
   @OnEvent('user.created')
@@ -26,7 +27,10 @@ export class UserCreatedListener {
     });
 
     if (stripeCustomerId) {
-      await this.userRepo.updateUserWithStripeCustomerId(id, stripeCustomerId);
+      await this.userRepository.updateUserWithStripeCustomerId(
+        id,
+        stripeCustomerId,
+      );
     }
 
     await this.emailService.sendEmail({
