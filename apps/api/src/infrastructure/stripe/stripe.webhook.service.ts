@@ -3,15 +3,16 @@ import { ILogger } from '../logging/logger.interface';
 import { LOGGER_TOKEN } from '../logging/logger.token';
 import Stripe from 'stripe';
 import { EnvService } from '../env/env.service';
-import { InjectStripeQueue } from '../jobs/jobs.config';
-import { Queue } from 'bullmq';
+import { IJobService } from '../jobs/jobs.interface';
+import { JOBS_TOKEN } from '../jobs/jobs.token';
+import { STRIPE_QUEUE, StripeJobPayload } from '../jobs/jobs.types';
 
 @Injectable()
 export class StripeWebhookService {
   private stripe: Stripe;
 
   constructor(
-    @InjectStripeQueue() readonly stripeQueue: Queue,
+    @Inject(JOBS_TOKEN) private jobService: IJobService,
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
     private envService: EnvService,
   ) {
@@ -51,18 +52,28 @@ export class StripeWebhookService {
 
     try {
       // Add the job
-      await this.stripeQueue.add(
+      await this.jobService.addJob<StripeJobPayload['processEvent']>(
+        STRIPE_QUEUE,
         'processEvent',
         {
           id: event.id,
           type: event.type,
           event,
         },
-        {
-          jobId: event.id,
-          attempts: 1,
-        },
       );
+
+      // await this.stripeQueue.add(
+      //   'processEvent',
+      //   {
+      //     id: event.id,
+      //     type: event.type,
+      //     event,
+      //   },
+      //   {
+      //     jobId: event.id,
+      //     attempts: 1,
+      //   },
+      // );
     } catch (error) {
       this.logger.error('Failed to add job to queue.', {
         error,

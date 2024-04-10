@@ -1,13 +1,26 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { IJobService } from './jobs.interface';
+import { STRIPE_QUEUE } from './jobs.types';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 
 @Injectable()
 export class BullJobService implements IJobService {
-  constructor(@InjectQueue('bullmq-queue') readonly queue: Queue) {}
+  private queueMap: { [key: string]: Queue };
 
-  async addJob(name: string, data: any) {
-    return await this.queue.add(name, data);
+  constructor(@InjectQueue(STRIPE_QUEUE) readonly stripeQueue: Queue) {
+    this.queueMap = {
+      [STRIPE_QUEUE]: stripeQueue,
+    };
+  }
+
+  async addJob<T>(queueName: string, jobName: string, data: T): Promise<void> {
+    const queue = this.queueMap[queueName];
+
+    if (!queue) {
+      throw new Error(`Queue ${queueName} is not registered.`);
+    }
+
+    await queue.add(jobName, data);
   }
 }

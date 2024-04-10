@@ -1,3 +1,3 @@
 export interface IJobService {
-  addJob(name: string, data: any): Promise<any>;
+  addJob<T>(queueName: string, jobName: string, data: T): Promise<void>;
 }
