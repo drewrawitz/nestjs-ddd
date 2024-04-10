@@ -60,6 +60,10 @@ export class StripeWebhookService {
           type: event.type,
           event,
         },
+        {
+          jobId: event.id,
+          removeOnComplete: true,
+        },
       );
 
       // await this.stripeQueue.add(

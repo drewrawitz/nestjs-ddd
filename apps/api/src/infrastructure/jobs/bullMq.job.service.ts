@@ -1,8 +1,8 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { IJobService } from './jobs.interface';
+import { IGenericJobOptions, IJobService } from './jobs.interface';
 import { STRIPE_QUEUE } from './jobs.types';
 import { Injectable } from '@nestjs/common';
-import { Queue } from 'bullmq';
+import { JobsOptions, Queue } from 'bullmq';
 
 @Injectable()
 export class BullJobService implements IJobService {
@@ -14,13 +14,33 @@ export class BullJobService implements IJobService {
     };
   }
 
-  async addJob<T>(queueName: string, jobName: string, data: T): Promise<void> {
+  async addJob<T>(
+    queueName: string,
+    jobName: string,
+    data: T,
+    opts?: IGenericJobOptions,
+  ): Promise<void> {
     const queue = this.queueMap[queueName];
 
     if (!queue) {
       throw new Error(`Queue ${queueName} is not registered.`);
     }
 
-    await queue.add(jobName, data);
+    const bullOpts = this.mapGenericOptionsToBullOptions(opts);
+
+    await queue.add(jobName, data, bullOpts);
+  }
+
+  private mapGenericOptionsToBullOptions(
+    opts?: IGenericJobOptions,
+  ): JobsOptions {
+    // Translate generic options to BullMQ options
+    const bullOpts: JobsOptions = {};
+
+    if (opts?.jobId) bullOpts.jobId = opts.jobId;
+    if (opts?.removeOnComplete)
+      bullOpts.removeOnComplete = opts.removeOnComplete;
+
+    return bullOpts;
   }
 }
