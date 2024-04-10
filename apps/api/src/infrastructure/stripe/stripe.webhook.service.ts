@@ -79,25 +79,16 @@ export class StripeWebhookService {
     return true;
   }
 
-  async onPaymentIntentSucceeded(event: Stripe.PaymentIntentSucceededEvent) {
-    const data = event.data.object;
-    console.log('payment success', data);
-
-    // TODO: do something with this
-    return {
-      data,
-    };
-  }
-
   async addStripeEvent(data: StripeJobPayload['processEvent']) {
     const obj: any = data.event.data.object;
 
-    return await this.stripeRepo.createStripeEvent({
+    await this.stripeRepo.createStripeEvent({
       eventId: data.id,
       type: data.type,
       payload: {
         id: obj?.id,
       },
     });
+    this.logger.log(`Stripe event completed successfully: ${data.id}`);
   }
 }

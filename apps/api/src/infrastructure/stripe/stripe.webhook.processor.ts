@@ -2,7 +2,7 @@ import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { STRIPE_QUEUE, StripeJobPayload } from '../jobs/jobs.types';
 import { StripeWebhookService } from './stripe.webhook.service';
-import Stripe from 'stripe';
+// import Stripe from 'stripe';
 import { Inject } from '@nestjs/common';
 import { LOGGER_TOKEN } from '../logging/logger.token';
 import { ILogger } from '../logging/logger.interface';
@@ -28,12 +28,13 @@ export class StripeProcessor extends WorkerHost {
   }
 
   async processEvent(data: StripeJobPayload['processEvent']) {
-    switch (data.type) {
-      case 'payment_intent.succeeded':
-        return this.webhookService.onPaymentIntentSucceeded(
-          data.event as Stripe.PaymentIntentSucceededEvent,
-        );
-    }
+    this.logger.log(`Processing event: ${data.type}`);
+    // switch (data.type) {
+    //   case 'payment_intent.succeeded':
+    //     return this.webhookService.onPaymentIntentSucceeded(
+    //       data.event as Stripe.PaymentIntentSucceededEvent,
+    //     );
+    // }
   }
 
   @OnWorkerEvent('completed')
