@@ -7,9 +7,10 @@ import { JobsModule } from '../jobs/jobs.module';
 import { StripeRepository } from './stripe.repository';
 import { PrismaModule } from 'src/modules/database/prisma.module';
 import { StripeProcessor } from './stripe.webhook.processor';
+import { EventModule } from '../events/event.module';
 
 @Module({
-  imports: [JobsModule, PrismaModule],
+  imports: [JobsModule, EventModule, PrismaModule],
   controllers: [StripeWebhookController],
   providers: [
     StripeWebhookService,
@@ -23,6 +24,6 @@ import { StripeProcessor } from './stripe.webhook.processor';
       useClass: StripeRepository,
     },
   ],
-  exports: [STRIPE_TOKEN],
+  exports: [STRIPE_TOKEN, STRIPE_REPO_TOKEN],
 })
 export class StripeModule {}

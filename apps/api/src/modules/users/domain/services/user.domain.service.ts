@@ -10,7 +10,9 @@ export class UserDomainService {
   ) {}
 
   async validateCreateUser(user: User): Promise<void> {
-    const exists = await this.userRepository.findByEmail(user.email.getValue());
+    const exists = await this.userRepository.existsByEmail(
+      user.email.getValue(),
+    );
 
     if (exists) {
       throw new BadRequestException('User with this email already exists.');

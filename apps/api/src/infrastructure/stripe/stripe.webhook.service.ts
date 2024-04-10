@@ -1,11 +1,11 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
-import { ILogger } from '../logging/logger.interface';
-import { LOGGER_TOKEN } from '../logging/logger.token';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import { EnvService } from '../env/env.service';
 import { IJobService } from '../jobs/jobs.interface';
 import { JOBS_TOKEN } from '../jobs/jobs.token';
 import { STRIPE_QUEUE, StripeJobPayload } from '../jobs/jobs.types';
+import { ILogger } from '../logging/logger.interface';
+import { LOGGER_TOKEN } from '../logging/logger.token';
 import { IStripeRepository } from './stripe.interface';
 import { STRIPE_REPO_TOKEN } from './stripe.token';
 
@@ -42,7 +42,7 @@ export class StripeWebhookService {
   }
 
   async handleWebhookEvent(event: Stripe.Event) {
-    const acceptedEvents = ['payment_intent.succeeded'];
+    const acceptedEvents = ['customer.subscription.created'];
 
     if (!acceptedEvents.includes(event.type)) {
       this.logger.warn(`Unhandled Stripe Webhook Event: ${event.type}`, {

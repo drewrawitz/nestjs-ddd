@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/modules/database/prisma.service';
-import { ICreateStripeEvent, IStripeRepository } from './stripe.interface';
+import {
+  ICreateStripeEvent,
+  ICreateStripeSubscription,
+  IStripeRepository,
+} from './stripe.interface';
 
 @Injectable()
 export class StripeRepository implements IStripeRepository {
@@ -8,6 +12,7 @@ export class StripeRepository implements IStripeRepository {
 
   async createStripeEvent(body: ICreateStripeEvent) {
     const { eventId, type, payload } = body;
+
     return await this.db.stripeEvent.upsert({
       where: {
         stripeEventId: eventId,
@@ -16,6 +21,34 @@ export class StripeRepository implements IStripeRepository {
         stripeEventId: eventId,
         type,
         payload,
+      },
+      update: {},
+    });
+  }
+
+  async createStripeSubscription(body: ICreateStripeSubscription) {
+    const {
+      id,
+      status,
+      stripeCustomerId,
+      startDate,
+      endDate,
+      trialStartDate,
+      trialEndDate,
+    } = body;
+
+    return await this.db.stripeSubscription.upsert({
+      where: {
+        id,
+      },
+      create: {
+        id,
+        status,
+        stripeCustomerId,
+        startDate,
+        endDate,
+        trialStartDate,
+        trialEndDate,
       },
       update: {},
     });

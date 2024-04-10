@@ -14,6 +14,19 @@ export interface ICreateStripeEvent {
   payload: any;
 }
 
+export interface ICreateStripeSubscription {
+  id: string;
+  status: string;
+  stripeCustomerId: string;
+  startDate: Date;
+  endDate: Date;
+  trialStartDate?: Date;
+  trialEndDate?: Date;
+  metadata?: Record<string, any>;
+  createdAt?: Date;
+}
+
 export interface IStripeRepository {
   createStripeEvent(props: ICreateStripeEvent): Promise<any>;
+  createStripeSubscription(props: ICreateStripeSubscription): Promise<any>;
 }

@@ -22,10 +22,26 @@ export class UsersRepository implements IUsersRepository {
     return new UserResponseDto(user);
   }
 
-  async findByEmail(email: string) {
+  async existsByStripeCustomerId(stripeCustomerId: string) {
+    const find = await this.db.user.findUnique({
+      where: {
+        stripeCustomerId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return Boolean(find);
+  }
+
+  async existsByEmail(email: string) {
     const find = await this.db.user.findUnique({
       where: {
         email,
+      },
+      select: {
+        id: true,
       },
     });
 
