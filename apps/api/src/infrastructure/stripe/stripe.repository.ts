@@ -10,6 +10,19 @@ import {
 export class StripeRepository implements IStripeRepository {
   constructor(private db: PrismaService) {}
 
+  async existsByEventId(stripeEventId: string) {
+    const find = await this.db.stripeEvent.findUnique({
+      where: {
+        stripeEventId,
+      },
+      select: {
+        stripeEventId: true,
+      },
+    });
+
+    return Boolean(find);
+  }
+
   async createStripeEvent(body: ICreateStripeEvent) {
     const { eventId, type, payload } = body;
 

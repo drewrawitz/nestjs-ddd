@@ -41,7 +41,7 @@ export class StripeWebhookService {
     );
   }
 
-  async handleWebhookEvent(event: Stripe.Event) {
+  async handleWebhookEvent(event: Stripe.Event): Promise<void> {
     const acceptedEvents = ['customer.subscription.created'];
 
     if (!acceptedEvents.includes(event.type)) {
@@ -50,7 +50,18 @@ export class StripeWebhookService {
         type: event.type,
       });
 
-      return true;
+      return;
+    }
+
+    // Check if this event has already been processed
+    const find = await this.stripeRepo.existsByEventId(event.id);
+
+    if (find) {
+      this.logger.debug(
+        `Stripe Event has already been processed: ${event.type}. Skipping the job creation.`,
+        { id: event.id, type: event.type },
+      );
+      return;
     }
 
     try {
@@ -77,7 +88,7 @@ export class StripeWebhookService {
       });
     }
 
-    return true;
+    return;
   }
 
   async addStripeEvent(data: StripeJobPayload['processEvent']) {
