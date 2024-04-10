@@ -38,6 +38,7 @@ export class BullJobService implements IJobService {
     const bullOpts: JobsOptions = {};
 
     if (opts?.jobId) bullOpts.jobId = opts.jobId;
+    if (opts?.attempts) bullOpts.attempts = opts.attempts;
     if (opts?.removeOnComplete)
       bullOpts.removeOnComplete = opts.removeOnComplete;
 

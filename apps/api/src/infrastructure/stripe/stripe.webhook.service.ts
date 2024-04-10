@@ -65,6 +65,7 @@ export class StripeWebhookService {
         {
           jobId: event.id,
           removeOnComplete: true,
+          attempts: 3,
         },
       );
       this.logger.log(`Job added to the Stripe Queue: ${event.id}`);
@@ -89,10 +90,14 @@ export class StripeWebhookService {
   }
 
   async addStripeEvent(data: StripeJobPayload['processEvent']) {
+    const obj: any = data.event.data.object;
+
     return await this.stripeRepo.createStripeEvent({
       eventId: data.id,
       type: data.type,
-      payload: data.event.data.object,
+      payload: {
+        id: obj?.id,
+      },
     });
   }
 }

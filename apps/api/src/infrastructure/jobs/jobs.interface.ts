@@ -1,6 +1,7 @@
 export interface IGenericJobOptions {
   jobId?: string;
   removeOnComplete?: boolean;
+  attempts?: number;
 }
 
 export interface IJobService {
