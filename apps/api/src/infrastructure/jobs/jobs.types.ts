@@ -9,9 +9,3 @@ export type StripeJobPayload = {
     event: Stripe.Event;
   };
 };
-
-export type AccountJobPayload = {
-  deleteAccount: {
-    accountId: string;
-  };
-};

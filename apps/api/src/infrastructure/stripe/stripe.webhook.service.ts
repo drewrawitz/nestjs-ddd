@@ -6,6 +6,7 @@ import { EnvService } from '../env/env.service';
 import { IJobService } from '../jobs/jobs.interface';
 import { JOBS_TOKEN } from '../jobs/jobs.token';
 import { STRIPE_QUEUE, StripeJobPayload } from '../jobs/jobs.types';
+import { StripeRepository } from './stripe.repository';
 
 @Injectable()
 export class StripeWebhookService {
@@ -15,6 +16,7 @@ export class StripeWebhookService {
     @Inject(JOBS_TOKEN) private jobService: IJobService,
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
     private envService: EnvService,
+    private readonly stripeRepo: StripeRepository,
   ) {
     this.stripe = new Stripe(this.envService.get('STRIPE_SECRET_KEY'), {
       apiVersion: '2023-10-16',
@@ -65,19 +67,7 @@ export class StripeWebhookService {
           removeOnComplete: true,
         },
       );
-
-      // await this.stripeQueue.add(
-      //   'processEvent',
-      //   {
-      //     id: event.id,
-      //     type: event.type,
-      //     event,
-      //   },
-      //   {
-      //     jobId: event.id,
-      //     attempts: 1,
-      //   },
-      // );
+      this.logger.log(`Job added to the Stripe Queue: ${event.id}`);
     } catch (error) {
       this.logger.error('Failed to add job to queue.', {
         error,
@@ -85,8 +75,24 @@ export class StripeWebhookService {
       });
     }
 
+    return true;
+  }
+
+  async onPaymentIntentSucceeded(event: Stripe.PaymentIntentSucceededEvent) {
+    const data = event.data.object;
+    console.log('payment success', data);
+
+    // TODO: do something with this
     return {
-      returned: true,
+      data,
     };
+  }
+
+  async addStripeEvent(data: StripeJobPayload['processEvent']) {
+    return await this.stripeRepo.createStripeEvent({
+      eventId: data.id,
+      type: data.type,
+      payload: data.event.data.object,
+    });
   }
 }
