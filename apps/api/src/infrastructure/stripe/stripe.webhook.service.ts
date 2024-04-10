@@ -6,7 +6,8 @@ import { EnvService } from '../env/env.service';
 import { IJobService } from '../jobs/jobs.interface';
 import { JOBS_TOKEN } from '../jobs/jobs.token';
 import { STRIPE_QUEUE, StripeJobPayload } from '../jobs/jobs.types';
-import { StripeRepository } from './stripe.repository';
+import { IStripeRepository } from './stripe.interface';
+import { STRIPE_REPO_TOKEN } from './stripe.token';
 
 @Injectable()
 export class StripeWebhookService {
@@ -15,8 +16,8 @@ export class StripeWebhookService {
   constructor(
     @Inject(JOBS_TOKEN) private jobService: IJobService,
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
+    @Inject(STRIPE_REPO_TOKEN) private readonly stripeRepo: IStripeRepository,
     private envService: EnvService,
-    private readonly stripeRepo: StripeRepository,
   ) {
     this.stripe = new Stripe(this.envService.get('STRIPE_SECRET_KEY'), {
       apiVersion: '2023-10-16',
