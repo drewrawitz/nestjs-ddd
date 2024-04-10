@@ -23,6 +23,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@bull-board/api": "^5.15.3",
+    "@bull-board/fastify": "^5.15.3",
+    "@bull-board/nestjs": "^5.15.3",
     "@nestjs/bullmq": "^10.1.1",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.2",

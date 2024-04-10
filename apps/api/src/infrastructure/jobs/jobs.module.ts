@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { FastifyAdapter } from '@bull-board/fastify';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { EnvService } from '../env/env.service';
 import { STRIPE_QUEUE } from './jobs.types';
 import { JOBS_TOKEN } from './jobs.token';
@@ -20,6 +23,14 @@ import { BullJobService } from './bullMq.job.service';
     }),
     BullModule.registerQueue({
       name: STRIPE_QUEUE,
+    }),
+    BullBoardModule.forFeature({
+      name: STRIPE_QUEUE,
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forRoot({
+      route: '/jobs',
+      adapter: FastifyAdapter,
     }),
   ],
   providers: [
