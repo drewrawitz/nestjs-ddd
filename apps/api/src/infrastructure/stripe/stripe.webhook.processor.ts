@@ -37,6 +37,11 @@ export class StripeProcessor extends WorkerHost {
           'stripe.subscription.created',
           data.event,
         );
+      case 'customer.subscription.updated':
+        return this.eventPublisher.publish(
+          'stripe.subscription.updated',
+          data.event,
+        );
     }
   }
 

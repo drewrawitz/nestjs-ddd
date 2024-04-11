@@ -20,9 +20,10 @@ export class StripeSubscriptionCreatedListener {
     return new Date(unix * 1000);
   }
 
-  @OnEvent('stripe.subscription.created')
-  async handleStripeSubscriptionCreated(
-    event: Stripe.CustomerSubscriptionCreatedEvent,
+  private async handleStripeSubscriptionUpsert(
+    event:
+      | Stripe.CustomerSubscriptionCreatedEvent
+      | Stripe.CustomerSubscriptionUpdatedEvent,
   ) {
     const subscription = event.data.object;
     const { customer } = subscription;
@@ -42,7 +43,7 @@ export class StripeSubscriptionCreatedListener {
       return;
     }
 
-    await this.stripeRepo.createStripeSubscription({
+    await this.stripeRepo.upsertStripeSubscription({
       id: subscription.id,
       status: subscription.status,
       stripeCustomerId: String(customer),
@@ -66,5 +67,19 @@ export class StripeSubscriptionCreatedListener {
         trialEndDate: this.convertUnixTimestampToDate(subscription.trial_end),
       }),
     });
+  }
+
+  @OnEvent('stripe.subscription.created')
+  async handleStripeSubscriptionCreated(
+    event: Stripe.CustomerSubscriptionCreatedEvent,
+  ) {
+    await this.handleStripeSubscriptionUpsert(event);
+  }
+
+  @OnEvent('stripe.subscription.updated')
+  async handleStripeSubscriptionUpdated(
+    event: Stripe.CustomerSubscriptionUpdatedEvent,
+  ) {
+    await this.handleStripeSubscriptionUpsert(event);
   }
 }

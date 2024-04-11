@@ -37,5 +37,5 @@ export interface ICreateStripeSubscription {
 export interface IStripeRepository {
   existsByEventId(eventId: string): Promise<boolean>;
   createStripeEvent(props: ICreateStripeEvent): Promise<any>;
-  createStripeSubscription(props: ICreateStripeSubscription): Promise<any>;
+  upsertStripeSubscription(props: ICreateStripeSubscription): Promise<any>;
 }

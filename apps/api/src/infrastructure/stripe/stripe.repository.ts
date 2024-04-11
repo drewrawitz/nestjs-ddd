@@ -39,7 +39,7 @@ export class StripeRepository implements IStripeRepository {
     });
   }
 
-  async createStripeSubscription(body: ICreateStripeSubscription) {
+  async upsertStripeSubscription(body: ICreateStripeSubscription) {
     return await this.db.stripeSubscription.upsert({
       where: {
         id: body.id,
@@ -47,7 +47,9 @@ export class StripeRepository implements IStripeRepository {
       create: {
         ...body,
       },
-      update: {},
+      update: {
+        ...body,
+      },
     });
   }
 }

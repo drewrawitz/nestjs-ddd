@@ -42,7 +42,10 @@ export class StripeWebhookService {
   }
 
   async handleWebhookEvent(event: Stripe.Event): Promise<void> {
-    const acceptedEvents = ['customer.subscription.created'];
+    const acceptedEvents = [
+      'customer.subscription.created',
+      'customer.subscription.updated',
+    ];
 
     if (!acceptedEvents.includes(event.type)) {
       this.logger.warn(`Unhandled Stripe Webhook Event: ${event.type}`, {
