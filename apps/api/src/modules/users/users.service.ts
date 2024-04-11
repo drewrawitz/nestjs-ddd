@@ -11,6 +11,7 @@ import { USER_REPO_TOKEN } from './users.constants';
 import { IUsersRepository } from './domain/interfaces/users.repository.interface';
 import { SubscriptionsService } from '../subscriptions/application/subscriptions.service';
 import { UserResponseDto } from './dto/user-response.dto';
+import { SubscriptionResponseDto } from '../subscriptions/dto/subscription-response.dto';
 
 @Injectable()
 export class UsersService {
@@ -32,7 +33,9 @@ export class UsersService {
 
     return {
       user: new UserResponseDto(user),
-      subscription,
+      subscription: subscription
+        ? new SubscriptionResponseDto(subscription)
+        : null,
     };
   }
 

@@ -2,17 +2,33 @@ import { StripeSubscription } from '@prisma/client';
 import { SubscriptionStatus } from '../model/SubscriptionStatus';
 import { PlanFrequency } from '../model/PlanFrequency';
 import { Subscription } from '../model/Subscription';
+import { isDateBefore } from 'src/utils/dates';
 
 export class SubscriptionFactory {
   static computeSubscriptionStatus(
     sub: StripeSubscription,
   ): SubscriptionStatus {
+    const isActiveSub =
+      sub.endDate && isDateBefore(new Date(Date.now()), new Date(sub.endDate));
+
     if (sub.status === 'trialing') {
       return SubscriptionStatus.Trialing;
     }
 
     if (sub.status === 'canceled') {
       return SubscriptionStatus.Canceled;
+    }
+
+    if (sub.isPausedIndefinitely && !isActiveSub) {
+      return SubscriptionStatus.Paused;
+    }
+
+    if (
+      sub.pauseResumesAt &&
+      isDateBefore(new Date(Date.now()), sub.pauseResumesAt) &&
+      !isActiveSub
+    ) {
+      return SubscriptionStatus.Paused;
     }
 
     return SubscriptionStatus.Active;
@@ -41,6 +57,8 @@ export class SubscriptionFactory {
       stripeCustomerId: sub.stripeCustomerId,
       status,
       plan,
+      cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
+      isPausedIndefinitely: sub.isPausedIndefinitely,
     });
   }
 }

@@ -69,6 +69,13 @@ export class StripeSubscriptionChangeListener {
       )!,
       trialStartDate: this.convertUnixTimestampToDate(subscription.trial_start),
       trialEndDate: this.convertUnixTimestampToDate(subscription.trial_end),
+      isPausedIndefinitely: Boolean(
+        subscription.pause_collection &&
+          !subscription.pause_collection?.resumes_at,
+      ),
+      pauseResumesAt: this.convertUnixTimestampToDate(
+        subscription.pause_collection?.resumes_at ?? null,
+      ),
     });
   }
 

@@ -2,20 +2,35 @@ import { SubscriptionStatus } from './SubscriptionStatus';
 import { PlanFrequency } from './PlanFrequency';
 
 export class Subscription {
-  subscriptionId: string;
-  stripeCustomerId: string;
-  status?: SubscriptionStatus;
-  plan?: PlanFrequency;
+  constructor(
+    public readonly props: {
+      subscriptionId: string;
+      stripeCustomerId: string;
+      status: SubscriptionStatus;
+      plan?: PlanFrequency;
+      cancelAtPeriodEnd?: boolean;
+      pauseResumesAt?: Date | null;
+      isPausedIndefinitely?: boolean;
+    },
+  ) {}
 
-  constructor(props: {
-    subscriptionId: string;
-    stripeCustomerId: string;
-    status?: SubscriptionStatus;
-    plan?: PlanFrequency;
-  }) {
-    this.subscriptionId = props.subscriptionId;
-    this.stripeCustomerId = props.stripeCustomerId;
-    this.status = props.status;
-    this.plan = props.plan;
+  get subscriptionId(): string {
+    return this.props.subscriptionId;
+  }
+
+  get stripeCustomerId(): string {
+    return this.props.stripeCustomerId;
+  }
+
+  get status(): SubscriptionStatus {
+    return this.props.status;
+  }
+
+  get plan(): PlanFrequency {
+    return this.props.plan ?? PlanFrequency.Unknown;
+  }
+
+  get cancelAtPeriodEnd(): boolean {
+    return this.props.cancelAtPeriodEnd ?? false;
   }
 }

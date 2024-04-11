@@ -3,4 +3,5 @@ export enum SubscriptionStatus {
   Trialing = 'trialing',
   Canceled = 'canceled',
   Paused = 'paused',
+  Unknown = 'unknown',
 }

@@ -30,6 +30,8 @@ export interface ICreateStripeSubscription {
   cancelAtPeriodEnd: boolean;
   trialStartDate: Date | null;
   trialEndDate: Date | null;
+  pauseResumesAt: Date | null;
+  isPausedIndefinitely: boolean;
   metadata?: Record<string, any>;
   createdAt: Date;
 }
