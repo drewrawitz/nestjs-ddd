@@ -9,7 +9,7 @@ import { USER_REPO_TOKEN } from '../../users.constants';
 import { IUsersRepository } from '../interfaces/users.repository.interface';
 
 @Injectable()
-export class StripeSubscriptionCreatedListener {
+export class StripeSubscriptionChangeListener {
   constructor(
     @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
@@ -23,7 +23,8 @@ export class StripeSubscriptionCreatedListener {
   private async handleStripeSubscriptionUpsert(
     event:
       | Stripe.CustomerSubscriptionCreatedEvent
-      | Stripe.CustomerSubscriptionUpdatedEvent,
+      | Stripe.CustomerSubscriptionUpdatedEvent
+      | Stripe.CustomerSubscriptionDeletedEvent,
   ) {
     const subscription = event.data.object;
     const { customer } = subscription;
@@ -53,6 +54,14 @@ export class StripeSubscriptionCreatedListener {
       intervalCount: plan.interval_count,
       productId: String(plan.product),
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      ...(subscription.cancel_at && {
+        cancelAtDate: this.convertUnixTimestampToDate(subscription.cancel_at),
+      }),
+      ...(subscription.canceled_at && {
+        canceledAtDate: this.convertUnixTimestampToDate(
+          subscription.canceled_at,
+        ),
+      }),
       createdAt: this.convertUnixTimestampToDate(subscription.created),
       startDate: this.convertUnixTimestampToDate(
         subscription.current_period_start,
@@ -79,6 +88,13 @@ export class StripeSubscriptionCreatedListener {
   @OnEvent('stripe.subscription.updated')
   async handleStripeSubscriptionUpdated(
     event: Stripe.CustomerSubscriptionUpdatedEvent,
+  ) {
+    await this.handleStripeSubscriptionUpsert(event);
+  }
+
+  @OnEvent('stripe.subscription.deleted')
+  async handleStripeSubscriptionDeleted(
+    event: Stripe.CustomerSubscriptionDeletedEvent,
   ) {
     await this.handleStripeSubscriptionUpsert(event);
   }

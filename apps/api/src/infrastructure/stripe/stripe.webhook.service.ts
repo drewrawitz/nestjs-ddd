@@ -45,6 +45,7 @@ export class StripeWebhookService {
     const acceptedEvents = [
       'customer.subscription.created',
       'customer.subscription.updated',
+      'customer.subscription.deleted',
     ];
 
     if (!acceptedEvents.includes(event.type)) {

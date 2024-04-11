@@ -4,7 +4,7 @@ import { EventModule } from 'src/infrastructure/events/event.module';
 import { StripeModule } from 'src/infrastructure/stripe/stripe.module';
 import { PrismaModule } from '../database/prisma.module';
 import { UserCreatedListener } from './domain/listeners/user-created.listener';
-import { StripeSubscriptionCreatedListener } from './domain/listeners/stripe-subscription-created.listener';
+import { StripeSubscriptionChangeListener } from './domain/listeners/stripe-subscription-change.listener';
 import { UserDomainService } from './domain/services/user.domain.service';
 import { UsersController } from './users.controller';
 import { UsersRepository } from './users.repository';
@@ -20,7 +20,7 @@ import { USER_REPO_TOKEN } from './users.constants';
       useClass: UsersRepository,
     },
     UserCreatedListener,
-    StripeSubscriptionCreatedListener,
+    StripeSubscriptionChangeListener,
     UsersService,
     UserDomainService,
   ],
