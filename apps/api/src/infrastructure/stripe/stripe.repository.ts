@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/modules/database/prisma.service';
+import { PrismaService } from '../database/prisma.service';
 import {
   ICreateStripeEvent,
   ICreateStripeSubscription,

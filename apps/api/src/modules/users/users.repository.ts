@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { User as PrismaUser } from '@prisma/client';
-import { PrismaService } from '../database/prisma.service';
+import { PrismaService } from 'src/infrastructure/database/prisma.service';
 import { IUsersRepository } from './domain/interfaces/users.repository.interface';
 import { User as DomainUser } from './domain/model/User';
 import { UserResponseDto } from './dto/user-response.dto';
