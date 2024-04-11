@@ -10,7 +10,7 @@ import { USER_REPO_TOKEN } from './users.constants';
 import { UsersController } from './users.controller';
 import { UsersRepository } from './users.repository';
 import { UsersService } from './users.service';
-import { SubscriptionsModule } from '../subscriptions/domain/subscriptions.module';
+import { SubscriptionsModule } from '../subscriptions/application/subscriptions.module';
 
 @Module({
   imports: [

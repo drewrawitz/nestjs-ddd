@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ISubscriptionsRepository } from './interfaces/subscriptions.repository.interface';
+import { ISubscriptionsRepository } from '../domain/interfaces/subscriptions.repository.interface';
 import { SUBSCRIPTIONS_REPO_TOKEN } from './subscriptions.constants';
 
 @Injectable()

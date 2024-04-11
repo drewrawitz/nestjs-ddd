@@ -9,7 +9,7 @@ import { UserDomainService } from './domain/services/user.domain.service';
 import { CreateUserRequestDto } from './dto/create-user.dto';
 import { USER_REPO_TOKEN } from './users.constants';
 import { IUsersRepository } from './domain/interfaces/users.repository.interface';
-import { SubscriptionsService } from '../subscriptions/domain/subscriptions.service';
+import { SubscriptionsService } from '../subscriptions/application/subscriptions.service';
 import { UserResponseDto } from './dto/user-response.dto';
 
 @Injectable()

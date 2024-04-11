@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { StripeSubscription as PrismaSubscription } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/database/prisma.service';
-import { ISubscriptionsRepository } from './interfaces/subscriptions.repository.interface';
-import { Subscription as DomainSubscription } from './model/Subscription';
-import { SubscriptionFactory } from './factories/subscriptions.factory';
+import { ISubscriptionsRepository } from '../domain/interfaces/subscriptions.repository.interface';
+import { Subscription as DomainSubscription } from '../domain/model/Subscription';
+import { SubscriptionFactory } from '../domain/factories/subscriptions.factory';
 
 @Injectable()
 export class SubscriptionsRepository implements ISubscriptionsRepository {
