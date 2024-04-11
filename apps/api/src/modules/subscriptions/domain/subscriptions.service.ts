@@ -9,8 +9,8 @@ export class SubscriptionsService {
     private readonly subscriptionsRepo: ISubscriptionsRepository,
   ) {}
 
-  async getSubscriptionsForUser(stripeCustomerId: string) {
-    return await this.subscriptionsRepo.getSubscriptionsForUser(
+  async getLatestSubscriptionForUser(stripeCustomerId: string) {
+    return await this.subscriptionsRepo.getLatestSubscriptionForUser(
       stripeCustomerId,
     );
   }

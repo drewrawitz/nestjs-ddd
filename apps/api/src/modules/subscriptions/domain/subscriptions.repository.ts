@@ -13,13 +13,20 @@ export class SubscriptionsRepository implements ISubscriptionsRepository {
     return SubscriptionFactory.createFromSchema(subscription);
   }
 
-  async getSubscriptionsForUser(stripeCustomerId: string) {
-    const subs = await this.db.stripeSubscription.findMany({
+  async getLatestSubscriptionForUser(stripeCustomerId: string) {
+    const sub = await this.db.stripeSubscription.findFirst({
       where: {
         stripeCustomerId,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
-    return Promise.all(subs.map((sub) => this.toDomain(sub)));
+    if (!sub) {
+      return null;
+    }
+
+    return this.toDomain(sub);
   }
 }

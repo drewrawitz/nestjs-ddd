@@ -9,6 +9,8 @@ import { UserDomainService } from './domain/services/user.domain.service';
 import { CreateUserRequestDto } from './dto/create-user.dto';
 import { USER_REPO_TOKEN } from './users.constants';
 import { IUsersRepository } from './domain/interfaces/users.repository.interface';
+import { SubscriptionsService } from '../subscriptions/domain/subscriptions.service';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Injectable()
 export class UsersService {
@@ -16,11 +18,22 @@ export class UsersService {
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
     @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
     private userDomainService: UserDomainService,
+    private subscriptionService: SubscriptionsService,
     @Inject(EVENT_TOKEN) private eventPublisher: IEventPublisher,
   ) {}
 
   async getUserById(userId: string) {
-    return await this.userRepository.getUserById(userId);
+    const user = await this.userRepository.getUserById(userId);
+    const subscription = user.stripeCustomerId
+      ? await this.subscriptionService.getLatestSubscriptionForUser(
+          user.stripeCustomerId,
+        )
+      : null;
+
+    return {
+      user: new UserResponseDto(user),
+      subscription,
+    };
   }
 
   async createUser(body: CreateUserRequestDto) {

@@ -1,5 +1,7 @@
 import { Subscription } from '../model/Subscription';
 
 export interface ISubscriptionsRepository {
-  getSubscriptionsForUser(stripeCustomerId: string): Promise<Subscription[]>;
+  getLatestSubscriptionForUser(
+    stripeCustomerId: string,
+  ): Promise<Subscription | null>;
 }

@@ -15,6 +15,7 @@ export class UsersRepository implements IUsersRepository {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      stripeCustomerId: user.stripeCustomerId,
     });
   }
 
@@ -59,8 +60,7 @@ export class UsersRepository implements IUsersRepository {
       throw new NotFoundException('User does not exist.');
     }
 
-    const domainUser = this.toDomainUser(user);
-    return this.toUserResponseDto(domainUser);
+    return this.toDomainUser(user);
   }
 
   async createUser(body: DomainUser) {
