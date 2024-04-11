@@ -31,22 +31,20 @@ export class StripeProcessor extends WorkerHost {
 
   async processEvent(data: StripeJobPayload['processEvent']) {
     this.logger.log(`Processing event: ${data.type}`);
-    switch (data.type) {
-      case 'customer.subscription.created':
-        return this.eventPublisher.publish(
-          'stripe.subscription.created',
-          data.event,
-        );
-      case 'customer.subscription.updated':
-        return this.eventPublisher.publish(
-          'stripe.subscription.updated',
-          data.event,
-        );
-      case 'customer.subscription.deleted':
-        return this.eventPublisher.publish(
-          'stripe.subscription.deleted',
-          data.event,
-        );
+
+    // Map a Stripe event to our app listeners
+    const eventMap: { [key: string]: string } = {
+      'customer.subscription.created': 'stripe.subscription.created',
+      'customer.subscription.updated': 'stripe.subscription.updated',
+      'customer.subscription.deleted': 'stripe.subscription.deleted',
+    };
+
+    const publishName = eventMap[data.type];
+    if (publishName) {
+      return this.eventPublisher.publish(publishName, data.event);
+    } else {
+      this.logger.warn(`Unknown event type: ${data.type}`);
+      return null;
     }
   }
 

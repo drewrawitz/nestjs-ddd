@@ -16,7 +16,11 @@ export class StripeSubscriptionChangeListener {
     @Inject(STRIPE_REPO_TOKEN) private readonly stripeRepo: IStripeRepository,
   ) {}
 
-  private convertUnixTimestampToDate(unix: number) {
+  private convertUnixTimestampToDate(unix: number | null) {
+    if (!unix) {
+      return null;
+    }
+
     return new Date(unix * 1000);
   }
 
@@ -54,27 +58,17 @@ export class StripeSubscriptionChangeListener {
       intervalCount: plan.interval_count,
       productId: String(plan.product),
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      ...(subscription.cancel_at && {
-        cancelAtDate: this.convertUnixTimestampToDate(subscription.cancel_at),
-      }),
-      ...(subscription.canceled_at && {
-        canceledAtDate: this.convertUnixTimestampToDate(
-          subscription.canceled_at,
-        ),
-      }),
-      createdAt: this.convertUnixTimestampToDate(subscription.created),
+      cancelAtDate: this.convertUnixTimestampToDate(subscription.cancel_at),
+      canceledAtDate: this.convertUnixTimestampToDate(subscription.canceled_at),
+      createdAt: this.convertUnixTimestampToDate(subscription.created)!,
       startDate: this.convertUnixTimestampToDate(
         subscription.current_period_start,
-      ),
-      endDate: this.convertUnixTimestampToDate(subscription.current_period_end),
-      ...(subscription.trial_start && {
-        trialStartDate: this.convertUnixTimestampToDate(
-          subscription.trial_start,
-        ),
-      }),
-      ...(subscription.trial_end && {
-        trialEndDate: this.convertUnixTimestampToDate(subscription.trial_end),
-      }),
+      )!,
+      endDate: this.convertUnixTimestampToDate(
+        subscription.current_period_end,
+      )!,
+      trialStartDate: this.convertUnixTimestampToDate(subscription.trial_start),
+      trialEndDate: this.convertUnixTimestampToDate(subscription.trial_end),
     });
   }
 

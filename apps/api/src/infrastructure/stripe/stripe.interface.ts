@@ -25,13 +25,13 @@ export interface ICreateStripeSubscription {
   intervalCount: number;
   startDate: Date;
   endDate: Date;
-  cancelAtDate?: Date;
-  canceledAtDate?: Date;
-  cancelAtPeriodEnd?: boolean;
-  trialStartDate?: Date;
-  trialEndDate?: Date;
+  cancelAtDate: Date | null;
+  canceledAtDate: Date | null;
+  cancelAtPeriodEnd: boolean;
+  trialStartDate: Date | null;
+  trialEndDate: Date | null;
   metadata?: Record<string, any>;
-  createdAt?: Date;
+  createdAt: Date;
 }
 
 export interface IStripeRepository {
