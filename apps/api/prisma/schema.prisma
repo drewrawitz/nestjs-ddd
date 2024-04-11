@@ -34,7 +34,7 @@ model StripeSubscription {
   canceledAtDate    DateTime?
   trialStartDate    DateTime?
   trialEndDate      DateTime?
-  metadata          Json?
+  metadata          Json      @default("{}")
   user              User      @relation(fields: [stripeCustomerId], references: [stripeCustomerId], onDelete: Cascade)
   createdAt         DateTime  @default(now())
 }
@@ -42,7 +42,7 @@ model StripeSubscription {
 model StripeEvent {
   stripeEventId String   @id
   type          String
-  payload       Json
+  payload       Json     @default("{}")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
