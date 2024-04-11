@@ -35,10 +35,23 @@ export class StripeSubscriptionCreatedListener {
       return;
     }
 
+    const plan = subscription.items.data?.[0]?.plan;
+
+    if (!plan) {
+      this.logger.error(`Plan not found for Subscription: ${subscription.id}`);
+      return;
+    }
+
     await this.stripeRepo.createStripeSubscription({
       id: subscription.id,
       status: subscription.status,
       stripeCustomerId: String(customer),
+      planId: plan.id,
+      currency: plan.currency,
+      interval: plan.interval,
+      intervalCount: plan.interval_count,
+      productId: String(plan.product),
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
       createdAt: this.convertUnixTimestampToDate(subscription.created),
       startDate: this.convertUnixTimestampToDate(
         subscription.current_period_start,

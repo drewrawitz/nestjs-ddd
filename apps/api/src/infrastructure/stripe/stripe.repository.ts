@@ -40,28 +40,12 @@ export class StripeRepository implements IStripeRepository {
   }
 
   async createStripeSubscription(body: ICreateStripeSubscription) {
-    const {
-      id,
-      status,
-      stripeCustomerId,
-      startDate,
-      endDate,
-      trialStartDate,
-      trialEndDate,
-    } = body;
-
     return await this.db.stripeSubscription.upsert({
       where: {
-        id,
+        id: body.id,
       },
       create: {
-        id,
-        status,
-        stripeCustomerId,
-        startDate,
-        endDate,
-        trialStartDate,
-        trialEndDate,
+        ...body,
       },
       update: {},
     });

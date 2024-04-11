@@ -18,8 +18,16 @@ export interface ICreateStripeSubscription {
   id: string;
   status: string;
   stripeCustomerId: string;
+  currency: string;
+  planId: string;
+  productId: string;
+  interval: string;
+  intervalCount: number;
   startDate: Date;
   endDate: Date;
+  cancelAtDate?: Date;
+  canceledAtDate?: Date;
+  cancelAtPeriodEnd?: boolean;
   trialStartDate?: Date;
   trialEndDate?: Date;
   metadata?: Record<string, any>;
