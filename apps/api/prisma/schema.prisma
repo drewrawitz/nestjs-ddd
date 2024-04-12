@@ -16,6 +16,9 @@ model User {
   emailVerifiedAt     DateTime?
   createdAt           DateTime?            @default(now())
   stripeSubscriptions StripeSubscription[]
+  grantedAccess       GrantedAccess[]
+
+  @@map("users")
 }
 
 model StripeSubscription {
@@ -39,6 +42,20 @@ model StripeSubscription {
   metadata             Json      @default("{}")
   user                 User      @relation(fields: [stripeCustomerId], references: [stripeCustomerId], onDelete: Cascade)
   createdAt            DateTime  @default(now())
+
+  @@map("stripe_subscriptions")
+}
+
+model GrantedAccess {
+  userId    String    @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId String
+  grantedBy String
+  startDate DateTime
+  endDate   DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, productId])
+  @@map("granted_access")
 }
 
 model StripeEvent {
@@ -47,4 +64,6 @@ model StripeEvent {
   payload       Json     @default("{}")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@map("stripe_events")
 }
