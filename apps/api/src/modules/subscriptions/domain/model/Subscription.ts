@@ -1,5 +1,6 @@
 import { SubscriptionStatus } from './SubscriptionStatus';
 import { PlanFrequency } from './PlanFrequency';
+import { isDateInFuture } from 'src/utils/dates';
 
 export class Subscription {
   constructor(
@@ -11,6 +12,7 @@ export class Subscription {
       cancelAtPeriodEnd?: boolean;
       pauseResumesAt?: Date | null;
       isPausedIndefinitely?: boolean;
+      cancelAtDate?: Date | null;
     },
   ) {}
 
@@ -32,5 +34,12 @@ export class Subscription {
 
   get cancelAtPeriodEnd(): boolean {
     return this.props.cancelAtPeriodEnd ?? false;
+  }
+
+  get isCanceling(): boolean {
+    return Boolean(
+      this.props.cancelAtPeriodEnd ||
+        (this.props.cancelAtDate && isDateInFuture(this.props.cancelAtDate)),
+    );
   }
 }

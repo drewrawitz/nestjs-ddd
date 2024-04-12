@@ -6,10 +6,12 @@ export class SubscriptionResponseDto {
   id: string;
   status: SubscriptionStatus;
   plan: PlanFrequency;
+  isCanceling: boolean;
 
   constructor(sub: Subscription) {
     this.id = sub.subscriptionId;
     this.status = sub.status;
     this.plan = sub.plan;
+    this.isCanceling = sub.isCanceling;
   }
 }

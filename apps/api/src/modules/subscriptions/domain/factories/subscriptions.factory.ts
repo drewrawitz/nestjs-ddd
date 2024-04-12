@@ -58,6 +58,7 @@ export class SubscriptionFactory {
       status,
       plan,
       cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
+      cancelAtDate: sub.cancelAtDate,
       isPausedIndefinitely: sub.isPausedIndefinitely,
     });
   }
