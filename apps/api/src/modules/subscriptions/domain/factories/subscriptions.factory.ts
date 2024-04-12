@@ -11,10 +11,6 @@ export class SubscriptionFactory {
     const isActiveSub =
       sub.endDate && isDateBefore(new Date(Date.now()), new Date(sub.endDate));
 
-    if (sub.status === 'trialing') {
-      return SubscriptionStatus.Trialing;
-    }
-
     if (sub.status === 'canceled') {
       return SubscriptionStatus.Canceled;
     }
@@ -29,6 +25,10 @@ export class SubscriptionFactory {
       !isActiveSub
     ) {
       return SubscriptionStatus.Paused;
+    }
+
+    if (sub.status === 'trialing') {
+      return SubscriptionStatus.Trialing;
     }
 
     return SubscriptionStatus.Active;
@@ -59,7 +59,10 @@ export class SubscriptionFactory {
       plan,
       cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
       cancelAtDate: sub.cancelAtDate,
+      startDate: sub.startDate,
+      endDate: sub.endDate,
       isPausedIndefinitely: sub.isPausedIndefinitely,
+      pauseResumesAt: sub.pauseResumesAt,
     });
   }
 }

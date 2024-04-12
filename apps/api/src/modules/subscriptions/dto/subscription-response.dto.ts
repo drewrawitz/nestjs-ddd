@@ -7,11 +7,17 @@ export class SubscriptionResponseDto {
   status: SubscriptionStatus;
   plan: PlanFrequency;
   isCanceling: boolean;
+  pauseStartDate: Date | null;
+  pauseEndDate: Date | null;
+  currentPeriodEnd: Date | null;
 
   constructor(sub: Subscription) {
     this.id = sub.subscriptionId;
     this.status = sub.status;
     this.plan = sub.plan;
     this.isCanceling = sub.isCanceling;
+    this.currentPeriodEnd = sub.currentPeriodEnd;
+    this.pauseStartDate = sub.pauseStartDate;
+    this.pauseEndDate = sub.pauseEndDate;
   }
 }
