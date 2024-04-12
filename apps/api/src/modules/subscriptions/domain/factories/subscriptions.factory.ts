@@ -15,6 +15,10 @@ export class SubscriptionFactory {
       return SubscriptionStatus.Canceled;
     }
 
+    if (sub.status === 'paused') {
+      return SubscriptionStatus.Paused;
+    }
+
     if (sub.isPausedIndefinitely && !isActiveSub) {
       return SubscriptionStatus.Paused;
     }
