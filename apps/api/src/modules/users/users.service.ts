@@ -1,3 +1,4 @@
+import ms from 'ms';
 import { Inject, Injectable } from '@nestjs/common';
 import { IEventPublisher } from 'src/infrastructure/events/event.interface';
 import { EVENT_TOKEN } from 'src/infrastructure/events/event.token';
@@ -16,10 +17,13 @@ import { AccessService } from '../access/application/access.service';
 import { AccessResponseDto } from '../access/dto/access-response.dto';
 import { EnvService } from 'src/infrastructure/env/env.service';
 import { Subscription } from '../subscriptions/domain/model/Subscription';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class UsersService {
   constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
     @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
     private userDomainService: UserDomainService,
@@ -29,20 +33,35 @@ export class UsersService {
     @Inject(EVENT_TOKEN) private eventPublisher: IEventPublisher,
   ) {}
 
+  async invalidateCache(userId: string): Promise<void> {
+    const cacheKey = `user-${userId}`;
+    await this.cacheManager.del(cacheKey);
+  }
+
   async getUserDetails(userId: string) {
+    const cacheKey = `user-${userId}`;
+    const userData = await this.cacheManager.get<any>(cacheKey);
+
+    if (userData) {
+      return JSON.parse(userData);
+    }
+
     const user = await this.fetchUserDetails(userId);
     const subscription = await this.fetchSubscriptionDetails(
       user.stripeCustomerId,
     );
     const accessDetails = await this.evaluateUserAccess(userId, subscription);
 
-    return {
+    const data = {
       user: new UserResponseDto(user),
       subscription: subscription
         ? new SubscriptionResponseDto(subscription)
         : null,
       ...accessDetails,
     };
+    await this.cacheManager.set(cacheKey, JSON.stringify(data), ms('24h'));
+
+    return data;
   }
 
   private async fetchUserDetails(userId: string) {
