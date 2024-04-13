@@ -7,6 +7,7 @@ import { STRIPE_REPO_TOKEN } from 'src/infrastructure/stripe/stripe.token';
 import Stripe from 'stripe';
 import { USER_REPO_TOKEN } from '../../users.constants';
 import { IUsersRepository } from '../interfaces/users.repository.interface';
+import { UsersService } from '../../users.service';
 
 @Injectable()
 export class StripeSubscriptionChangeListener {
@@ -14,6 +15,7 @@ export class StripeSubscriptionChangeListener {
     @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
     @Inject(STRIPE_REPO_TOKEN) private readonly stripeRepo: IStripeRepository,
+    private usersService: UsersService,
   ) {}
 
   private convertUnixTimestampToDate(unix: number | null) {
@@ -32,11 +34,11 @@ export class StripeSubscriptionChangeListener {
   ) {
     const subscription = event.data.object;
     const { customer } = subscription;
-    const user = await this.userRepository.existsByStripeCustomerId(
+    const userId = await this.userRepository.getUserIdFromStripeCustomerId(
       String(customer),
     );
 
-    if (!user) {
+    if (!userId) {
       this.logger.warn(`User not found for Stripe customer ID: ${customer}`);
       return;
     }
@@ -77,6 +79,8 @@ export class StripeSubscriptionChangeListener {
         subscription.pause_collection?.resumes_at ?? null,
       ),
     });
+
+    await this.usersService.invalidateCache(userId);
   }
 
   @OnEvent('stripe.subscription.created')

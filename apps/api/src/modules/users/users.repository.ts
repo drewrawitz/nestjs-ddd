@@ -23,7 +23,7 @@ export class UsersRepository implements IUsersRepository {
     return new UserResponseDto(user);
   }
 
-  async existsByStripeCustomerId(stripeCustomerId: string) {
+  async getUserIdFromStripeCustomerId(stripeCustomerId: string) {
     const find = await this.db.user.findUnique({
       where: {
         stripeCustomerId,
@@ -33,7 +33,7 @@ export class UsersRepository implements IUsersRepository {
       },
     });
 
-    return Boolean(find);
+    return find?.id ?? null;
   }
 
   async existsByEmail(email: string) {

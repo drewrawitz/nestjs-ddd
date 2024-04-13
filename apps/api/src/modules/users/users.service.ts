@@ -33,13 +33,16 @@ export class UsersService {
     @Inject(EVENT_TOKEN) private eventPublisher: IEventPublisher,
   ) {}
 
+  private cacheKey(userId: string) {
+    return `user-${userId}`;
+  }
+
   async invalidateCache(userId: string): Promise<void> {
-    const cacheKey = `user-${userId}`;
-    await this.cacheManager.del(cacheKey);
+    await this.cacheManager.del(this.cacheKey(userId));
   }
 
   async getUserDetails(userId: string) {
-    const cacheKey = `user-${userId}`;
+    const cacheKey = this.cacheKey(userId);
     const userData = await this.cacheManager.get<any>(cacheKey);
 
     if (userData) {

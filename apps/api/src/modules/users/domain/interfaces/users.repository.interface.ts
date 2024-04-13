@@ -3,7 +3,9 @@ import { User } from '../model/User';
 
 export interface IUsersRepository {
   existsByEmail(email: string): Promise<boolean>;
-  existsByStripeCustomerId(stripeCustomerId: string): Promise<boolean>;
+  getUserIdFromStripeCustomerId(
+    stripeCustomerId: string,
+  ): Promise<string | null>;
   getUserById(userId: string): Promise<User>;
   createUser(user: User): Promise<UserResponseDto>;
   updateUserWithStripeCustomerId(
