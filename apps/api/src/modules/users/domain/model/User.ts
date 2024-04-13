@@ -1,8 +1,7 @@
+import { IPasswordHashingService } from 'src/modules/auth/domain/interfaces/password-hashing.interface';
 import { Email } from './Email';
 
 export class User {
-  private passwordHash?: string;
-
   constructor(
     public readonly props: {
       id?: string;
@@ -11,16 +10,16 @@ export class User {
       lastName: string | null;
       stripeCustomerId?: string | null;
       emailVerifiedAt?: Date;
-      passwordHash?: string;
+      passwordHash?: string | null;
     },
-  ) {
-    if (props.passwordHash) {
-      this.passwordHash = props.passwordHash;
-    }
-  }
+  ) {}
 
   get id() {
     return this.props.id;
+  }
+
+  get passwordHash() {
+    return this.props.passwordHash;
   }
 
   get firstName() {
@@ -47,5 +46,24 @@ export class User {
 
   get isEmailVerified(): boolean {
     return Boolean(this.props.emailVerifiedAt);
+  }
+
+  async setPassword(
+    password: string,
+    passwordHashingService: IPasswordHashingService,
+  ): Promise<void> {
+    this.props.passwordHash = await passwordHashingService.hash(password);
+  }
+
+  async validatePassword(
+    password: string,
+    passwordHashingService: IPasswordHashingService,
+  ): Promise<boolean> {
+    console.log('Validate password', this.props);
+    if (!this.props.passwordHash) {
+      return false;
+    }
+
+    return passwordHashingService.compare(password, this.props.passwordHash);
   }
 }

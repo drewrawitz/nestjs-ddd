@@ -7,6 +7,7 @@ export interface IUsersRepository {
     stripeCustomerId: string,
   ): Promise<string | null>;
   getUserById(userId: string): Promise<User>;
+  getUserByEmail(email: string): Promise<User>;
   createUser(user: User): Promise<UserResponseDto>;
   updateUserWithStripeCustomerId(
     userId: string,

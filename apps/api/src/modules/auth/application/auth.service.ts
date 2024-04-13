@@ -9,6 +9,8 @@ import { SignupDto } from '../dto/signup.dto';
 import { ILogger } from 'src/infrastructure/logging/logger.interface';
 import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.event';
 import { User } from 'src/modules/users/domain/model/User';
+import { PASSWORD_HASHING_TOKEN } from './auth.constants';
+import { IPasswordHashingService } from '../domain/interfaces/password-hashing.interface';
 
 @Injectable()
 export class AuthService {
@@ -16,17 +18,31 @@ export class AuthService {
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
     @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
     @Inject(EVENT_TOKEN) private eventPublisher: IEventPublisher,
+    @Inject(PASSWORD_HASHING_TOKEN)
+    private passwordHashingService: IPasswordHashingService,
     private userDomainService: UserDomainService,
   ) {}
 
+  async validateUser(email: string, password: string): Promise<boolean> {
+    const user = await this.userRepository
+      .getUserByEmail(email)
+      .catch(() => null);
+
+    return (
+      user?.validatePassword(password, this.passwordHashingService) ?? false
+    );
+  }
+
   async signup(body: SignupDto) {
-    const { email, firstName, lastName } = body;
+    const { email, password, firstName, lastName } = body;
     const user = new User({
       id: undefined,
       email,
       firstName,
       lastName,
     });
+
+    await user.setPassword(password, this.passwordHashingService);
 
     try {
       await this.userDomainService.validateCreateUser(user);

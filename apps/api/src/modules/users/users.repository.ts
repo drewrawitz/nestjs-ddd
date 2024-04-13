@@ -13,6 +13,7 @@ export class UsersRepository implements IUsersRepository {
     return new DomainUser({
       id: user.id,
       email: user.email,
+      passwordHash: user.passwordHash,
       firstName: user.firstName,
       lastName: user.lastName,
       stripeCustomerId: user.stripeCustomerId,
@@ -63,11 +64,27 @@ export class UsersRepository implements IUsersRepository {
     return this.toDomainUser(user);
   }
 
+  async getUserByEmail(email: string) {
+    const user = await this.db.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User does not exist.');
+    }
+
+    return this.toDomainUser(user);
+  }
+
   async createUser(body: DomainUser) {
-    const { email, firstName, lastName } = body;
+    const { email, passwordHash, firstName, lastName } = body;
+    console.log('create user', body);
     const user = await this.db.user.create({
       data: {
         email: email.getValue(),
+        passwordHash,
         firstName,
         lastName,
       },
