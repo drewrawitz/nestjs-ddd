@@ -11,6 +11,7 @@ import { UsersController } from './users.controller';
 import { UsersRepository } from './users.repository';
 import { UsersService } from './users.service';
 import { SubscriptionsModule } from '../subscriptions/application/subscriptions.module';
+import { AccessModule } from '../access/application/access.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { SubscriptionsModule } from '../subscriptions/application/subscriptions.
     EmailModule,
     StripeModule,
     SubscriptionsModule,
+    AccessModule,
   ],
   controllers: [UsersController],
   providers: [

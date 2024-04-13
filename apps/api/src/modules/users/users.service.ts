@@ -12,6 +12,9 @@ import { IUsersRepository } from './domain/interfaces/users.repository.interface
 import { SubscriptionsService } from '../subscriptions/application/subscriptions.service';
 import { UserResponseDto } from './dto/user-response.dto';
 import { SubscriptionResponseDto } from '../subscriptions/dto/subscription-response.dto';
+import { AccessService } from '../access/application/access.service';
+import { AccessResponseDto } from '../access/dto/access-response.dto';
+import { EnvService } from 'src/infrastructure/env/env.service';
 
 @Injectable()
 export class UsersService {
@@ -20,6 +23,8 @@ export class UsersService {
     @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
     private userDomainService: UserDomainService,
     private subscriptionService: SubscriptionsService,
+    private accessService: AccessService,
+    private envService: EnvService,
     @Inject(EVENT_TOKEN) private eventPublisher: IEventPublisher,
   ) {}
 
@@ -31,11 +36,28 @@ export class UsersService {
         )
       : null;
 
+    const accessArray = await this.accessService.getAccessForUser(userId);
+    const grantedAccess = accessArray
+      .map((access) => new AccessResponseDto(access))
+      .filter((obj) => obj.isActive);
+
+    const hasAccessToSubscription = Boolean(
+      (subscription?.status &&
+        ['active', 'trialing'].includes(subscription.status)) ||
+        grantedAccess.some(
+          (obj) =>
+            obj.productId ===
+            this.envService.get('STRIPE_SUBSCRIPTION_PRODUCT_ID'),
+        ),
+    );
+
     return {
       user: new UserResponseDto(user),
       subscription: subscription
         ? new SubscriptionResponseDto(subscription)
         : null,
+      grantedAccess,
+      hasAccessToSubscription,
     };
   }
 
