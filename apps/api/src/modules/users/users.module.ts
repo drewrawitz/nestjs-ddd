@@ -33,5 +33,6 @@ import { AccessModule } from '../access/application/access.module';
     UsersService,
     UserDomainService,
   ],
+  exports: [UserDomainService, USER_REPO_TOKEN],
 })
 export class UsersModule {}

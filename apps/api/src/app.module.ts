@@ -6,6 +6,7 @@ import { UsersModule } from './modules/users/users.module';
 import { EnvModule } from './infrastructure/env/env.module';
 import { SubscriptionsModule } from './modules/subscriptions/application/subscriptions.module';
 import { redisStore } from 'cache-manager-ioredis-yet';
+import { AuthModule } from './modules/auth/application/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { redisStore } from 'cache-manager-ioredis-yet';
       host: process.env['REDIS_HOST'] || 'localhost',
       port: Number(process.env['REDIS_PORT']) || 6379,
     }),
+    AuthModule,
     UsersModule,
     SubscriptionsModule,
     LoggerModule,

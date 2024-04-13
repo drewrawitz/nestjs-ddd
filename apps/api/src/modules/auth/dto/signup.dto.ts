@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const createUserRequestSchema = z
+export const signupSchema = z
   .object({
     email: z.string().email(),
     firstName: z.string(),
@@ -8,4 +8,4 @@ export const createUserRequestSchema = z
   })
   .required();
 
-export type CreateUserRequestDto = z.infer<typeof createUserRequestSchema>;
+export type SignupDto = z.infer<typeof signupSchema>;

@@ -1,39 +1,51 @@
 import { Email } from './Email';
 
 export class User {
-  id?: string;
-  email: Email;
-  firstName: string | null;
-  lastName: string | null;
-  stripeCustomerId?: string | null;
-  emailVerifiedAt?: Date;
+  private passwordHash?: string;
 
-  constructor({
-    id,
-    email,
-    firstName = null,
-    lastName = null,
-    stripeCustomerId = null,
-  }: {
-    id?: string;
-    email: string;
-    firstName: string | null;
-    lastName: string | null;
-    stripeCustomerId?: string | null;
-    emailVerifiedAt?: Date;
-  }) {
-    this.id = id;
-    this.email = new Email(email);
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.stripeCustomerId = stripeCustomerId;
+  constructor(
+    public readonly props: {
+      id?: string;
+      email: string;
+      firstName: string | null;
+      lastName: string | null;
+      stripeCustomerId?: string | null;
+      emailVerifiedAt?: Date;
+      passwordHash?: string;
+    },
+  ) {
+    if (props.passwordHash) {
+      this.passwordHash = props.passwordHash;
+    }
+  }
+
+  get id() {
+    return this.props.id;
+  }
+
+  get firstName() {
+    return this.props.firstName;
+  }
+
+  get lastName() {
+    return this.props.lastName;
+  }
+
+  get stripeCustomerId() {
+    return this.props.stripeCustomerId;
+  }
+
+  get email() {
+    return new Email(this.props.email);
   }
 
   get fullName(): string {
-    return [this.firstName, this.lastName].filter(Boolean).join(' ');
+    return [this.props.firstName, this.props.lastName]
+      .filter(Boolean)
+      .join(' ');
   }
 
   get isEmailVerified(): boolean {
-    return Boolean(this.emailVerifiedAt);
+    return Boolean(this.props.emailVerifiedAt);
   }
 }
