@@ -15,6 +15,7 @@ import { SubscriptionResponseDto } from '../subscriptions/dto/subscription-respo
 import { AccessService } from '../access/application/access.service';
 import { AccessResponseDto } from '../access/dto/access-response.dto';
 import { EnvService } from 'src/infrastructure/env/env.service';
+import { Subscription } from '../subscriptions/domain/model/Subscription';
 
 @Injectable()
 export class UsersService {
@@ -28,22 +29,45 @@ export class UsersService {
     @Inject(EVENT_TOKEN) private eventPublisher: IEventPublisher,
   ) {}
 
-  async getUserById(userId: string) {
-    const user = await this.userRepository.getUserById(userId);
-    const subscription = user.stripeCustomerId
+  async getUserDetails(userId: string) {
+    const user = await this.fetchUserDetails(userId);
+    const subscription = await this.fetchSubscriptionDetails(
+      user.stripeCustomerId,
+    );
+    const accessDetails = await this.evaluateUserAccess(userId, subscription);
+
+    return {
+      user: new UserResponseDto(user),
+      subscription: subscription
+        ? new SubscriptionResponseDto(subscription)
+        : null,
+      ...accessDetails,
+    };
+  }
+
+  private async fetchUserDetails(userId: string) {
+    return this.userRepository.getUserById(userId);
+  }
+
+  private async fetchSubscriptionDetails(stripeCustomerId?: string | null) {
+    return stripeCustomerId
       ? await this.subscriptionService.getLatestSubscriptionForUser(
-          user.stripeCustomerId,
+          stripeCustomerId,
         )
       : null;
+  }
 
+  private async evaluateUserAccess(
+    userId: string,
+    subscription: Subscription | null,
+  ) {
     const accessArray = await this.accessService.getAccessForUser(userId);
     const grantedAccess = accessArray
       .map((access) => new AccessResponseDto(access))
       .filter((obj) => obj.isActive);
 
     const hasAccessToSubscription = Boolean(
-      (subscription?.status &&
-        ['active', 'trialing'].includes(subscription.status)) ||
+      (subscription && ['active', 'trialing'].includes(subscription.status)) ||
         grantedAccess.some(
           (obj) =>
             obj.productId ===
@@ -51,14 +75,7 @@ export class UsersService {
         ),
     );
 
-    return {
-      user: new UserResponseDto(user),
-      subscription: subscription
-        ? new SubscriptionResponseDto(subscription)
-        : null,
-      grantedAccess,
-      hasAccessToSubscription,
-    };
+    return { grantedAccess, hasAccessToSubscription };
   }
 
   async createUser(body: CreateUserRequestDto) {

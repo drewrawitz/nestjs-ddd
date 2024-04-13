@@ -26,6 +26,6 @@ export class UsersController {
 
   @Get('/:userId')
   async getUserById(@Param('userId', ParseUUIDPipe) userId: string) {
-    return await this.usersService.getUserById(userId);
+    return await this.usersService.getUserDetails(userId);
   }
 }
