@@ -8,6 +8,7 @@ import { JOBS_TOKEN } from './jobs.token';
 import { BullJobService } from './bullMq.job.service';
 import Redis from 'ioredis';
 import { RedisModule } from '../store/redis.module';
+import { REDIS_CLIENT_TOKEN } from '../store/store.constants';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { RedisModule } from '../store/redis.module';
       useFactory: (redisClient: Redis) => ({
         connection: redisClient,
       }),
-      inject: ['REDIS_CLIENT'],
+      inject: [REDIS_CLIENT_TOKEN],
     }),
     BullModule.registerQueue({
       name: STRIPE_QUEUE,

@@ -4,12 +4,13 @@ import { LOGGER_TOKEN } from '../logging/logger.token';
 import { ILogger } from '../logging/logger.interface';
 import { RedisError } from './redis.error';
 import { IStore } from './store.interface';
+import { REDIS_CLIENT_TOKEN } from './store.constants';
 
 @Injectable()
 export class RedisStoreService implements IStore {
   constructor(
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
-    @Inject('REDIS_CLIENT') private client: Redis,
+    @Inject(REDIS_CLIENT_TOKEN) private client: Redis,
   ) {}
 
   async setWithExpiry(key: string, value: string, ttl: number) {

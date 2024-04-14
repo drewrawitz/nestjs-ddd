@@ -6,6 +6,7 @@ import session from 'express-session';
 import passport from 'passport';
 import { AppModule } from './app.module';
 import { EnvService } from './infrastructure/env/env.service';
+import { REDIS_CLIENT_TOKEN } from './infrastructure/store/store.constants';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -14,7 +15,7 @@ async function bootstrap() {
   const configService = app.get(EnvService);
 
   // Initialize Redis client.
-  const redisClient = app.get('REDIS_CLIENT');
+  const redisClient = app.get(REDIS_CLIENT_TOKEN);
 
   // Initialize Redis store.
   const redisStore = new RedisStore({

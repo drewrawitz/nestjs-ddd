@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import Redis from 'ioredis';
 import { EnvService } from '../env/env.service';
-import { STORE_TOKEN } from './store.constants';
+import { REDIS_CLIENT_TOKEN, STORE_TOKEN } from './store.constants';
 import { RedisStoreService } from './redis.store';
 
 @Module({
   providers: [
     {
-      provide: 'REDIS_CLIENT',
+      provide: REDIS_CLIENT_TOKEN,
       useFactory: (envService: EnvService) => {
         const client = new Redis({
           host: envService.get('REDIS_HOST'),
@@ -23,6 +23,6 @@ import { RedisStoreService } from './redis.store';
       useClass: RedisStoreService,
     },
   ],
-  exports: ['REDIS_CLIENT', STORE_TOKEN],
+  exports: [REDIS_CLIENT_TOKEN, STORE_TOKEN],
 })
 export class RedisModule {}
