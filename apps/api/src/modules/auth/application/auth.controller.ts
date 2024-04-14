@@ -18,8 +18,11 @@ export class AuthController {
 
   @Post('signup')
   @UsePipes(new ZodValidationPipe(signupSchema))
-  async signup(@Body() body: SignupDto) {
-    return await this.authService.signup(body);
+  async signup(@Req() req: RequestWithUser, @Body() body: SignupDto) {
+    const user = await this.authService.signup(body);
+    await this.authService.login(req, user);
+
+    return user;
   }
 
   @UseGuards(LocalAuthGuard)

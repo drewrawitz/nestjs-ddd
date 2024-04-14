@@ -1,4 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
 import { UserDomainService } from 'src/modules/users/domain/services/user.domain.service';
 import { USER_REPO_TOKEN } from 'src/modules/users/users.constants';
@@ -12,6 +16,7 @@ import { User } from 'src/modules/users/domain/model/User';
 import { PASSWORD_HASHING_TOKEN } from '../domain/auth.constants';
 import { IPasswordHashingService } from '../domain/interfaces/password-hashing.interface';
 import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
+import { RequestWithUser } from 'src/utils/types';
 
 @Injectable()
 export class AuthService {
@@ -75,5 +80,21 @@ export class AuthService {
 
       throw error;
     }
+  }
+
+  async login(req: RequestWithUser, user: UserResponseDto) {
+    await new Promise((resolve, reject) => {
+      req.login(user, (err) => {
+        if (err) {
+          console.error(err);
+          reject(
+            new InternalServerErrorException("Couldn't log in after signup."),
+          );
+        }
+        resolve(true);
+      });
+    });
+
+    return user;
   }
 }
