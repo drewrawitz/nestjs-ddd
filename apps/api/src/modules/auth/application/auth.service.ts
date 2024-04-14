@@ -9,7 +9,7 @@ import { SignupDto } from '../dto/signup.dto';
 import { ILogger } from 'src/infrastructure/logging/logger.interface';
 import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.event';
 import { User } from 'src/modules/users/domain/model/User';
-import { PASSWORD_HASHING_TOKEN } from './auth.constants';
+import { PASSWORD_HASHING_TOKEN } from '../domain/auth.constants';
 import { IPasswordHashingService } from '../domain/interfaces/password-hashing.interface';
 import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
 

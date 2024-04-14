@@ -10,7 +10,7 @@ import { ZodValidationPipe } from 'src/libs/zod-validation-pipe';
 import { AuthService } from './auth.service';
 import { SignupDto, signupSchema } from '../dto/signup.dto';
 import { RequestWithUser } from 'src/utils/types';
-import { LocalAuthGuard } from './local.auth.guard';
+import { LocalAuthGuard } from '../infrastructure/local.auth.guard';
 
 @Controller('v1/auth')
 export class AuthController {

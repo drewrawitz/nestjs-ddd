@@ -4,11 +4,11 @@ import { AuthController } from './auth.controller';
 import { PrismaModule } from 'src/infrastructure/database/prisma.module';
 import { UsersModule } from 'src/modules/users/users.module';
 import { AuthService } from './auth.service';
-import { PASSWORD_HASHING_TOKEN } from './auth.constants';
+import { PASSWORD_HASHING_TOKEN } from '../domain/auth.constants';
 import { PasswordHashingService } from '../infrastructure/password-hashing.service';
-import { LocalStrategy } from './local.strategy';
+import { LocalStrategy } from '../infrastructure/local.strategy';
 import { PassportModule } from '@nestjs/passport';
-import { SessionSerializer } from './session.serializer';
+import { SessionSerializer } from '../infrastructure/session.serializer';
 
 @Module({
   imports: [
