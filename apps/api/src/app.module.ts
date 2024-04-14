@@ -7,6 +7,7 @@ import { EnvModule } from './infrastructure/env/env.module';
 import { SubscriptionsModule } from './modules/subscriptions/application/subscriptions.module';
 import { redisStore } from 'cache-manager-ioredis-yet';
 import { AuthModule } from './modules/auth/application/auth.module';
+import { StoreModule } from './infrastructure/store/store.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AuthModule } from './modules/auth/application/auth.module';
     SubscriptionsModule,
     LoggerModule,
     EnvModule,
+    StoreModule,
   ],
   controllers: [],
   providers: [],

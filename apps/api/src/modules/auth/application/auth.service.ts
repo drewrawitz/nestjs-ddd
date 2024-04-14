@@ -17,11 +17,14 @@ import { PASSWORD_HASHING_TOKEN } from '../domain/auth.constants';
 import { IPasswordHashingService } from '../domain/interfaces/password-hashing.interface';
 import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
 import { RequestWithUser } from 'src/utils/types';
+import { STORE_TOKEN } from 'src/infrastructure/store/store.constants';
+import { IStore } from 'src/infrastructure/store/store.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
+    @Inject(STORE_TOKEN) private readonly store: IStore,
     @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
     @Inject(EVENT_TOKEN) private eventPublisher: IEventPublisher,
     @Inject(PASSWORD_HASHING_TOKEN)
@@ -94,7 +97,12 @@ export class AuthService {
         resolve(true);
       });
     });
+    await this.loginSuccess();
 
     return user;
+  }
+
+  async loginSuccess() {
+    this.logger.log('User has logged in successfully');
   }
 }

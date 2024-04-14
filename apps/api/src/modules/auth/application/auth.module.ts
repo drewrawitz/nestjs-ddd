@@ -9,6 +9,7 @@ import { PasswordHashingService } from '../infrastructure/password-hashing.servi
 import { LocalStrategy } from '../infrastructure/local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { SessionSerializer } from '../infrastructure/session.serializer';
+import { StoreModule } from 'src/infrastructure/store/store.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SessionSerializer } from '../infrastructure/session.serializer';
     PrismaModule,
     UsersModule,
     PassportModule.register({ session: true }),
+    StoreModule,
   ],
   controllers: [AuthController],
   providers: [
