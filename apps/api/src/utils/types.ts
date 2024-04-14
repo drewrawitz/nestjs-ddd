@@ -1,5 +1,5 @@
-import { FastifyRequest } from 'fastify';
+import { Request } from 'express';
 
-export interface FastifyRequestWithUser extends FastifyRequest {
+export interface RequestWithUser extends Request {
   user: any;
 }

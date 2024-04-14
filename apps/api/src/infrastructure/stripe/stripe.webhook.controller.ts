@@ -6,8 +6,8 @@ import {
   Request,
   RawBodyRequest,
 } from '@nestjs/common';
-import type { FastifyRequest } from 'fastify';
 import { StripeWebhookService } from './stripe.webhook.service';
+import { Request as ExpressRequest } from 'express';
 
 @Controller('v1/webhooks/stripe')
 export class StripeWebhookController {
@@ -16,7 +16,7 @@ export class StripeWebhookController {
   @Post()
   async handleWebhook(
     @Headers('stripe-signature') signature: string,
-    @Request() request: RawBodyRequest<FastifyRequest>,
+    @Request() request: RawBodyRequest<ExpressRequest>,
   ) {
     if (!signature) {
       throw new BadRequestException('Missing stripe-signature header');

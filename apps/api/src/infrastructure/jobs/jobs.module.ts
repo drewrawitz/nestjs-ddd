@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { BullBoardModule } from '@bull-board/nestjs';
-import { FastifyAdapter } from '@bull-board/fastify';
+import { ExpressAdapter } from '@bull-board/express';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { EnvService } from '../env/env.service';
 import { STRIPE_QUEUE } from './jobs.types';
@@ -30,7 +30,7 @@ import { BullJobService } from './bullMq.job.service';
     }),
     BullBoardModule.forRoot({
       route: '/jobs',
-      adapter: FastifyAdapter,
+      adapter: ExpressAdapter,
     }),
   ],
   providers: [

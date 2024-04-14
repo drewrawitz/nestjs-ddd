@@ -1,47 +1,47 @@
+import ms from 'ms';
 import { NestFactory } from '@nestjs/core';
-import session from '@fastify/session';
-import cookie from '@fastify/cookie';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
+import type { NestExpressApplication } from '@nestjs/platform-express';
+import RedisStore from 'connect-redis';
+import session from 'express-session';
+import { createClient } from 'redis';
+import passport from 'passport';
 import { AppModule } from './app.module';
 import { EnvService } from './infrastructure/env/env.service';
-import Redis from 'ioredis';
-import RedisStore from 'connect-redis';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter(),
-    {
-      rawBody: true,
-    },
-  );
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+  });
   const configService = app.get(EnvService);
 
   // Initialize Redis client.
-  const redisClient = new Redis({
-    enableAutoPipelining: true,
-    host: configService.get('REDIS_HOST'),
-    port: configService.get('REDIS_PORT'),
+  const redisClient = createClient({
+    url: `redis://${configService.get('REDIS_HOST')}:${configService.get('REDIS_PORT')}`,
   });
+  redisClient.connect().catch(console.error);
 
   // Initialize Redis store.
   const redisStore = new RedisStore({
     client: redisClient,
   });
 
-  await app.register(cookie, {
-    secret: configService.get('COOKIE_SECRET'),
-  });
-
-  await app.register(session, {
-    secret: configService.get('SESSION_SECRET'),
-    cookie: { secure: false },
-    store: redisStore,
-    saveUninitialized: false,
-  });
+  /**
+   * Sessions
+   */
+  app.use(
+    session({
+      store: redisStore,
+      secret: configService.get('SESSION_SECRET') ?? '',
+      resave: false,
+      cookie: {
+        maxAge: ms('7d'),
+      },
+      rolling: true,
+      saveUninitialized: false,
+    }),
+  );
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   await app.listen(configService.get('PORT'));
 }

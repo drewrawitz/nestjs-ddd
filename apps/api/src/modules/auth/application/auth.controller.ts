@@ -9,7 +9,7 @@ import {
 import { ZodValidationPipe } from 'src/libs/zod-validation-pipe';
 import { AuthService } from './auth.service';
 import { SignupDto, signupSchema } from '../dto/signup.dto';
-import { FastifyRequestWithUser } from 'src/utils/types';
+import { RequestWithUser } from 'src/utils/types';
 import { LocalAuthGuard } from './local.auth.guard';
 
 @Controller('v1/auth')
@@ -24,7 +24,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Req() req: FastifyRequestWithUser) {
+  async login(@Req() req: RequestWithUser) {
     return req.user;
   }
 }
