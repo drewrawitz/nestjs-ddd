@@ -13,18 +13,21 @@ import { SignupDto } from '../dto/signup.dto';
 import { ILogger } from 'src/infrastructure/logging/logger.interface';
 import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.event';
 import { User } from 'src/modules/users/domain/model/User';
-import { PASSWORD_HASHING_TOKEN } from '../domain/auth.constants';
+import {
+  PASSWORD_HASHING_TOKEN,
+  SESSION_STORE_TOKEN,
+} from '../domain/auth.constants';
 import { IPasswordHashingService } from '../domain/interfaces/password-hashing.interface';
 import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
 import { RequestWithUser } from 'src/utils/types';
-import { STORE_TOKEN } from 'src/infrastructure/store/store.constants';
-import { IStore } from 'src/infrastructure/store/store.interface';
+import { IUserSessionStore } from '../domain/interfaces/session-store.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
-    @Inject(STORE_TOKEN) private readonly store: IStore,
+    @Inject(SESSION_STORE_TOKEN)
+    private readonly sessionStore: IUserSessionStore,
     @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
     @Inject(EVENT_TOKEN) private eventPublisher: IEventPublisher,
     @Inject(PASSWORD_HASHING_TOKEN)
@@ -97,12 +100,13 @@ export class AuthService {
         resolve(true);
       });
     });
-    await this.loginSuccess();
+    await this.loginSuccess(req);
 
     return user;
   }
 
-  async loginSuccess() {
+  async loginSuccess(req: RequestWithUser) {
     this.logger.log('User has logged in successfully');
+    await this.sessionStore.saveUserSession(req.user.id, req.sessionID);
   }
 }
