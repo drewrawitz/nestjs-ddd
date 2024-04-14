@@ -6,9 +6,17 @@ import { UsersModule } from 'src/modules/users/users.module';
 import { AuthService } from './auth.service';
 import { PASSWORD_HASHING_TOKEN } from './auth.constants';
 import { PasswordHashingService } from '../infrastructure/password-hashing.service';
+import { LocalStrategy } from './local.strategy';
+import { PassportModule } from '@nestjs/passport';
+import { SessionSerializer } from './session.serializer';
 
 @Module({
-  imports: [EventModule, PrismaModule, UsersModule],
+  imports: [
+    EventModule,
+    PrismaModule,
+    UsersModule,
+    PassportModule.register({ session: true }),
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,
@@ -16,6 +24,8 @@ import { PasswordHashingService } from '../infrastructure/password-hashing.servi
       provide: PASSWORD_HASHING_TOKEN,
       useClass: PasswordHashingService,
     },
+    LocalStrategy,
+    SessionSerializer,
   ],
   exports: [AuthService],
 })

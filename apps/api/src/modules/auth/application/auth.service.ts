@@ -11,6 +11,7 @@ import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.e
 import { User } from 'src/modules/users/domain/model/User';
 import { PASSWORD_HASHING_TOKEN } from './auth.constants';
 import { IPasswordHashingService } from '../domain/interfaces/password-hashing.interface';
+import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,14 +24,28 @@ export class AuthService {
     private userDomainService: UserDomainService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<boolean> {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<UserResponseDto | null> {
     const user = await this.userRepository
       .getUserByEmail(email)
       .catch(() => null);
 
-    return (
-      user?.validatePassword(password, this.passwordHashingService) ?? false
+    if (!user) {
+      return null;
+    }
+
+    const isValid = await user.validatePassword(
+      password,
+      this.passwordHashingService,
     );
+
+    if (!isValid) {
+      return null;
+    }
+
+    return new UserResponseDto(user);
   }
 
   async signup(body: SignupDto) {

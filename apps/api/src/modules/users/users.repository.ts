@@ -65,9 +65,10 @@ export class UsersRepository implements IUsersRepository {
   }
 
   async getUserByEmail(email: string) {
+    const formattedEmail = email.toLowerCase().trim();
     const user = await this.db.user.findUnique({
       where: {
-        email,
+        email: formattedEmail,
       },
     });
 
@@ -80,7 +81,6 @@ export class UsersRepository implements IUsersRepository {
 
   async createUser(body: DomainUser) {
     const { email, passwordHash, firstName, lastName } = body;
-    console.log('create user', body);
     const user = await this.db.user.create({
       data: {
         email: email.getValue(),

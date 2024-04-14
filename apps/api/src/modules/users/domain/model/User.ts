@@ -59,7 +59,6 @@ export class User {
     password: string,
     passwordHashingService: IPasswordHashingService,
   ): Promise<boolean> {
-    console.log('Validate password', this.props);
     if (!this.props.passwordHash) {
       return false;
     }
