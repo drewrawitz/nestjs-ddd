@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import RedisStore from 'connect-redis';
 import session from 'express-session';
-import { createClient } from 'redis';
 import passport from 'passport';
 import { AppModule } from './app.module';
 import { EnvService } from './infrastructure/env/env.service';
@@ -15,10 +14,7 @@ async function bootstrap() {
   const configService = app.get(EnvService);
 
   // Initialize Redis client.
-  const redisClient = createClient({
-    url: `redis://${configService.get('REDIS_HOST')}:${configService.get('REDIS_PORT')}`,
-  });
-  redisClient.connect().catch(console.error);
+  const redisClient = app.get('REDIS_CLIENT');
 
   // Initialize Redis store.
   const redisStore = new RedisStore({

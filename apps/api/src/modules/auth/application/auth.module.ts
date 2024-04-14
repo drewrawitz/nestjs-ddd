@@ -12,16 +12,16 @@ import { PasswordHashingService } from '../infrastructure/password-hashing.servi
 import { LocalStrategy } from '../infrastructure/local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { SessionSerializer } from '../infrastructure/session.serializer';
-import { StoreModule } from 'src/infrastructure/store/store.module';
 import { UserSessionStore } from '../infrastructure/redis-store.service';
+import { RedisModule } from 'src/infrastructure/store/redis.module';
 
 @Module({
   imports: [
+    RedisModule,
     EventModule,
     PrismaModule,
     UsersModule,
     PassportModule.register({ session: true }),
-    StoreModule,
   ],
   controllers: [AuthController],
   providers: [

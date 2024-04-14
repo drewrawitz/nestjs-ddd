@@ -3,14 +3,13 @@ import { Redis } from 'ioredis';
 import { LOGGER_TOKEN } from '../logging/logger.token';
 import { ILogger } from '../logging/logger.interface';
 import { RedisError } from './redis.error';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { IStore } from './store.interface';
 
 @Injectable()
 export class RedisStoreService implements IStore {
   constructor(
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
-    @InjectRedis() private readonly client: Redis,
+    @Inject('REDIS_CLIENT') private client: Redis,
   ) {}
 
   async setWithExpiry(key: string, value: string, ttl: number) {
@@ -39,7 +38,7 @@ export class RedisStoreService implements IStore {
 
   async get(key: string) {
     try {
-      await this.client.get(key);
+      return await this.client.get(key);
     } catch (error) {
       this.logger.error('Error getting a value in Redis', {
         key,

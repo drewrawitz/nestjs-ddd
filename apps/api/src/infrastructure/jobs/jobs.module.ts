@@ -3,23 +3,20 @@ import { BullModule } from '@nestjs/bullmq';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
-import { EnvService } from '../env/env.service';
 import { STRIPE_QUEUE } from './jobs.types';
 import { JOBS_TOKEN } from './jobs.token';
 import { BullJobService } from './bullMq.job.service';
+import Redis from 'ioredis';
+import { RedisModule } from '../store/redis.module';
 
 @Module({
   imports: [
     BullModule.forRootAsync({
-      useFactory: (envService: EnvService) => {
-        return {
-          connection: {
-            host: envService.get('REDIS_HOST'),
-            port: envService.get('REDIS_PORT'),
-          },
-        };
-      },
-      inject: [EnvService],
+      imports: [RedisModule],
+      useFactory: (redisClient: Redis) => ({
+        connection: redisClient,
+      }),
+      inject: ['REDIS_CLIENT'],
     }),
     BullModule.registerQueue({
       name: STRIPE_QUEUE,
