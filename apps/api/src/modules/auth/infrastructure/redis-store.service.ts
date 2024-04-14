@@ -10,4 +10,11 @@ export class UserSessionStore implements IUserSessionStore {
   async saveUserSession(userId: string, sessionId: string): Promise<void> {
     await this.store.sadd(`user_sessions:${userId}`, sessionId);
   }
+
+  async removeSessionFromRedis(
+    userId: string,
+    sessionId: string,
+  ): Promise<void> {
+    await this.store.srem(`user_sessions:${userId}`, sessionId);
+  }
 }

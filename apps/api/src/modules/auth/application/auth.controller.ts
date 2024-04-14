@@ -5,12 +5,15 @@ import {
   Post,
   UseGuards,
   UsePipes,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { ZodValidationPipe } from 'src/libs/zod-validation-pipe';
 import { AuthService } from './auth.service';
 import { SignupDto, signupSchema } from '../dto/signup.dto';
 import { RequestWithUser } from 'src/utils/types';
 import { LocalAuthGuard } from '../infrastructure/local.auth.guard';
+import { AuthenticatedGuard } from '../infrastructure/authenticated.guard';
 
 @Controller('v1/auth')
 export class AuthController {
@@ -30,5 +33,14 @@ export class AuthController {
   async login(@Req() req: RequestWithUser) {
     await this.authService.loginSuccess(req);
     return req.user;
+  }
+
+  @UseGuards(AuthenticatedGuard)
+  @Post('logout')
+  async logout(@Req() req: RequestWithUser, @Res() res: Response) {
+    res.clearCookie('connect.sid');
+    await this.authService.logout(req);
+
+    return res.send();
   }
 }

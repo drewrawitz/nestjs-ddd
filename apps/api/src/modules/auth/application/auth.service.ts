@@ -105,8 +105,38 @@ export class AuthService {
     return user;
   }
 
+  async logout(req: RequestWithUser): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      req.session.destroy(async (err) => {
+        if (err) {
+          // Handle error scenario by logging and rejecting the promise
+          this.logger.error('Failed to destroy session', { error: err });
+          return reject(err);
+        }
+
+        if (!req?.user?.id) {
+          return resolve();
+        }
+
+        this.logger.log(`User has logged out: ${req.user.email}`, {
+          userId: req.user.id,
+        });
+
+        await this.sessionStore.removeSessionFromRedis(
+          req.user.id,
+          req.sessionID,
+        );
+
+        return resolve();
+      });
+    });
+  }
+
   async loginSuccess(req: RequestWithUser) {
-    this.logger.log('User has logged in successfully');
+    this.logger.log(`User has logged in successfully: ${req.user.email}`, {
+      userId: req.user.id,
+      email: req.user.email,
+    });
     await this.sessionStore.saveUserSession(req.user.id, req.sessionID);
   }
 }
