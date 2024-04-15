@@ -1,19 +1,34 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthService } from '../application/auth.service';
+import { RequestWithUser } from 'src/utils/types';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private authService: AuthService) {
-    super({ usernameField: 'email' });
+    super({ usernameField: 'email', passReqToCallback: true });
   }
 
-  async validate(email: string, password: string): Promise<any> {
+  async validate(
+    req: RequestWithUser,
+    email: string,
+    password: string,
+  ): Promise<any> {
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      throw new BadRequestException(
+        'Already authenticated with an active session',
+      );
+    }
+
     const user = await this.authService.validateUser(email, password);
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid login credentials.');
     }
 
     return user;
