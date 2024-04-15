@@ -1,4 +1,4 @@
-import { IPasswordHashingService } from 'src/modules/auth/domain/interfaces/password-hashing.interface';
+import { IPasswordHashingService } from 'src/modules/auth/domain/interfaces/IPasswordHashingService';
 import { Email } from './Email';
 
 export class User {

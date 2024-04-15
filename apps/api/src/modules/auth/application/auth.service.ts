@@ -17,7 +17,7 @@ import {
   PASSWORD_HASHING_TOKEN,
   USER_SESSION_MANAGER_TOKEN,
 } from '../domain/auth.constants';
-import { IPasswordHashingService } from '../domain/interfaces/password-hashing.interface';
+import { IPasswordHashingService } from '../domain/interfaces/IPasswordHashingService';
 import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
 import { RequestWithUser } from 'src/utils/types';
 import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
