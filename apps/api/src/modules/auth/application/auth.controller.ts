@@ -14,6 +14,10 @@ import { RequestWithUser } from 'src/utils/types';
 import { LocalAuthGuard } from '../infrastructure/local.auth.guard';
 import { AuthenticatedGuard } from '../infrastructure/authenticated.guard';
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation-pipe';
+import {
+  ForgotPasswordDto,
+  forgotPasswordSchema,
+} from '../dto/forgot-password.dto';
 
 @Controller('v1/auth')
 export class AuthController {
@@ -42,5 +46,11 @@ export class AuthController {
     await this.authService.logout(req);
 
     return res.send();
+  }
+
+  @Post('forgot-password')
+  @UsePipes(new ZodValidationPipe(forgotPasswordSchema))
+  async forgotPassword(@Body() body: ForgotPasswordDto) {
+    return await this.authService.forgotPassword(body.email);
   }
 }

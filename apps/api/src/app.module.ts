@@ -20,7 +20,7 @@ import { CustomThrottlerGuard } from './common/guards/throttler.guard';
     ThrottlerModule.forRootAsync({
       imports: [RedisModule],
       useFactory: (redisClient: Redis) => ({
-        throttlers: [{ limit: 5, ttl: seconds(60) }],
+        throttlers: [{ limit: 15, ttl: seconds(60) }],
         storage: new ThrottlerStorageRedisService(redisClient),
       }),
       inject: [REDIS_CLIENT_TOKEN],

@@ -22,6 +22,7 @@ import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
 import { RequestWithUser } from 'src/utils/types';
 import { IUserSessionStore } from '../domain/interfaces/session-store.interface';
 import { getClientIp } from 'src/utils/ip';
+import { generateToken } from 'src/utils/generate-token';
 
 @Injectable()
 export class AuthService {
@@ -147,9 +148,27 @@ export class AuthService {
           source: req.useragent.source,
         }
       : {};
+
     await this.sessionStore.saveUserSession(req.user.id, req.sessionID, {
       userAgent,
       ipAddress: getClientIp(req),
     });
+  }
+
+  async forgotPassword(rawEmail: string) {
+    const email = rawEmail.toLowerCase().trim();
+    this.logger.log(`Password reset requested for email: ${email}`);
+
+    const doesUserExist = await this.userRepository.existsByEmail(email);
+
+    if (doesUserExist) {
+      const token = generateToken();
+      await this.sessionStore.saveForgotPasswordToken(email, token);
+    }
+
+    return {
+      message:
+        'If that email address is in our database, we will send you an email to reset your password.',
+    };
   }
 }

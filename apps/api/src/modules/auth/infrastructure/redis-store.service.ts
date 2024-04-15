@@ -23,4 +23,24 @@ export class UserSessionStore implements IUserSessionStore {
   ): Promise<void> {
     await this.store.srem(`user_sessions:${userId}`, sessionId);
   }
+
+  async saveForgotPasswordToken(email: string, token: string) {
+    const FORGOT_PASSWORD_TOKEN = `forgotPassword:${email}`;
+    const FORGOT_PASSWORD_EXPIRATION = 15 * 60;
+
+    const tokensToAdd = [
+      { key: `token:${token}`, value: email },
+      { key: FORGOT_PASSWORD_TOKEN, value: token },
+    ];
+
+    await Promise.all(
+      tokensToAdd.map(async (token) => {
+        return this.store.setWithExpiry(
+          token.key,
+          token.value,
+          FORGOT_PASSWORD_EXPIRATION,
+        );
+      }),
+    );
+  }
 }
