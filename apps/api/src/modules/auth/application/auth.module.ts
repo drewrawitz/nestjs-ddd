@@ -6,13 +6,13 @@ import { UsersModule } from 'src/modules/users/users.module';
 import { AuthService } from './auth.service';
 import {
   PASSWORD_HASHING_TOKEN,
-  SESSION_STORE_TOKEN,
+  USER_SESSION_MANAGER_TOKEN,
 } from '../domain/auth.constants';
 import { PasswordHashingService } from '../infrastructure/password-hashing.service';
 import { LocalStrategy } from '../infrastructure/local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { SessionSerializer } from '../infrastructure/session.serializer';
-import { UserSessionStore } from '../infrastructure/redis-store.service';
+import { UserSessionManager } from '../infrastructure/user-session.manager';
 import { RedisModule } from 'src/infrastructure/store/redis.module';
 
 @Module({
@@ -31,8 +31,8 @@ import { RedisModule } from 'src/infrastructure/store/redis.module';
       useClass: PasswordHashingService,
     },
     {
-      provide: SESSION_STORE_TOKEN,
-      useClass: UserSessionStore,
+      provide: USER_SESSION_MANAGER_TOKEN,
+      useClass: UserSessionManager,
     },
     LocalStrategy,
     SessionSerializer,

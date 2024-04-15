@@ -15,21 +15,24 @@ import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.e
 import { User } from 'src/modules/users/domain/model/User';
 import {
   PASSWORD_HASHING_TOKEN,
-  SESSION_STORE_TOKEN,
+  USER_SESSION_MANAGER_TOKEN,
 } from '../domain/auth.constants';
 import { IPasswordHashingService } from '../domain/interfaces/password-hashing.interface';
 import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
 import { RequestWithUser } from 'src/utils/types';
-import { IUserSessionStore } from '../domain/interfaces/session-store.interface';
+import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
 import { getClientIp } from 'src/utils/ip';
 import { generateToken } from 'src/utils/generate-token';
+import { IPasswordResetManager } from '../domain/interfaces/IPasswordResetManager';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
-    @Inject(SESSION_STORE_TOKEN)
-    private readonly sessionStore: IUserSessionStore,
+    @Inject(USER_SESSION_MANAGER_TOKEN)
+    private readonly userSessionManager: IUserSessionManager,
+    @Inject(PASSWORD_HASHING_TOKEN)
+    private readonly passwordResetManager: IPasswordResetManager,
     @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
     @Inject(EVENT_TOKEN) private eventPublisher: IEventPublisher,
     @Inject(PASSWORD_HASHING_TOKEN)
@@ -124,7 +127,7 @@ export class AuthService {
           userId: req.user.id,
         });
 
-        await this.sessionStore.removeSessionFromRedis(
+        await this.userSessionManager.removeSessionFromRedis(
           req.user.id,
           req.sessionID,
         );
@@ -149,7 +152,7 @@ export class AuthService {
         }
       : {};
 
-    await this.sessionStore.saveUserSession(req.user.id, req.sessionID, {
+    await this.userSessionManager.saveUserSession(req.user.id, req.sessionID, {
       userAgent,
       ipAddress: getClientIp(req),
     });
@@ -163,8 +166,8 @@ export class AuthService {
 
     if (doesUserExist) {
       const token = generateToken();
-      await this.sessionStore.invalidateForgotPasswordToken(email);
-      await this.sessionStore.saveForgotPasswordToken(email, token);
+      await this.passwordResetManager.invalidateForgotPasswordToken(email);
+      await this.passwordResetManager.saveForgotPasswordToken(email, token);
     }
 
     return {
