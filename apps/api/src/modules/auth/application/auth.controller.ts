@@ -6,6 +6,8 @@ import {
   UseGuards,
   UsePipes,
   Res,
+  Get,
+  Query,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -18,6 +20,10 @@ import {
   ForgotPasswordDto,
   forgotPasswordSchema,
 } from '../dto/forgot-password.dto';
+import {
+  VerifyResetTokenDto,
+  verifyResetTokenSchema,
+} from '../dto/verify-reset-token.dto';
 
 @Controller('v1/auth')
 export class AuthController {
@@ -52,5 +58,11 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(forgotPasswordSchema))
   async forgotPassword(@Body() body: ForgotPasswordDto) {
     return await this.authService.forgotPassword(body.email);
+  }
+
+  @Get('verify-reset-token')
+  @UsePipes(new ZodValidationPipe(verifyResetTokenSchema))
+  async verifyResetToken(@Query() query: VerifyResetTokenDto) {
+    return await this.authService.verifyResetToken(query.token);
   }
 }

@@ -58,4 +58,8 @@ export class PasswordResetManager implements IPasswordResetManager {
       }),
     );
   }
+
+  async getEmailFromForgotPasswordToken(token: string) {
+    return await this.store.get(`token:${token}`);
+  }
 }

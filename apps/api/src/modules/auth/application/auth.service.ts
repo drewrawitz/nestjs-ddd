@@ -182,4 +182,14 @@ export class AuthService {
         'If that email address is in our database, we will send you an email to reset your password.',
     };
   }
+
+  async verifyResetToken(token: string) {
+    const email =
+      await this.passwordResetManager.getEmailFromForgotPasswordToken(token);
+
+    return {
+      isValidToken: Boolean(email),
+      email,
+    };
+  }
 }
