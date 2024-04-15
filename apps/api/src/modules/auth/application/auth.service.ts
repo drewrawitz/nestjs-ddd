@@ -163,6 +163,7 @@ export class AuthService {
 
     if (doesUserExist) {
       const token = generateToken();
+      await this.sessionStore.invalidateForgotPasswordToken(email);
       await this.sessionStore.saveForgotPasswordToken(email, token);
     }
 

@@ -2,10 +2,15 @@ import { Inject, Injectable } from '@nestjs/common';
 import { IUserSessionStore } from '../domain/interfaces/session-store.interface';
 import { STORE_TOKEN } from 'src/infrastructure/store/store.constants';
 import { IStore } from 'src/infrastructure/store/store.interface';
+import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
+import { ILogger } from 'src/infrastructure/logging/logger.interface';
 
 @Injectable()
 export class UserSessionStore implements IUserSessionStore {
-  constructor(@Inject(STORE_TOKEN) private readonly store: IStore) {}
+  constructor(
+    @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
+    @Inject(STORE_TOKEN) private readonly store: IStore,
+  ) {}
 
   async saveUserSession(
     userId: string,
@@ -22,6 +27,33 @@ export class UserSessionStore implements IUserSessionStore {
     sessionId: string,
   ): Promise<void> {
     await this.store.srem(`user_sessions:${userId}`, sessionId);
+  }
+
+  async getForgotPasswordTokenByEmail(email: string) {
+    return this.store.get(`forgotPassword:${email}`);
+  }
+
+  async invalidateForgotPasswordToken(email: string) {
+    const existingToken = await this.getForgotPasswordTokenByEmail(email);
+
+    if (!existingToken) {
+      return;
+    }
+
+    this.logger.log(
+      `Existing forgot password token found for ${email}. Invalidating the token now.`,
+    );
+
+    try {
+      await this.store.del(`token:${existingToken}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to invalidate forgot password token for ${email}`,
+        {
+          error,
+        },
+      );
+    }
   }
 
   async saveForgotPasswordToken(email: string, token: string) {
