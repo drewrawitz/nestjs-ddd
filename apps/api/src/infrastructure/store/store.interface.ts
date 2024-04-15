@@ -6,4 +6,5 @@ export interface IStore {
   del(key: string): Promise<void>;
   sadd(key: string, value: any): Promise<void>;
   srem(key: string, value: any): Promise<void>;
+  hmset(key: string, value: any): Promise<void>;
 }

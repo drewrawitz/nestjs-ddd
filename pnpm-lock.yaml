@@ -73,6 +73,9 @@ importers:
       express-session:
         specifier: ^1.18.0
         version: 1.18.0
+      express-useragent:
+        specifier: ^1.0.15
+        version: 1.0.15
       ioredis:
         specifier: ^5.3.2
         version: 5.3.2
@@ -125,6 +128,9 @@ importers:
       '@types/express-session':
         specifier: ^1.18.0
         version: 1.18.0
+      '@types/express-useragent':
+        specifier: ^1.0.5
+        version: 1.0.5
       '@types/jest':
         specifier: ^29.5.2
         version: 29.5.12
@@ -1546,6 +1552,12 @@ packages:
 
   /@types/express-session@1.18.0:
     resolution: {integrity: sha512-27JdDRgor6PoYlURY+Y5kCakqp5ulC0kmf7y+QwaY+hv9jEFuQOThgkjyA53RP3jmKuBsH5GR6qEfFmvb8mwOA==}
+    dependencies:
+      '@types/express': 4.17.21
+    dev: true
+
+  /@types/express-useragent@1.0.5:
+    resolution: {integrity: sha512-G1zPW6jDj7oGJvMvB8UCIAWznCOafcksYzOg8LINfYmvrXlSGJ6nsJ7O7GlmYMjrgGYvobYaI8IhRCkAKslPJA==}
     dependencies:
       '@types/express': 4.17.21
     dev: true
@@ -3081,6 +3093,11 @@ packages:
       uid-safe: 2.1.5
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /express-useragent@1.0.15:
+    resolution: {integrity: sha512-eq5xMiYCYwFPoekffMjvEIk+NWdlQY9Y38OsTyl13IvA728vKT+q/CSERYWzcw93HGBJcIqMIsZC5CZGARPVdg==}
+    engines: {node: '>=4.5'}
     dev: false
 
   /express@4.19.2:

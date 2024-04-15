@@ -8,12 +8,12 @@ import {
   Res,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import { ZodValidationPipe } from 'src/libs/zod-validation-pipe';
 import { AuthService } from './auth.service';
 import { SignupDto, signupSchema } from '../dto/signup.dto';
 import { RequestWithUser } from 'src/utils/types';
 import { LocalAuthGuard } from '../infrastructure/local.auth.guard';
 import { AuthenticatedGuard } from '../infrastructure/authenticated.guard';
+import { ZodValidationPipe } from 'src/common/pipes/zod-validation-pipe';
 
 @Controller('v1/auth')
 export class AuthController {

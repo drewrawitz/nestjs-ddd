@@ -21,6 +21,7 @@ import { IPasswordHashingService } from '../domain/interfaces/password-hashing.i
 import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
 import { RequestWithUser } from 'src/utils/types';
 import { IUserSessionStore } from '../domain/interfaces/session-store.interface';
+import { getClientIp } from 'src/utils/ip';
 
 @Injectable()
 export class AuthService {
@@ -137,6 +138,18 @@ export class AuthService {
       userId: req.user.id,
       email: req.user.email,
     });
-    await this.sessionStore.saveUserSession(req.user.id, req.sessionID);
+    const userAgent = req.useragent
+      ? {
+          os: req.useragent.os,
+          platform: req.useragent.platform,
+          version: req.useragent.version,
+          browser: req.useragent.browser,
+          source: req.useragent.source,
+        }
+      : {};
+    await this.sessionStore.saveUserSession(req.user.id, req.sessionID, {
+      userAgent,
+      ipAddress: getClientIp(req),
+    });
   }
 }

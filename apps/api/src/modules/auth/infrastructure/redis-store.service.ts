@@ -7,7 +7,13 @@ import { IStore } from 'src/infrastructure/store/store.interface';
 export class UserSessionStore implements IUserSessionStore {
   constructor(@Inject(STORE_TOKEN) private readonly store: IStore) {}
 
-  async saveUserSession(userId: string, sessionId: string): Promise<void> {
+  async saveUserSession(
+    userId: string,
+    sessionId: string,
+    metadata?: Record<string, any>,
+  ): Promise<void> {
+    const sessionKey = `session:${sessionId}`;
+    await this.store.set(sessionKey, JSON.stringify(metadata));
     await this.store.sadd(`user_sessions:${userId}`, sessionId);
   }
 

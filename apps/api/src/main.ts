@@ -7,6 +7,7 @@ import passport from 'passport';
 import { AppModule } from './app.module';
 import { EnvService } from './infrastructure/env/env.service';
 import { REDIS_CLIENT_TOKEN } from './infrastructure/store/store.constants';
+import { UserAgentMiddleware } from './common/middleware/useragent.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -39,6 +40,7 @@ async function bootstrap() {
   );
   app.use(passport.initialize());
   app.use(passport.session());
+  app.use(new UserAgentMiddleware().use);
 
   await app.listen(configService.get('PORT'));
 }

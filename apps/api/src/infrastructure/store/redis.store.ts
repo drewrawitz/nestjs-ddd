@@ -37,6 +37,19 @@ export class RedisStoreService implements IStore {
     }
   }
 
+  async hmset(key: string, value: any) {
+    try {
+      await this.client.hmset(key, value);
+    } catch (error) {
+      this.logger.error('Error setting a value in Redis', {
+        key,
+        value,
+        error,
+      });
+      throw new RedisError('Redis client hmset failed', error);
+    }
+  }
+
   async get(key: string) {
     try {
       return await this.client.get(key);
