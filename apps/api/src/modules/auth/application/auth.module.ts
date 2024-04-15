@@ -6,6 +6,7 @@ import { UsersModule } from 'src/modules/users/users.module';
 import { AuthService } from './auth.service';
 import {
   PASSWORD_HASHING_TOKEN,
+  PASSWORD_RESET_MANAGER_TOKEN,
   USER_SESSION_MANAGER_TOKEN,
 } from '../domain/auth.constants';
 import { PasswordHashingService } from '../infrastructure/password-hashing.service';
@@ -14,6 +15,7 @@ import { PassportModule } from '@nestjs/passport';
 import { SessionSerializer } from '../infrastructure/session.serializer';
 import { UserSessionManager } from '../infrastructure/user-session.manager';
 import { RedisModule } from 'src/infrastructure/store/redis.module';
+import { PasswordResetManager } from '../infrastructure/password-reset.manager';
 
 @Module({
   imports: [
@@ -29,6 +31,10 @@ import { RedisModule } from 'src/infrastructure/store/redis.module';
     {
       provide: PASSWORD_HASHING_TOKEN,
       useClass: PasswordHashingService,
+    },
+    {
+      provide: PASSWORD_RESET_MANAGER_TOKEN,
+      useClass: PasswordResetManager,
     },
     {
       provide: USER_SESSION_MANAGER_TOKEN,

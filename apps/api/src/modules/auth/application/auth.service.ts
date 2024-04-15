@@ -15,6 +15,7 @@ import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.e
 import { User } from 'src/modules/users/domain/model/User';
 import {
   PASSWORD_HASHING_TOKEN,
+  PASSWORD_RESET_MANAGER_TOKEN,
   USER_SESSION_MANAGER_TOKEN,
 } from '../domain/auth.constants';
 import { IPasswordHashingService } from '../domain/interfaces/IPasswordHashingService';
@@ -31,7 +32,7 @@ export class AuthService {
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
     @Inject(USER_SESSION_MANAGER_TOKEN)
     private readonly userSessionManager: IUserSessionManager,
-    @Inject(PASSWORD_HASHING_TOKEN)
+    @Inject(PASSWORD_RESET_MANAGER_TOKEN)
     private readonly passwordResetManager: IPasswordResetManager,
     @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
     @Inject(EVENT_TOKEN) private eventPublisher: IEventPublisher,
