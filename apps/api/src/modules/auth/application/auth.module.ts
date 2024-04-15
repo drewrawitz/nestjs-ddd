@@ -16,11 +16,14 @@ import { SessionSerializer } from '../infrastructure/session.serializer';
 import { UserSessionManager } from '../infrastructure/user-session.manager';
 import { RedisModule } from 'src/infrastructure/store/redis.module';
 import { PasswordResetManager } from '../infrastructure/password-reset.manager';
+import { ForgotPasswordListener } from '../domain/listeners/forgot-password.listener';
+import { EmailModule } from 'src/infrastructure/email/email.module';
 
 @Module({
   imports: [
     RedisModule,
     EventModule,
+    EmailModule,
     PrismaModule,
     UsersModule,
     PassportModule.register({ session: true }),
@@ -41,6 +44,7 @@ import { PasswordResetManager } from '../infrastructure/password-reset.manager';
       useClass: UserSessionManager,
     },
     LocalStrategy,
+    ForgotPasswordListener,
     SessionSerializer,
   ],
   exports: [AuthService],

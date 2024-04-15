@@ -25,6 +25,7 @@ import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
 import { getClientIp } from 'src/utils/ip';
 import { generateToken } from 'src/utils/generate-token';
 import { IPasswordResetManager } from '../domain/interfaces/IPasswordResetManager';
+import { ForgotPasswordEvent } from '../domain/events/forgot-password.event';
 
 @Injectable()
 export class AuthService {
@@ -169,6 +170,11 @@ export class AuthService {
       const token = generateToken();
       await this.passwordResetManager.invalidateForgotPasswordToken(email);
       await this.passwordResetManager.saveForgotPasswordToken(email, token);
+
+      this.eventPublisher.publish(
+        'auth.forgotPassword',
+        new ForgotPasswordEvent(email, token),
+      );
     }
 
     return {
