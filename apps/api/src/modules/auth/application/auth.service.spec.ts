@@ -21,6 +21,7 @@ import {
   mockPasswordResetManager,
 } from 'src/tests/mocks/auth.mocks';
 import { mockEventPublisher, mockLogger } from 'src/tests/mocks/infra.mocks';
+import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.event';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -55,7 +56,8 @@ describe('AuthService', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    jest.clearAllMocks(); // Clears usage data and mock implementations
+    jest.restoreAllMocks(); // Restores original implementations and clears mocks
   });
 
   it('should be defined', () => {
@@ -122,6 +124,66 @@ describe('AuthService', () => {
       );
       expect(result).toBeInstanceOf(UserResponseDto);
       expect(result).toEqual(expectedDto);
+    });
+  });
+
+  describe('signup', () => {
+    const signupDto = {
+      email: 'newuser@test.com',
+      password: 'password',
+      firstName: 'First',
+      lastName: 'Last',
+    };
+
+    it('should throw an error if a user with this email already exists', async () => {
+      jest
+        .spyOn(mockUserDomainService, 'validateCreateUser')
+        .mockRejectedValue(new Error('User exists'));
+
+      await expect(
+        service.signup({
+          email: 'taken@test.com',
+          password: 'password',
+          firstName: 'test',
+          lastName: 'test',
+        }),
+      ).rejects.toThrow('User exists');
+    });
+
+    it('should successfully create a new user', async () => {
+      jest
+        .spyOn(mockUserDomainService, 'validateCreateUser')
+        .mockResolvedValue(undefined);
+      jest.spyOn(mockUserRepository, 'createUser').mockResolvedValue({
+        ...signupDto,
+        id: '1',
+      });
+      jest.spyOn(mockEventPublisher, 'publish').mockImplementation(() => {});
+
+      const result = await service.signup(signupDto);
+
+      expect(mockUserRepository.createUser).toHaveBeenCalled();
+      expect(result.email).toEqual(signupDto.email);
+      expect(mockEventPublisher.publish).toHaveBeenCalledWith(
+        'user.created',
+        expect.any(UserCreatedEvent),
+      );
+    });
+
+    it('should log and rethrow the error if user creation fails', async () => {
+      const error = new Error('Database failure');
+      jest
+        .spyOn(mockUserDomainService, 'validateCreateUser')
+        .mockResolvedValue(undefined);
+      jest.spyOn(mockUserRepository, 'createUser').mockRejectedValue(error);
+
+      await expect(service.signup(signupDto)).rejects.toThrow(
+        'Database failure',
+      );
+      expect(mockLogger.error).toHaveBeenCalledWith('Failed to create user', {
+        error,
+        body: signupDto,
+      });
     });
   });
 });
