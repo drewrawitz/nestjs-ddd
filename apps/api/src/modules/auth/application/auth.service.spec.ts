@@ -22,9 +22,11 @@ import {
 } from 'src/tests/mocks/auth.mocks';
 import { mockEventPublisher, mockLogger } from 'src/tests/mocks/infra.mocks';
 import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.event';
+import { InternalServerErrorException } from '@nestjs/common';
 
 describe('AuthService', () => {
   let service: AuthService;
+  let mockReq: any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -193,6 +195,50 @@ describe('AuthService', () => {
 
       await expect(service.signup(signupDto)).rejects.toThrow('Hashing failed');
       expect(mockUserDomainService.validateCreateUser).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('login', () => {
+    beforeEach(() => {
+      mockReq = {
+        user: new UserResponseDto(
+          new User({
+            id: '123',
+            email: 'login@login.com',
+            firstName: 'login',
+            lastName: 'login',
+            passwordHash: 'hashedlogin',
+          }),
+        ),
+        login: jest.fn((_, callback) => callback(null)),
+      };
+
+      jest.spyOn(service, 'loginSuccess').mockResolvedValue(undefined);
+    });
+
+    it('should log in the user successfully', async () => {
+      const result = await service.login(mockReq, mockReq.user);
+      expect(mockReq.login).toHaveBeenCalledWith(
+        mockReq.user,
+        expect.any(Function),
+      );
+      expect(service.loginSuccess).toHaveBeenCalledWith(mockReq);
+      expect(result).toEqual(mockReq.user);
+    });
+
+    it('should throw an error if login fails', async () => {
+      mockReq.login = jest.fn((_, callback) =>
+        callback(new Error('Login failed')),
+      );
+
+      await expect(service.login(mockReq, mockReq.user)).rejects.toThrow(
+        InternalServerErrorException,
+      );
+      expect(mockReq.login).toHaveBeenCalledWith(
+        mockReq.user,
+        expect.any(Function),
+      );
+      expect(service.loginSuccess).not.toHaveBeenCalled();
     });
   });
 });
