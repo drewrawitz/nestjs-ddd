@@ -3,7 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
+import { LOGGER_TOKEN } from '../../../infrastructure/logging/logger.token';
 import { UserDomainService } from 'src/modules/users/domain/services/user.domain.service';
 import { USER_REPO_TOKEN } from 'src/modules/users/users.constants';
 import { IUsersRepository } from 'src/modules/users/domain/interfaces/users.repository.interface';
