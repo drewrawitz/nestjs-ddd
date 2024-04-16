@@ -99,7 +99,7 @@ export class AuthService {
     await new Promise((resolve, reject) => {
       req.login(user, (err) => {
         if (err) {
-          console.error(err);
+          this.logger.error('Failed to log in', { error: err });
           reject(
             new InternalServerErrorException("Couldn't log in after signup."),
           );

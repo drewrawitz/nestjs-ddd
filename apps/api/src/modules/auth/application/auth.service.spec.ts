@@ -241,4 +241,56 @@ describe('AuthService', () => {
       expect(service.loginSuccess).not.toHaveBeenCalled();
     });
   });
+
+  describe('logout', () => {
+    beforeEach(() => {
+      mockReq = {
+        user: {
+          id: '123',
+          email: 'user@example.com',
+        },
+        sessionID: 'session123',
+        session: {
+          destroy: jest.fn((callback) => callback(null)),
+        },
+      };
+    });
+
+    it('should successfully logout the user', async () => {
+      await service.logout(mockReq);
+      expect(mockReq.session.destroy).toHaveBeenCalled();
+
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        `User has logged out: ${mockReq.user.email}`,
+        {
+          userId: mockReq.user.id,
+        },
+      );
+      expect(
+        mockUserSessionManager.removeSessionFromRedis,
+      ).toHaveBeenCalledWith(mockReq.user.id, mockReq.sessionID);
+    });
+
+    it('should handle errors when session destruction fails', async () => {
+      const error = new Error('Session destruction failed');
+      mockReq.session.destroy = jest.fn((callback) => callback(error));
+
+      await expect(service.logout(mockReq)).rejects.toThrow(error);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Failed to destroy session',
+        { error },
+      );
+      expect(
+        mockUserSessionManager.removeSessionFromRedis,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should resolve without error if no user is on the request', async () => {
+      delete mockReq.user;
+
+      await service.logout(mockReq);
+      expect(mockReq.session.destroy).toHaveBeenCalled();
+      expect(mockLogger.log).not.toHaveBeenCalled();
+    });
+  });
 });
