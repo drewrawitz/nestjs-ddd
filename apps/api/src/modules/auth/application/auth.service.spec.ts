@@ -185,5 +185,14 @@ describe('AuthService', () => {
         body: signupDto,
       });
     });
+
+    it('should handle errors during password hashing', async () => {
+      jest
+        .spyOn(User.prototype, 'setPassword')
+        .mockRejectedValue(new Error('Hashing failed'));
+
+      await expect(service.signup(signupDto)).rejects.toThrow('Hashing failed');
+      expect(mockUserDomainService.validateCreateUser).not.toHaveBeenCalled();
+    });
   });
 });
