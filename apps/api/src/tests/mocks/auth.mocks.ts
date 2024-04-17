@@ -6,4 +6,5 @@ export const mockPasswordHashingService = {
 export const mockPasswordResetManager = {
   saveForgotPasswordToken: jest.fn(),
   invalidateForgotPasswordToken: jest.fn(),
+  getEmailFromForgotPasswordToken: jest.fn(),
 };

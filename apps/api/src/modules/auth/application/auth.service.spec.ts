@@ -348,4 +348,41 @@ describe('AuthService', () => {
       );
     });
   });
+
+  describe('verifyResetToken', () => {
+    it('should return valid token information when the token is valid', async () => {
+      const token = 'token';
+      const expectedEmail = 'email@test.com';
+      mockPasswordResetManager.getEmailFromForgotPasswordToken.mockResolvedValue(
+        expectedEmail,
+      );
+
+      const result = await service.verifyResetToken(token);
+
+      expect(
+        mockPasswordResetManager.getEmailFromForgotPasswordToken,
+      ).toHaveBeenCalledWith(token);
+      expect(result).toEqual({
+        isValidToken: true,
+        email: expectedEmail,
+      });
+    });
+
+    it('should return invalid token information when the token is invalid', async () => {
+      const token = 'badtoken';
+      mockPasswordResetManager.getEmailFromForgotPasswordToken.mockResolvedValue(
+        null,
+      );
+
+      const result = await service.verifyResetToken(token);
+
+      expect(
+        mockPasswordResetManager.getEmailFromForgotPasswordToken,
+      ).toHaveBeenCalledWith(token);
+      expect(result).toEqual({
+        isValidToken: false,
+        email: null,
+      });
+    });
+  });
 });
