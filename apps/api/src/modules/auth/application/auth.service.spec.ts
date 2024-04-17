@@ -24,6 +24,10 @@ import { mockEventPublisher, mockLogger } from 'src/tests/mocks/infra.mocks';
 import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.event';
 import { InternalServerErrorException } from '@nestjs/common';
 
+jest.mock('src/utils/generate-token', () => ({
+  generateToken: jest.fn(() => 'securetoken123'),
+}));
+
 describe('AuthService', () => {
   let service: AuthService;
   let mockReq: any;
@@ -291,6 +295,57 @@ describe('AuthService', () => {
       await service.logout(mockReq);
       expect(mockReq.session.destroy).toHaveBeenCalled();
       expect(mockLogger.log).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('forgotPassword', () => {
+    it('should transform all email inputs to lowercase', async () => {
+      await service.forgotPassword('TEST@test.com');
+      expect(mockUserRepository.existsByEmail).toHaveBeenCalledWith(
+        'test@test.com',
+      );
+    });
+
+    it('should send a password reset email to existing users', async () => {
+      mockUserRepository.existsByEmail.mockResolvedValue(true);
+      const result = await service.forgotPassword('test@example.com');
+
+      expect(mockUserRepository.existsByEmail).toHaveBeenCalledWith(
+        'test@example.com',
+      );
+      expect(
+        mockPasswordResetManager.invalidateForgotPasswordToken,
+      ).toHaveBeenCalledWith('test@example.com');
+      expect(
+        mockPasswordResetManager.saveForgotPasswordToken,
+      ).toHaveBeenCalledWith('test@example.com', 'securetoken123');
+      expect(mockEventPublisher.publish).toHaveBeenCalledWith(
+        'auth.forgotPassword',
+        expect.objectContaining({
+          email: 'test@example.com',
+          token: 'securetoken123',
+        }),
+      );
+      expect(result.message).toContain(
+        'If that email address is in our database, we will send you an email to reset your password.',
+      );
+    });
+
+    it('should return a generic message when the user does not exist', async () => {
+      mockUserRepository.existsByEmail.mockResolvedValue(false);
+
+      const result = await service.forgotPassword('unknown@example.com');
+
+      expect(mockUserRepository.existsByEmail).toHaveBeenCalledWith(
+        'unknown@example.com',
+      );
+      expect(
+        mockPasswordResetManager.invalidateForgotPasswordToken,
+      ).not.toHaveBeenCalled();
+      expect(mockEventPublisher.publish).not.toHaveBeenCalled();
+      expect(result.message).toContain(
+        'If that email address is in our database, we will send you an email to reset your password.',
+      );
     });
   });
 });
