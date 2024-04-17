@@ -28,6 +28,10 @@ jest.mock('src/utils/generate-token', () => ({
   generateToken: jest.fn(() => 'securetoken123'),
 }));
 
+jest.mock('src/utils/ip', () => ({
+  getClientIp: jest.fn(() => '192.168.1.1'),
+}));
+
 describe('AuthService', () => {
   let service: AuthService;
   let mockReq: any;
@@ -383,6 +387,70 @@ describe('AuthService', () => {
         isValidToken: false,
         email: null,
       });
+    });
+  });
+
+  describe('loginSuccess', () => {
+    beforeEach(() => {
+      mockReq = {
+        user: {
+          id: '123',
+          email: 'user@example.com',
+        },
+        sessionID: 'session123',
+        useragent: {
+          os: 'Windows',
+          platform: 'Desktop',
+          version: '10',
+          browser: 'Chrome',
+          source: 'Mozilla/5.0 etc',
+        },
+        session: {
+          destroy: jest.fn((callback) => callback(null)),
+        },
+      };
+    });
+
+    it('should log successful login', async () => {
+      await service.loginSuccess(mockReq);
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        `User has logged in successfully: ${mockReq.user.email}`,
+        {
+          userId: mockReq.user.id,
+          email: mockReq.user.email,
+        },
+      );
+    });
+
+    it('should save the user session with user agent and IP address', async () => {
+      await service.loginSuccess(mockReq);
+      expect(mockUserSessionManager.saveUserSession).toHaveBeenCalledWith(
+        mockReq.user.id,
+        mockReq.sessionID,
+        {
+          userAgent: {
+            os: 'Windows',
+            platform: 'Desktop',
+            version: '10',
+            browser: 'Chrome',
+            source: 'Mozilla/5.0 etc',
+          },
+          ipAddress: '192.168.1.1',
+        },
+      );
+    });
+
+    it('should handle missing user agent data', async () => {
+      delete mockReq.useragent; // Simulate missing user agent
+      await service.loginSuccess(mockReq);
+      expect(mockUserSessionManager.saveUserSession).toHaveBeenCalledWith(
+        mockReq.user.id,
+        mockReq.sessionID,
+        {
+          userAgent: {},
+          ipAddress: '192.168.1.1',
+        },
+      );
     });
   });
 });
