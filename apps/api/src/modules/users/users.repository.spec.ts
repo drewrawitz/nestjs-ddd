@@ -33,6 +33,54 @@ describe('UsersRepository', () => {
     jest.clearAllMocks();
   });
 
+  describe('getUserIdFromStripeCustomerId', () => {
+    it('should get the correct user ID from a valid stripe customer ID', async () => {
+      const prismaUser = {
+        id: '999',
+        email: 'test@example.com',
+        passwordHash: 'hash',
+        firstName: 'Test',
+        lastName: 'User',
+        stripeCustomerId: 'cus_123',
+      };
+      mockPrismaService.user.findUnique.mockResolvedValue(prismaUser);
+
+      const result = await repository.getUserIdFromStripeCustomerId('cus_123');
+
+      expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { stripeCustomerId: 'cus_123' },
+        select: { id: true },
+      });
+      expect(result).toBe('999');
+    });
+
+    it('should return null when there is no match', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
+
+      const result = await repository.getUserIdFromStripeCustomerId('cus_123');
+
+      expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { stripeCustomerId: 'cus_123' },
+        select: { id: true },
+      });
+      expect(result).toBeNull();
+    });
+
+    it('should handle database errors gracefully', async () => {
+      const errorMsg = 'Database connection error';
+      mockPrismaService.user.findUnique.mockImplementation(() => {
+        throw new Error(errorMsg);
+      });
+
+      try {
+        await repository.getUserIdFromStripeCustomerId('cus_123');
+        throw new Error('Test failed: Expected method to throw.');
+      } catch (error) {
+        expect(error.message).toBe(errorMsg);
+      }
+    });
+  });
+
   describe('getUserById', () => {
     it('should return a domain user object if user is found', async () => {
       const prismaUser = {
