@@ -81,6 +81,40 @@ describe('UsersRepository', () => {
     });
   });
 
+  describe('existsByEmail', () => {
+    it('should return true if a user with the email exists', async () => {
+      const prismaUser = {
+        id: '1',
+        email: 'test@example.com',
+        passwordHash: 'hash',
+        firstName: 'Test',
+        lastName: 'User',
+        stripeCustomerId: null,
+      };
+      mockPrismaService.user.findUnique.mockResolvedValue(prismaUser);
+
+      const result = await repository.existsByEmail('test@example.com');
+
+      expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { email: 'test@example.com' },
+        select: { id: true },
+      });
+      expect(result).toBe(true);
+    });
+
+    it('should return false if a user with the email does not exists', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
+
+      const result = await repository.existsByEmail('test@example.com');
+
+      expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { email: 'test@example.com' },
+        select: { id: true },
+      });
+      expect(result).toBe(false);
+    });
+  });
+
   describe('getUserById', () => {
     it('should return a domain user object if user is found', async () => {
       const prismaUser = {
