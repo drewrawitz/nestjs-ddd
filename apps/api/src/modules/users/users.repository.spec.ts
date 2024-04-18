@@ -5,6 +5,7 @@ import { PrismaService } from 'src/infrastructure/database/prisma.service';
 import { User as DomainUser } from './domain/model/User';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersRepository } from './users.repository';
+import { Email } from './domain/model/Email';
 
 describe('UsersRepository', () => {
   let repository: UsersRepository;
@@ -140,6 +141,37 @@ describe('UsersRepository', () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
       await expect(repository.getUserById('1')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('getUserByEmail', () => {
+    it('should return a domain user object if user is found', async () => {
+      const prismaUser = {
+        id: '2',
+        email: 'ok@ok.com',
+        passwordHash: 'hash',
+        firstName: 'Test',
+        lastName: 'User',
+        stripeCustomerId: null,
+      };
+      mockPrismaService.user.findUnique.mockResolvedValue(prismaUser);
+
+      const result = await repository.getUserByEmail('ok@ok.com');
+
+      expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { email: 'ok@ok.com' },
+      });
+      expect(result).toBeInstanceOf(DomainUser);
+      expect(result.email).toBeInstanceOf(Email);
+      expect(result.email.getValue()).toEqual('ok@ok.com');
+    });
+
+    it('should throw a NotFoundException if no user is found', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
+
+      await expect(repository.getUserByEmail('ok@ok.com')).rejects.toThrow(
         NotFoundException,
       );
     });
