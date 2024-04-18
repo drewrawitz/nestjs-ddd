@@ -1,13 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { User as PrismaUser } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/database/prisma.service';
 import { IUsersRepository } from './domain/interfaces/users.repository.interface';
 import { User as DomainUser } from './domain/model/User';
 import { UserResponseDto } from './dto/user-response.dto';
+import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
+import { ILogger } from 'src/infrastructure/logging/logger.interface';
 
 @Injectable()
 export class UsersRepository implements IUsersRepository {
-  constructor(private db: PrismaService) {}
+  constructor(
+    @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
+    private db: PrismaService,
+  ) {}
 
   private toDomainUser(user: PrismaUser): DomainUser {
     return new DomainUser({
@@ -107,8 +112,18 @@ export class UsersRepository implements IUsersRepository {
           stripeCustomerId,
         },
       });
+      this.logger.log('Successfully updated user with Stripe Customer ID', {
+        userId,
+        stripeCustomerId,
+      });
     } catch (error) {
-      console.error(error);
+      this.logger.error('Failed to update user with Stripe Customer ID', {
+        error,
+        params: {
+          userId,
+          stripeCustomerId,
+        },
+      });
     }
   }
 }

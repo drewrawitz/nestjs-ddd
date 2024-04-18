@@ -6,6 +6,8 @@ import { User as DomainUser } from './domain/model/User';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersRepository } from './users.repository';
 import { Email } from './domain/model/Email';
+import { mockLogger } from 'src/tests/mocks/infra.mocks';
+import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
 
 describe('UsersRepository', () => {
   let repository: UsersRepository;
@@ -24,6 +26,7 @@ describe('UsersRepository', () => {
       providers: [
         UsersRepository,
         { provide: PrismaService, useValue: mockPrismaService },
+        { provide: LOGGER_TOKEN, useValue: mockLogger },
       ],
     }).compile();
 
@@ -213,6 +216,44 @@ describe('UsersRepository', () => {
       expect(result.email).toEqual(createdPrismaUser.email);
       expect(result.fullName).toEqual(
         `${createdPrismaUser.firstName} ${createdPrismaUser.lastName}`,
+      );
+    });
+  });
+
+  describe('updateUserWithStripeCustomerId', () => {
+    it('should update the user with a stripe customer ID', async () => {
+      const userId = '123';
+      const stripeCustomerId = 'cus_abc123';
+
+      await repository.updateUserWithStripeCustomerId(userId, stripeCustomerId);
+      expect(mockPrismaService.user.update).toHaveBeenCalledWith({
+        where: { id: userId },
+        data: { stripeCustomerId },
+      });
+      expect(mockLogger.log).toHaveBeenCalled();
+      expect(mockLogger.error).not.toHaveBeenCalled();
+    });
+
+    it('should log an error if the update operation fails', async () => {
+      const userId = '123';
+      const stripeCustomerId = 'cus_abc123';
+      const error = new Error('Database error');
+
+      mockPrismaService.user.update.mockRejectedValue(error);
+
+      await repository.updateUserWithStripeCustomerId(userId, stripeCustomerId);
+
+      expect(mockPrismaService.user.update).toHaveBeenCalledWith({
+        where: { id: userId },
+        data: { stripeCustomerId },
+      });
+      expect(mockLogger.log).not.toHaveBeenCalled();
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Failed to update user with Stripe Customer ID',
+        {
+          error,
+          params: { userId, stripeCustomerId },
+        },
       );
     });
   });
