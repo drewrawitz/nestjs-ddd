@@ -48,6 +48,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthenticatedGuard)
+  @HttpCode(204)
   @Post('logout')
   async logout(@Req() req: RequestWithUser, @Res() res: Response) {
     res.clearCookie('connect.sid');

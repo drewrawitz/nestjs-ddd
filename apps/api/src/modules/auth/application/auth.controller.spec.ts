@@ -51,6 +51,7 @@ class TestAppModule implements NestModule {
 describe('AuthController', () => {
   let app: INestApplication;
   let controller: AuthController;
+  let spyClearCookie: any;
 
   beforeAll(async () => {
     const mockAuthGuard = { canActivate: jest.fn(() => true) };
@@ -68,11 +69,14 @@ describe('AuthController', () => {
 
     app = module.createNestApplication();
     controller = module.get<AuthController>(AuthController);
+    spyClearCookie = jest.fn();
 
-    app.use((req: any, _: any, next: any) => {
+    app.use((req: any, res: any, next: any) => {
       if (process.env.TEST_AUTHENTICATED) {
         req.isAuthenticated = () => true;
       }
+
+      res.clearCookie = spyClearCookie;
       next();
     });
 
@@ -206,6 +210,36 @@ describe('AuthController', () => {
           expect(mockAuthService.loginSuccess).not.toHaveBeenCalled();
         });
 
+      delete process.env.TEST_AUTHENTICATED;
+    });
+  });
+
+  describe('POST /v1/auth/logout', () => {
+    it('should return a 401 if the user is not authenticated', async () => {
+      await request(app.getHttpServer()).post('/v1/auth/logout').expect(401);
+    });
+
+    it('should clear the session cookie on logout', async () => {
+      process.env.TEST_AUTHENTICATED = 'true';
+
+      await request(app.getHttpServer())
+        .post('/v1/auth/logout')
+        .expect(204)
+        .expect(() => {
+          expect(spyClearCookie).toHaveBeenCalledWith('connect.sid');
+          expect(mockAuthService.logout).toHaveBeenCalled();
+        });
+      delete process.env.TEST_AUTHENTICATED;
+    });
+
+    it('should return an empty response body', async () => {
+      process.env.TEST_AUTHENTICATED = 'true';
+      await request(app.getHttpServer())
+        .post('/v1/auth/logout')
+        .expect(204)
+        .then((response) => {
+          expect(response.text).toBe('');
+        });
       delete process.env.TEST_AUTHENTICATED;
     });
   });
