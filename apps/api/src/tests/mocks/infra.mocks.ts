@@ -8,3 +8,13 @@ export const mockLogger = {
 export const mockEventPublisher = {
   publish: jest.fn(),
 };
+
+export const mockCache = {
+  del: jest.fn(),
+  get: jest.fn(),
+  set: jest.fn(),
+};
+
+export const mockEnv = {
+  get: jest.fn(),
+};
