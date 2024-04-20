@@ -251,7 +251,9 @@ describe('AuthController', () => {
         .send({ email: 'valid@ok.com' })
         .expect(201)
         .expect(() => {
-          expect(mockAuthService.forgotPassword).toHaveBeenCalled();
+          expect(mockAuthService.forgotPassword).toHaveBeenCalledWith(
+            'valid@ok.com',
+          );
         });
     });
 
@@ -267,6 +269,26 @@ describe('AuthController', () => {
             expect(res.body.message).toContain('Validation failed');
           });
       }
+    });
+  });
+
+  describe('GET /v1/auth/verify-reset-token', () => {
+    it('should fail with validation errors (token not provided)', async () => {
+      await request(app.getHttpServer())
+        .get('/v1/auth/verify-reset-token')
+        .expect(400)
+        .expect((res) => {
+          expect(res.body.message).toContain('Validation failed');
+        });
+    });
+
+    it('should call verifyResetToken when a token is provided', async () => {
+      await request(app.getHttpServer())
+        .get('/v1/auth/verify-reset-token?token=123')
+        .expect(200)
+        .expect(() => {
+          expect(mockAuthService.verifyResetToken).toHaveBeenCalledWith('123');
+        });
     });
   });
 });
