@@ -8,6 +8,7 @@ import {
   Res,
   Get,
   Query,
+  HttpCode,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -39,6 +40,7 @@ export class AuthController {
   }
 
   @UseGuards(LocalAuthGuard)
+  @HttpCode(200)
   @Post('login')
   async login(@Req() req: RequestWithUser) {
     await this.authService.loginSuccess(req);

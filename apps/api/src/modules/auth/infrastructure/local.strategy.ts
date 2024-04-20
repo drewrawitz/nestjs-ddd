@@ -1,7 +1,7 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
 import {
-  BadRequestException,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -20,7 +20,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     password: string,
   ): Promise<any> {
     if (req.isAuthenticated && req.isAuthenticated()) {
-      throw new BadRequestException(
+      throw new ForbiddenException(
         'Already authenticated with an active session',
       );
     }

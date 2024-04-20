@@ -1,31 +1,81 @@
 import request from 'supertest';
+import session from 'express-session';
+import passport from 'passport';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { INestApplication } from '@nestjs/common';
+import {
+  INestApplication,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+} from '@nestjs/common';
+import { LocalAuthGuard } from '../infrastructure/local.auth.guard';
+import { LocalStrategy } from '../infrastructure/local.strategy';
+import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
+import { User } from 'src/modules/users/domain/model/User';
+import { PassportModule } from '@nestjs/passport';
+import { SessionSerializer } from '../infrastructure/session.serializer';
+
+const mockAuthService = {
+  signup: jest.fn(),
+  login: jest.fn(),
+  logout: jest.fn(),
+  forgotPassword: jest.fn(),
+  validateUser: jest.fn(),
+  verifyResetToken: jest.fn(),
+  loginSuccess: jest.fn(),
+};
+
+@Module({
+  controllers: [AuthController],
+  providers: [{ provide: AuthService, useValue: mockAuthService }],
+})
+class TestAppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(
+        session({
+          secret: 'test-secret',
+          resave: false,
+          saveUninitialized: false,
+          cookie: { maxAge: 60000 }, // 1 minute for testing
+        }),
+        passport.initialize(),
+        passport.session(),
+      )
+      .forRoutes(AuthController);
+  }
+}
 
 describe('AuthController', () => {
   let app: INestApplication;
   let controller: AuthController;
-  let mockAuthService: any;
 
   beforeAll(async () => {
-    mockAuthService = {
-      signup: jest.fn(),
-      login: jest.fn(),
-      logout: jest.fn(),
-      forgotPassword: jest.fn(),
-      verifyResetToken: jest.fn(),
-      loginSuccess: jest.fn(),
-    };
+    const mockAuthGuard = { canActivate: jest.fn(() => true) };
 
     const module: TestingModule = await Test.createTestingModule({
+      imports: [TestAppModule, PassportModule.register({ session: true })],
       controllers: [AuthController],
-      providers: [{ provide: AuthService, useValue: mockAuthService }],
+      providers: [
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: LocalAuthGuard, useValue: mockAuthGuard },
+        LocalStrategy,
+        SessionSerializer,
+      ],
     }).compile();
 
     app = module.createNestApplication();
     controller = module.get<AuthController>(AuthController);
+
+    app.use((req: any, _: any, next: any) => {
+      if (process.env.TEST_AUTHENTICATED) {
+        req.isAuthenticated = () => true;
+      }
+      next();
+    });
+
     await app.init();
   });
 
@@ -96,6 +146,67 @@ describe('AuthController', () => {
             expect(res.body.message).toContain('Validation failed');
           });
       }
+    });
+  });
+
+  describe('POST /v1/auth/login', () => {
+    it('should successfully log in a user', async () => {
+      const user = new User({
+        id: '1',
+        email: 'test@test.com',
+        firstName: 'test',
+        lastName: 'test',
+        passwordHash: 'correctpassword',
+      });
+      const userDto = new UserResponseDto(user);
+
+      mockAuthService.validateUser.mockResolvedValue(userDto);
+
+      await request(app.getHttpServer())
+        .post('/v1/auth/login')
+        .send({ email: user.email.getValue(), password: user.passwordHash })
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toEqual(userDto);
+          expect(mockAuthService.loginSuccess).toHaveBeenCalled();
+        });
+    });
+
+    it('should return a 401 on invalid login credentials', async () => {
+      mockAuthService.validateUser.mockReturnValue(null);
+
+      await request(app.getHttpServer())
+        .post('/v1/auth/login')
+        .send({ email: 'test@test.com', password: 'wrongpassword' })
+        .expect(401)
+        .expect(() => {
+          expect(mockAuthService.loginSuccess).not.toHaveBeenCalled();
+        });
+    });
+
+    it('should return a 403 (Forbidden) if the user is already authenticated', async () => {
+      process.env.TEST_AUTHENTICATED = 'true';
+
+      const user = new User({
+        id: '1',
+        email: 'test@test.com',
+        firstName: 'test',
+        lastName: 'test',
+        passwordHash: 'correctpassword',
+      });
+      const userDto = new UserResponseDto(user);
+
+      mockAuthService.validateUser.mockResolvedValue(userDto);
+
+      await request(app.getHttpServer())
+        .post('/v1/auth/login')
+        .send({ email: 'test@test.com', password: 'wrongpassword' })
+        .expect(403)
+        .expect(() => {
+          expect(mockAuthService.loginSuccess).not.toHaveBeenCalled();
+        });
+
+      delete process.env.TEST_AUTHENTICATED;
     });
   });
 });
