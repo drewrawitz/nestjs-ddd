@@ -96,7 +96,7 @@ describe('AuthController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('signup', () => {
+  describe('POST /v1/auth/signup', () => {
     it('should signup and login a user', async () => {
       const req: any = { user: undefined };
       const body = {
@@ -127,7 +127,7 @@ describe('AuthController', () => {
       expect(mockAuthService.login).not.toHaveBeenCalled();
     });
 
-    it('POST /v1/auth/signup should fail with validation errors', async () => {
+    it('should fail with validation errors', async () => {
       // Bad Params to test
       const params = [
         undefined,
@@ -241,6 +241,32 @@ describe('AuthController', () => {
           expect(response.text).toBe('');
         });
       delete process.env.TEST_AUTHENTICATED;
+    });
+  });
+
+  describe('POST /v1/auth/forgot-password', () => {
+    it('should call forgotPassword successfully', async () => {
+      await request(app.getHttpServer())
+        .post('/v1/auth/forgot-password')
+        .send({ email: 'valid@ok.com' })
+        .expect(201)
+        .expect(() => {
+          expect(mockAuthService.forgotPassword).toHaveBeenCalled();
+        });
+    });
+
+    it('should fail with validation errors', async () => {
+      const params = [undefined, {}, { email: 'bademail' }];
+
+      for (const param of params) {
+        await request(app.getHttpServer())
+          .post('/v1/auth/forgot-password')
+          .send(param)
+          .expect(400)
+          .expect((res) => {
+            expect(res.body.message).toContain('Validation failed');
+          });
+      }
     });
   });
 });
