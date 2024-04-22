@@ -73,13 +73,11 @@ export class AuthController {
     return await this.authService.verifyResetToken(query.token);
   }
 
-  @UseGuards(AuthenticatedGuard)
+  @HttpCode(204)
   @Post('reset-password')
   @UsePipes(new ZodValidationPipe(resetPasswordSchema))
-  async resetPassword(
-    @Req() req: RequestWithUser,
-    @Body() body: ResetPasswordDto,
-  ) {
-    return await this.authService.resetPassword(req.user.id, body);
+  async resetPassword(@Body() body: ResetPasswordDto) {
+    await this.authService.resetPassword(body);
+    return;
   }
 }

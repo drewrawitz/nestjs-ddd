@@ -196,7 +196,7 @@ export class AuthService {
     };
   }
 
-  async resetPassword(userId: string, body: ResetPasswordDto) {
+  async resetPassword(body: ResetPasswordDto) {
     const userEmail = body.email.toLowerCase().trim();
 
     // Check if the token is a valid token
@@ -208,31 +208,30 @@ export class AuthService {
       throw new ForbiddenException('Invalid token.');
     }
 
-    const user = await this.userRepository.getUserById(userId);
+    const user = await this.userRepository.getUserByEmail(userEmail);
 
     if (!user) {
       this.logger.error(
         'User failed to reset their password. Account not found.',
-        { userId, email: userEmail },
+        { email: userEmail },
       );
       throw new NotFoundException('User not found.');
     }
 
     try {
       await user.setPassword(body.password, this.passwordHashingService);
-      await this.userRepository.updateUserPassword(userId, user.passwordHash!);
+      await this.userRepository.updateUserPassword(
+        user.id!,
+        user.passwordHash!,
+      );
 
       await Promise.all([
         this.passwordResetManager.removeForgotPasswordTokens(
           body.email,
           body.token,
         ),
-        this.userSessionManager.removeAllUserSessions(userId),
+        this.userSessionManager.removeAllUserSessions(user.id!),
       ]);
-
-      return {
-        success: true,
-      };
     } catch (err) {
       throw new InternalServerErrorException('Failed to reset password.');
     }
