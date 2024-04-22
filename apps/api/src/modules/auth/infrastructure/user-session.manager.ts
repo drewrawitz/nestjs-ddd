@@ -28,4 +28,21 @@ export class UserSessionManager implements IUserSessionManager {
   ): Promise<void> {
     await this.store.srem(`user_sessions:${userId}`, sessionId);
   }
+
+  async removeAllUserSessions(userId: string): Promise<void> {
+    const sessions = await this.getUserSessionIds(userId);
+
+    for (const sessionId of sessions) {
+      await Promise.all([
+        this.store.del(`session:${sessionId}`),
+        this.store.del(`sess:${sessionId}`),
+        this.removeSessionFromRedis(userId, sessionId),
+      ]);
+    }
+  }
+
+  private async getUserSessionIds(userId: string) {
+    const key = `user_sessions:${userId}`;
+    return await this.store.smembers(key);
+  }
 }

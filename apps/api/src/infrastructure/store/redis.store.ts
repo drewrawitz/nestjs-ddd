@@ -64,7 +64,7 @@ export class RedisStoreService implements IStore {
 
   async smembers(key: string) {
     try {
-      await this.client.smembers(key);
+      return await this.client.smembers(key);
     } catch (error) {
       this.logger.error('Error getting smembers in Redis', {
         key,

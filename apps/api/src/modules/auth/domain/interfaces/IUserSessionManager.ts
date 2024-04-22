@@ -5,4 +5,5 @@ export interface IUserSessionManager {
     metadata?: Record<string, any>,
   ): Promise<void>;
   removeSessionFromRedis(userId: string, sessionId: string): Promise<void>;
+  removeAllUserSessions(userId: string): Promise<void>;
 }

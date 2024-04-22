@@ -221,10 +221,14 @@ export class AuthService {
     try {
       await user.setPassword(body.password, this.passwordHashingService);
       await this.userRepository.updateUserPassword(userId, user.passwordHash!);
-      await this.passwordResetManager.removeForgotPasswordTokens(
-        body.email,
-        body.token,
-      );
+
+      await Promise.all([
+        this.passwordResetManager.removeForgotPasswordTokens(
+          body.email,
+          body.token,
+        ),
+        this.userSessionManager.removeAllUserSessions(userId),
+      ]);
 
       return {
         success: true,
