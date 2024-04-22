@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { User as PrismaUser } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/database/prisma.service';
 import { IUsersRepository } from './domain/interfaces/users.repository.interface';
@@ -124,6 +129,30 @@ export class UsersRepository implements IUsersRepository {
           stripeCustomerId,
         },
       });
+    }
+  }
+
+  async updateUserPassword(userId: string, password: string): Promise<void> {
+    try {
+      await this.db.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          passwordHash: password,
+        },
+      });
+      this.logger.log('Successfully updated user password', {
+        userId,
+      });
+    } catch (error) {
+      this.logger.error('Failed to update user password', {
+        error,
+        params: {
+          userId,
+        },
+      });
+      throw new InternalServerErrorException('Something went wrong.');
     }
   }
 }

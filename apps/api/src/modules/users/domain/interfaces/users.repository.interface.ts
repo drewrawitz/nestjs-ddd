@@ -13,4 +13,5 @@ export interface IUsersRepository {
     userId: string,
     stripeCustomerId: string,
   ): Promise<void>;
+  updateUserPassword(userId: string, password: string): Promise<void>;
 }

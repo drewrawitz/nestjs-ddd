@@ -22,6 +22,10 @@ import {
   forgotPasswordSchema,
 } from '../dto/forgot-password.dto';
 import {
+  ResetPasswordDto,
+  resetPasswordSchema,
+} from '../dto/reset-password.dto';
+import {
   VerifyResetTokenDto,
   verifyResetTokenSchema,
 } from '../dto/verify-reset-token.dto';
@@ -67,5 +71,15 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(verifyResetTokenSchema))
   async verifyResetToken(@Query() query: VerifyResetTokenDto) {
     return await this.authService.verifyResetToken(query.token);
+  }
+
+  @UseGuards(AuthenticatedGuard)
+  @Post('reset-password')
+  @UsePipes(new ZodValidationPipe(resetPasswordSchema))
+  async resetPassword(
+    @Req() req: RequestWithUser,
+    @Body() body: ResetPasswordDto,
+  ) {
+    return await this.authService.resetPassword(req.user.id, body);
   }
 }

@@ -1,4 +1,6 @@
 import {
+  NotFoundException,
+  ForbiddenException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -26,6 +28,8 @@ import { getClientIp } from 'src/utils/ip';
 import { generateToken } from 'src/utils/generate-token';
 import { IPasswordResetManager } from '../domain/interfaces/IPasswordResetManager';
 import { ForgotPasswordEvent } from '../domain/events/forgot-password.event';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -191,5 +195,39 @@ export class AuthService {
       isValidToken: Boolean(email),
       email,
     };
+  }
+
+  async resetPassword(userId: string, body: ResetPasswordDto) {
+    const userEmail = body.email.toLowerCase().trim();
+
+    // Check if the token is a valid token
+    const { isValidToken, email: tokenEmail } = await this.verifyResetToken(
+      body.token,
+    );
+
+    if (!isValidToken || tokenEmail !== userEmail) {
+      throw new ForbiddenException('Invalid token.');
+    }
+
+    const user = await this.userRepository.getUserById(userId);
+
+    if (!user) {
+      this.logger.error(
+        'User failed to reset their password. Account not found.',
+        { userId, email: userEmail },
+      );
+      throw new NotFoundException('User not found.');
+    }
+
+    try {
+      await user.setPassword(body.password, this.passwordHashingService);
+      await this.userRepository.updateUserPassword(userId, user.passwordHash!);
+
+      return {
+        success: true,
+      };
+    } catch (err) {
+      throw new InternalServerErrorException('Failed to reset password.');
+    }
   }
 }

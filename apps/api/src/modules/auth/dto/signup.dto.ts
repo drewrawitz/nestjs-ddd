@@ -1,9 +1,10 @@
 import { z } from 'zod';
+import { passwordDto } from 'src/common/dto/password.dto';
 
 export const signupSchema = z
   .object({
     email: z.string().email(),
-    password: z.string().min(8).max(100),
+    password: passwordDto,
     firstName: z.string(),
     lastName: z.string(),
   })
