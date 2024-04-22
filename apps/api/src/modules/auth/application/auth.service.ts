@@ -29,7 +29,6 @@ import { generateToken } from 'src/utils/generate-token';
 import { IPasswordResetManager } from '../domain/interfaces/IPasswordResetManager';
 import { ForgotPasswordEvent } from '../domain/events/forgot-password.event';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
-import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -222,6 +221,10 @@ export class AuthService {
     try {
       await user.setPassword(body.password, this.passwordHashingService);
       await this.userRepository.updateUserPassword(userId, user.passwordHash!);
+      await this.passwordResetManager.removeForgotPasswordTokens(
+        body.email,
+        body.token,
+      );
 
       return {
         success: true,

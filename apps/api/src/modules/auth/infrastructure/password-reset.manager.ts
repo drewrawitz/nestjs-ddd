@@ -59,6 +59,18 @@ export class PasswordResetManager implements IPasswordResetManager {
     );
   }
 
+  async removeForgotPasswordTokens(email: string, token: string) {
+    const FORGOT_PASSWORD_TOKEN = `forgotPassword:${email}`;
+    const TOKEN = `token:${token}`;
+    const tokensToRemove = [FORGOT_PASSWORD_TOKEN, TOKEN];
+
+    await Promise.all(
+      tokensToRemove.map(async (token) => {
+        return this.store.del(token);
+      }),
+    );
+  }
+
   async getEmailFromForgotPasswordToken(token: string) {
     return await this.store.get(`token:${token}`);
   }
