@@ -474,6 +474,7 @@ describe('AuthService', () => {
       await expect(service.resetPassword(body)).rejects.toThrow(
         new ForbiddenException('Invalid or expired token.'),
       );
+      expect(mockEventPublisher.publish).not.toHaveBeenCalled();
     });
 
     it('should throw a NotFoundException if no user is found', async () => {
@@ -493,6 +494,7 @@ describe('AuthService', () => {
       );
 
       expect(mockLogger.error).toHaveBeenCalled();
+      expect(mockEventPublisher.publish).not.toHaveBeenCalled();
     });
 
     it('should reset the user password and cleanup after successful token validation', async () => {
@@ -524,6 +526,12 @@ describe('AuthService', () => {
       ).toHaveBeenCalledWith(body.email, body.token);
       expect(mockUserSessionManager.removeAllUserSessions).toHaveBeenCalledWith(
         user.id,
+      );
+      expect(mockEventPublisher.publish).toHaveBeenCalledWith(
+        'auth.changedPassword',
+        expect.objectContaining({
+          email: body.email,
+        }),
       );
     });
   });
