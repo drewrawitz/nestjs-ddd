@@ -68,3 +68,20 @@ model StripeEvent {
 
   @@map("stripe_events")
 }
+
+model EmailLog {
+  id        Int         @id @default(autoincrement())
+  to        String
+  subject   String
+  status    EmailStatus
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("email_logs")
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+}
