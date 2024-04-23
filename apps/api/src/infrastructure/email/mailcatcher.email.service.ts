@@ -18,7 +18,6 @@ export class MailcatcherEmailService implements IEmailService {
     const { from, to, subject, message } = props;
 
     try {
-      throw new Error('failed to send email');
       await this.transporter.sendMail({
         from,
         to,

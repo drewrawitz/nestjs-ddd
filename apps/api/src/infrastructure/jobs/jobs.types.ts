@@ -14,6 +14,7 @@ export type StripeJobPayload = {
 
 export type EmailJobPayload = {
   sendEmail: {
+    logId: number;
     props: ISendEmailProps;
   };
 };
