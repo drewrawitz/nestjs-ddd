@@ -5,6 +5,7 @@ export const mockUserRepository = {
   getUserByEmail: jest.fn(),
   createUser: jest.fn(),
   updateUserWithStripeCustomerId: jest.fn(),
+  updateUserPassword: jest.fn(),
 };
 
 export const mockUserDomainService = {
@@ -14,4 +15,5 @@ export const mockUserDomainService = {
 export const mockUserSessionManager = {
   saveUserSession: jest.fn(),
   removeSessionFromRedis: jest.fn(),
+  removeAllUserSessions: jest.fn(),
 };

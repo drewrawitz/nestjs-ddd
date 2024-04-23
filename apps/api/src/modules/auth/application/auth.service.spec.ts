@@ -22,7 +22,12 @@ import {
 } from 'src/tests/mocks/auth.mocks';
 import { mockEventPublisher, mockLogger } from 'src/tests/mocks/infra.mocks';
 import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.event';
-import { InternalServerErrorException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
 
 jest.mock('src/utils/generate-token', () => ({
   generateToken: jest.fn(() => 'securetoken123'),
@@ -450,6 +455,75 @@ describe('AuthService', () => {
           userAgent: {},
           ipAddress: '192.168.1.1',
         },
+      );
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('should throw a ForbiddenException if token validation fails', async () => {
+      const body: ResetPasswordDto = {
+        email: 'test@example.com',
+        token: 'invalid-token',
+        password: 'new-password',
+        confirmPassword: 'new-password',
+      };
+      mockPasswordResetManager.getEmailFromForgotPasswordToken.mockResolvedValue(
+        null,
+      );
+
+      await expect(service.resetPassword(body)).rejects.toThrow(
+        new ForbiddenException('Invalid or expired token.'),
+      );
+    });
+
+    it('should throw a NotFoundException if no user is found', async () => {
+      const body: ResetPasswordDto = {
+        email: 'test@example.com',
+        token: 'valid-token',
+        password: 'new-password',
+        confirmPassword: 'new-password',
+      };
+      mockPasswordResetManager.getEmailFromForgotPasswordToken.mockResolvedValue(
+        'test@example.com',
+      );
+      jest.spyOn(mockUserRepository, 'getUserByEmail').mockResolvedValue(null);
+
+      await expect(service.resetPassword(body)).rejects.toThrow(
+        new NotFoundException('User not found.'),
+      );
+
+      expect(mockLogger.error).toHaveBeenCalled();
+    });
+
+    it('should reset the user password and cleanup after successful token validation', async () => {
+      const body: ResetPasswordDto = {
+        email: 'test@example.com',
+        token: 'valid-token',
+        password: 'new-password',
+        confirmPassword: 'new-password',
+      };
+      const user = new User({
+        id: '1',
+        email: body.email,
+        firstName: 'test',
+        lastName: 'test',
+        passwordHash: 'hashedpassword',
+      });
+      mockPasswordResetManager.getEmailFromForgotPasswordToken.mockResolvedValue(
+        'test@example.com',
+      );
+      jest.spyOn(mockUserRepository, 'getUserByEmail').mockResolvedValue(user);
+
+      await service.resetPassword(body);
+      expect(mockUserRepository.updateUserPassword).toHaveBeenCalledWith(
+        user.id,
+        user.passwordHash,
+      );
+      expect(
+        mockPasswordResetManager.removeForgotPasswordTokens,
+      ).toHaveBeenCalledWith(body.email, body.token);
+      expect(mockUserSessionManager.removeAllUserSessions).toHaveBeenCalledWith(
+        user.id,
       );
     });
   });
