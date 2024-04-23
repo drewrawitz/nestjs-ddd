@@ -28,13 +28,13 @@ export class EmailProcessor extends WorkerHost {
     });
     switch (job.name) {
       case 'sendEmail':
-        return this.sendEmail(job.data as EmailJobPayload['sendEmail']);
+        return this.handleEmail(job.data as EmailJobPayload['sendEmail']);
       default:
         this.logger.error(`Unknown job name: ${job.name}`);
     }
   }
 
-  async sendEmail(data: EmailJobPayload['sendEmail']) {
+  async handleEmail(data: EmailJobPayload['sendEmail']) {
     try {
       await this.emailService.sendEmail(data.props);
       await this.emailLogService.updateStatus(data.logId, EmailStatus.SENT);

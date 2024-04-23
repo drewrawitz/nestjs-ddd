@@ -29,6 +29,7 @@ import { generateToken } from 'src/utils/generate-token';
 import { IPasswordResetManager } from '../domain/interfaces/IPasswordResetManager';
 import { ForgotPasswordEvent } from '../domain/events/forgot-password.event';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { ChangedPasswordEvent } from '../domain/events/changed-password.event';
 
 @Injectable()
 export class AuthService {
@@ -233,6 +234,11 @@ export class AuthService {
   ): Promise<void> {
     await user.setPassword(newPassword, this.passwordHashingService);
     await this.userRepository.updateUserPassword(user.id!, user.passwordHash!);
+
+    this.eventPublisher.publish(
+      'auth.changedPassword',
+      new ChangedPasswordEvent(user.email.getValue()),
+    );
   }
 
   private async cleanupAfterPasswordReset(

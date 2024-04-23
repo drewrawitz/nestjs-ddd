@@ -27,6 +27,7 @@ export class QueuedEmailServiceDecorator implements IEmailJobQueue {
           props,
         },
         {
+          jobId: `email-${logEntry.id}`,
           removeOnComplete: true,
           attempts: 3,
         },

@@ -18,6 +18,7 @@ import { RedisModule } from 'src/infrastructure/store/redis.module';
 import { PasswordResetManager } from '../infrastructure/password-reset.manager';
 import { ForgotPasswordListener } from '../domain/listeners/forgot-password.listener';
 import { EmailModule } from 'src/infrastructure/email/email.module';
+import { ChangedPasswordListener } from '../domain/listeners/changed-password.listener';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { EmailModule } from 'src/infrastructure/email/email.module';
     },
     LocalStrategy,
     ForgotPasswordListener,
+    ChangedPasswordListener,
     SessionSerializer,
   ],
   exports: [AuthService],
