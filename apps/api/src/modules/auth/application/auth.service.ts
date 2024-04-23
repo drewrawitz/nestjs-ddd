@@ -197,43 +197,52 @@ export class AuthService {
   }
 
   async resetPassword(body: ResetPasswordDto) {
-    const userEmail = body.email.toLowerCase().trim();
+    const { email, token, password } = body;
+    const normalizedEmail = email.toLowerCase().trim();
 
-    // Check if the token is a valid token
-    const { isValidToken, email: tokenEmail } = await this.verifyResetToken(
-      body.token,
-    );
-
-    if (!isValidToken || tokenEmail !== userEmail) {
-      throw new ForbiddenException('Invalid token.');
+    const isValidToken = await this.validateResetToken(token, normalizedEmail);
+    if (!isValidToken) {
+      throw new ForbiddenException('Invalid or expired token.');
     }
 
-    const user = await this.userRepository.getUserByEmail(userEmail);
-
+    const user = await this.userRepository.getUserByEmail(normalizedEmail);
     if (!user) {
       this.logger.error(
         'User failed to reset their password. Account not found.',
-        { email: userEmail },
+        { email: normalizedEmail },
       );
       throw new NotFoundException('User not found.');
     }
 
-    try {
-      await user.setPassword(body.password, this.passwordHashingService);
-      await this.userRepository.updateUserPassword(
-        user.id!,
-        user.passwordHash!,
-      );
+    await this.updateUserPassword(user, password);
+    await this.cleanupAfterPasswordReset(user.id!, email, token);
+  }
 
-      await Promise.all([
-        this.passwordResetManager.removeForgotPasswordTokens(
-          body.email,
-          body.token,
-        ),
-        this.userSessionManager.removeAllUserSessions(user.id!),
-      ]);
-    } catch (err) {
-      throw new InternalServerErrorException('Failed to reset password.');
-    }
+  private async validateResetToken(
+    token: string,
+    email: string,
+  ): Promise<boolean> {
+    const { isValidToken, email: tokenEmail } =
+      await this.verifyResetToken(token);
+    return isValidToken && tokenEmail === email;
+  }
+
+  private async updateUserPassword(
+    user: User,
+    newPassword: string,
+  ): Promise<void> {
+    await user.setPassword(newPassword, this.passwordHashingService);
+    await this.userRepository.updateUserPassword(user.id!, user.passwordHash!);
+  }
+
+  private async cleanupAfterPasswordReset(
+    userId: string,
+    email: string,
+    token: string,
+  ) {
+    await Promise.all([
+      this.passwordResetManager.removeForgotPasswordTokens(email, token),
+      this.userSessionManager.removeAllUserSessions(userId),
+    ]);
   }
 }
