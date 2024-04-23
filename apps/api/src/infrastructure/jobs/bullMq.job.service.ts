@@ -1,6 +1,6 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { IGenericJobOptions, IJobService } from './jobs.interface';
-import { STRIPE_QUEUE } from './jobs.types';
+import { EMAIL_QUEUE, STRIPE_QUEUE } from './jobs.types';
 import { Injectable } from '@nestjs/common';
 import { JobsOptions, Queue } from 'bullmq';
 
@@ -8,9 +8,13 @@ import { JobsOptions, Queue } from 'bullmq';
 export class BullJobService implements IJobService {
   private queueMap: { [key: string]: Queue };
 
-  constructor(@InjectQueue(STRIPE_QUEUE) readonly stripeQueue: Queue) {
+  constructor(
+    @InjectQueue(STRIPE_QUEUE) readonly stripeQueue: Queue,
+    @InjectQueue(EMAIL_QUEUE) readonly emailQueue: Queue,
+  ) {
     this.queueMap = {
       [STRIPE_QUEUE]: stripeQueue,
+      [EMAIL_QUEUE]: emailQueue,
     };
   }
 
@@ -19,7 +23,7 @@ export class BullJobService implements IJobService {
     jobName: string,
     data: T,
     opts?: IGenericJobOptions,
-  ): Promise<void> {
+  ): Promise<string | undefined> {
     const queue = this.queueMap[queueName];
 
     if (!queue) {
@@ -28,7 +32,9 @@ export class BullJobService implements IJobService {
 
     const bullOpts = this.mapGenericOptionsToBullOptions(opts);
 
-    await queue.add(jobName, data, bullOpts);
+    const job = await queue.add(jobName, data, bullOpts);
+
+    return job.id;
   }
 
   private mapGenericOptionsToBullOptions(

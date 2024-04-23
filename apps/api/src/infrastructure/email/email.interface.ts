@@ -8,3 +8,7 @@ export interface ISendEmailProps {
 export interface IEmailService {
   sendEmail(props: ISendEmailProps): Promise<void>;
 }
+
+export interface IEmailJobQueue {
+  sendEmail(props: ISendEmailProps): Promise<void>;
+}

@@ -10,5 +10,5 @@ export interface IJobService {
     jobName: string,
     data: T,
     opts?: IGenericJobOptions,
-  ): Promise<void>;
+  ): Promise<string | undefined>;
 }
