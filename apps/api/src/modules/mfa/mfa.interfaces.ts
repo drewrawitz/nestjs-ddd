@@ -5,11 +5,14 @@ export interface CreateUserMFAInput {
   type: MFAType;
   secret: string;
   iv: string;
+  authTag: string;
   isEnabled: boolean;
 }
 
 export interface IUserMFARepository {
   upsert(userMFA: CreateUserMFAInput): Promise<UserMFA>;
+  getAllActiveMFAForUser(userId: string): Promise<UserMFA[]>;
+  getSecretForUser(userId: string, type: MFAType): Promise<string | null>;
   checkIfUserIsAuthenticatedWithType(
     userId: string,
     type: MFAType,

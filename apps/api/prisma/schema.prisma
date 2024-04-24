@@ -29,6 +29,7 @@ model UserMFA {
   type      MFAType
   secret    String
   iv        String
+  authTag   String
   isEnabled Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

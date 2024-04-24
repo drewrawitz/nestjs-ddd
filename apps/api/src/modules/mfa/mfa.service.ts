@@ -16,6 +16,10 @@ export class MFAService {
     private readonly userMfaRepository: IUserMFARepository,
   ) {}
 
+  async getAllActiveMFAForUser(userId: string) {
+    return this.userMfaRepository.getAllActiveMFAForUser(userId);
+  }
+
   async setupTotp() {
     const secret = generateTOTPSecret();
     const qrcode = await QRCode.toDataURL(secret.otpauth_url!);
@@ -27,17 +31,23 @@ export class MFAService {
     };
   }
 
-  async activateTotp(userId: string, body: ActivateTotpDto) {
-    const secret = body.key;
+  async verifyTotpToken(secret: string, token: string) {
     const isValid = speakeasy.totp.verify({
       secret,
-      token: body.totp,
+      token,
       encoding: 'base32',
     });
 
     if (!isValid) {
       throw new ForbiddenException('Invalid TOTP token');
     }
+
+    return isValid;
+  }
+
+  async activateTotp(userId: string, body: ActivateTotpDto) {
+    const { totp, key } = body;
+    await this.verifyTotpToken(key, totp);
 
     const existingMfa =
       await this.userMfaRepository.checkIfUserIsAuthenticatedWithType(
@@ -49,9 +59,9 @@ export class MFAService {
       throw new ForbiddenException('User already has TOTP enabled');
     }
 
-    const { ciphertext, iv } = encrypt(
+    const { ciphertext, iv, authTag } = encrypt(
       this.envService.get('ENCRYPTION_SECRET_KEY'),
-      secret,
+      key,
     );
 
     await this.userMfaRepository.upsert({
@@ -59,9 +69,23 @@ export class MFAService {
       type: MFAType.TOTP,
       secret: ciphertext,
       iv,
+      authTag,
       isEnabled: true,
     });
 
     return;
+  }
+
+  async verifyUserTotpToken(userId: string, token: string) {
+    const secret = await this.userMfaRepository.getSecretForUser(
+      userId,
+      MFAType.TOTP,
+    );
+
+    if (!secret) {
+      return false;
+    }
+
+    return this.verifyTotpToken(secret, token);
   }
 }

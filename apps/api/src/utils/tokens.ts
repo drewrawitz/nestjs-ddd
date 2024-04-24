@@ -1,4 +1,4 @@
-import { randomBytes, createCipheriv } from 'crypto';
+import { randomBytes, createCipheriv, createDecipheriv } from 'crypto';
 import * as speakeasy from 'speakeasy';
 
 export function generateBase64Key() {
@@ -29,6 +29,26 @@ export const encrypt = (key: string, plaintext: string) => {
   );
   let ciphertext = cipher.update(plaintext, 'utf8', 'base64');
   ciphertext += cipher.final('base64');
+  const authTag = cipher.getAuthTag().toString('base64');
 
-  return { ciphertext, iv };
+  return { ciphertext, iv, authTag };
+};
+
+export const decrypt = (
+  key: string,
+  ciphertext: string,
+  iv: string,
+  authTag: string,
+) => {
+  const decipher = createDecipheriv(
+    'aes-256-gcm',
+    Buffer.from(key, 'base64'),
+    Buffer.from(iv, 'base64'),
+  );
+  decipher.setAuthTag(Buffer.from(authTag, 'base64'));
+
+  let plaintext = decipher.update(ciphertext, 'base64', 'utf8');
+  plaintext += decipher.final('utf8');
+
+  return plaintext;
 };

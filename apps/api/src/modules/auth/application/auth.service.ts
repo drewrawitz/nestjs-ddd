@@ -46,6 +46,16 @@ export class AuthService {
     private userDomainService: UserDomainService,
   ) {}
 
+  async getUserById(userId: string) {
+    const user = await this.userRepository.getUserById(userId);
+
+    if (!user) {
+      return null;
+    }
+
+    return new UserResponseDto(user);
+  }
+
   async validateUser(
     email: string,
     password: string,

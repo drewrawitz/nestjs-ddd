@@ -1,12 +1,15 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   HttpCode,
   Post,
   Query,
   Req,
   Res,
+  UnauthorizedException,
+  NotFoundException,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -17,7 +20,12 @@ import {
   ForgotPasswordDto,
   forgotPasswordSchema,
 } from '../dto/forgot-password.dto';
-import { ActivateTotpDto, activateTotpSchema } from '../../mfa/mfa.dto';
+import {
+  ActivateTotpDto,
+  VerifyMfaDto,
+  activateTotpSchema,
+  verifyMfaSchema,
+} from '../../mfa/mfa.dto';
 import {
   ResetPasswordDto,
   resetPasswordSchema,
@@ -54,6 +62,33 @@ export class AuthController {
   async login(@Req() req: RequestWithUser) {
     await this.authService.loginSuccess(req);
     return req.user;
+  }
+
+  @HttpCode(200)
+  @Post('login/mfa')
+  @UsePipes(new ZodValidationPipe(verifyMfaSchema))
+  async loginMfa(@Req() req: RequestWithUser, @Body() body: VerifyMfaDto) {
+    if (!req.session.mfa || !req.session.mfa.required) {
+      throw new ForbiddenException('MFA verification is not required.');
+    }
+
+    const { totp } = body;
+    const { userId } = req.session.mfa;
+
+    const isValid = await this.mfaService.verifyUserTotpToken(userId, totp);
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid MFA token.');
+    }
+
+    const user = await this.authService.getUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.authService.login(req, user);
+
+    return user;
   }
 
   @UseGuards(AuthenticatedGuard)
