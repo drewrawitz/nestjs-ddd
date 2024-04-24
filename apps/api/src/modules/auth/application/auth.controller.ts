@@ -29,6 +29,7 @@ import {
   VerifyResetTokenDto,
   verifyResetTokenSchema,
 } from '../dto/verify-reset-token.dto';
+import { ActivateTotpDto, activateTotpSchema } from '../dto/mfa.dto';
 
 @Controller('v1/auth')
 export class AuthController {
@@ -85,5 +86,15 @@ export class AuthController {
   @Post('mfa/totp/setup')
   async setupTotp() {
     return await this.authService.setupTotp();
+  }
+
+  @UseGuards(AuthenticatedGuard)
+  @Post('mfa/totp/activate')
+  @UsePipes(new ZodValidationPipe(activateTotpSchema))
+  async activateTotp(
+    @Req() req: RequestWithUser,
+    @Body() body: ActivateTotpDto,
+  ) {
+    return await this.authService.activateTotp(req.user.id, body);
   }
 }

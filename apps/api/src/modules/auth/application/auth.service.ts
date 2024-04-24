@@ -33,6 +33,7 @@ import { ForgotPasswordEvent } from '../domain/events/forgot-password.event';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { ChangedPasswordEvent } from '../domain/events/changed-password.event';
 import { EnvService } from 'src/infrastructure/env/env.service';
+import { ActivateTotpDto } from '../dto/mfa.dto';
 
 @Injectable()
 export class AuthService {
@@ -226,20 +227,36 @@ export class AuthService {
   async setupTotp() {
     const secret = generateTOTPSecret();
     const qrcode = await QRCode.toDataURL(secret.otpauth_url!);
-    // const isValid = speakeasy.totp.verify({
-    //   secret: secret,
-    //   token: token,
-    //   encoding: 'base32',
-    // });
-    // const { ciphertext, iv } = encrypt(
-    //   this.envService.get('ENCRYPTION_SECRET_KEY'),
-    //   secret,
-    // );
 
     return {
       key: secret.base32,
       url: secret.otpauth_url,
       qrcode,
+    };
+  }
+
+  async activateTotp(userId: string, body: ActivateTotpDto) {
+    const secret = body.key;
+    const isValid = speakeasy.totp.verify({
+      secret,
+      token: body.totp,
+      encoding: 'base32',
+    });
+
+    if (!isValid) {
+      throw new ForbiddenException('Invalid TOTP token');
+    }
+
+    const { ciphertext, iv } = encrypt(
+      this.envService.get('ENCRYPTION_SECRET_KEY'),
+      secret,
+    );
+
+    return {
+      userId,
+      isValid,
+      iv,
+      encryptedSecret: ciphertext,
     };
   }
 
