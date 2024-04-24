@@ -19,16 +19,25 @@ export class UserMFARepository implements IUserMFARepository {
     private db: PrismaService,
   ) {}
 
-  async create(data: CreateUserMFAInput): Promise<UserMFA> {
+  async upsert(data: CreateUserMFAInput): Promise<UserMFA> {
     try {
-      const create = await this.db.userMFA.create({ data });
-      this.logger.log('Successfully created a new User MFA record', {
+      const create = await this.db.userMFA.upsert({
+        where: {
+          userId_type: {
+            userId: data.userId,
+            type: data.type,
+          },
+        },
+        create: data,
+        update: { isEnabled: true },
+      });
+      this.logger.log('Successfully upserted a new User MFA record', {
         data,
       });
 
       return create;
     } catch (error) {
-      this.logger.error('Failed to create User MFA record', {
+      this.logger.error('Failed to upsert User MFA record', {
         error,
         data,
       });

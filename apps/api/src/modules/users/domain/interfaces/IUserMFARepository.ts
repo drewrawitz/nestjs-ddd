@@ -9,7 +9,7 @@ export interface CreateUserMFAInput {
 }
 
 export interface IUserMFARepository {
-  create(userMFA: CreateUserMFAInput): Promise<UserMFA>;
+  upsert(userMFA: CreateUserMFAInput): Promise<UserMFA>;
   checkIfUserIsAuthenticatedWithType(
     userId: string,
     type: MFAType,

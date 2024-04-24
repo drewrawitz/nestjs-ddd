@@ -269,7 +269,7 @@ export class AuthService {
       secret,
     );
 
-    await this.userMfaRepository.create({
+    await this.userMfaRepository.upsert({
       userId,
       type: MFAType.TOTP,
       secret: ciphertext,
