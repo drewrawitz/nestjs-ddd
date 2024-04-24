@@ -254,6 +254,16 @@ export class AuthService {
       throw new ForbiddenException('Invalid TOTP token');
     }
 
+    const existingMfa =
+      await this.userMfaRepository.checkIfUserIsAuthenticatedWithType(
+        userId,
+        MFAType.TOTP,
+      );
+
+    if (existingMfa) {
+      throw new ForbiddenException('User already has TOTP enabled');
+    }
+
     const { ciphertext, iv } = encrypt(
       this.envService.get('ENCRYPTION_SECRET_KEY'),
       secret,
@@ -267,12 +277,7 @@ export class AuthService {
       isEnabled: true,
     });
 
-    return {
-      userId,
-      isValid,
-      iv,
-      encryptedSecret: ciphertext,
-    };
+    return;
   }
 
   private async validateResetToken(

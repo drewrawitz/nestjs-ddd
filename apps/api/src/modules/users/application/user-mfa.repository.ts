@@ -3,11 +3,14 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Prisma, UserMFA } from '@prisma/client';
+import { UserMFA, MFAType } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/database/prisma.service';
 import { ILogger } from 'src/infrastructure/logging/logger.interface';
 import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
-import { IUserMFARepository } from '../domain/interfaces/IUserMFARepository';
+import {
+  CreateUserMFAInput,
+  IUserMFARepository,
+} from '../domain/interfaces/IUserMFARepository';
 
 @Injectable()
 export class UserMFARepository implements IUserMFARepository {
@@ -16,7 +19,7 @@ export class UserMFARepository implements IUserMFARepository {
     private db: PrismaService,
   ) {}
 
-  async create(data: Prisma.UserMFACreateManyInput): Promise<UserMFA> {
+  async create(data: CreateUserMFAInput): Promise<UserMFA> {
     try {
       const create = await this.db.userMFA.create({ data });
       this.logger.log('Successfully created a new User MFA record', {
@@ -31,5 +34,17 @@ export class UserMFARepository implements IUserMFARepository {
       });
       throw new InternalServerErrorException('Something went wrong.');
     }
+  }
+
+  async checkIfUserIsAuthenticatedWithType(userId: string, type: MFAType) {
+    const find = await this.db.userMFA.findFirst({
+      where: {
+        userId,
+        type,
+        isEnabled: true,
+      },
+    });
+
+    return Boolean(find);
   }
 }
