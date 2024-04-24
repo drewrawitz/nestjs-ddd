@@ -29,7 +29,7 @@ import {
 } from '@nestjs/common';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 
-jest.mock('src/utils/generate-token', () => ({
+jest.mock('src/utils/tokens', () => ({
   generateToken: jest.fn(() => 'securetoken123'),
 }));
 

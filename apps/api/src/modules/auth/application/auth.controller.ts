@@ -80,4 +80,10 @@ export class AuthController {
     await this.authService.resetPassword(body);
     return;
   }
+
+  @UseGuards(AuthenticatedGuard)
+  @Post('mfa/totp/setup')
+  async setupTotp() {
+    return await this.authService.setupTotp();
+  }
 }

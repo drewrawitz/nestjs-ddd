@@ -1,3 +1,5 @@
+import QRCode from 'qrcode';
+import speakeasy from 'speakeasy';
 import {
   NotFoundException,
   ForbiddenException,
@@ -25,11 +27,12 @@ import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
 import { RequestWithUser } from 'src/utils/types';
 import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
 import { getClientIp } from 'src/utils/ip';
-import { generateToken } from 'src/utils/generate-token';
+import { encrypt, generateTOTPSecret, generateToken } from 'src/utils/tokens';
 import { IPasswordResetManager } from '../domain/interfaces/IPasswordResetManager';
 import { ForgotPasswordEvent } from '../domain/events/forgot-password.event';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { ChangedPasswordEvent } from '../domain/events/changed-password.event';
+import { EnvService } from 'src/infrastructure/env/env.service';
 
 @Injectable()
 export class AuthService {
@@ -44,6 +47,7 @@ export class AuthService {
     @Inject(PASSWORD_HASHING_TOKEN)
     private passwordHashingService: IPasswordHashingService,
     private userDomainService: UserDomainService,
+    private envService: EnvService,
   ) {}
 
   async validateUser(
@@ -217,6 +221,26 @@ export class AuthService {
 
     await this.updateUserPassword(user, password);
     await this.cleanupAfterPasswordReset(user.id!, email, token);
+  }
+
+  async setupTotp() {
+    const secret = generateTOTPSecret();
+    const qrcode = await QRCode.toDataURL(secret.otpauth_url!);
+    // const isValid = speakeasy.totp.verify({
+    //   secret: secret,
+    //   token: token,
+    //   encoding: 'base32',
+    // });
+    // const { ciphertext, iv } = encrypt(
+    //   this.envService.get('ENCRYPTION_SECRET_KEY'),
+    //   secret,
+    // );
+
+    return {
+      key: secret.base32,
+      url: secret.otpauth_url,
+      qrcode,
+    };
   }
 
   private async validateResetToken(
