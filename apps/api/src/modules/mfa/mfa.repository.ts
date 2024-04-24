@@ -7,10 +7,7 @@ import { UserMFA, MFAType } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/database/prisma.service';
 import { ILogger } from 'src/infrastructure/logging/logger.interface';
 import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
-import {
-  CreateUserMFAInput,
-  IUserMFARepository,
-} from '../domain/interfaces/IUserMFARepository';
+import { CreateUserMFAInput, IUserMFARepository } from './mfa.interfaces';
 
 @Injectable()
 export class UserMFARepository implements IUserMFARepository {

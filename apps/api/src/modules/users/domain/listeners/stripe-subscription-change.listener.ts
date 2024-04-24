@@ -7,7 +7,7 @@ import { STRIPE_REPO_TOKEN } from 'src/infrastructure/stripe/stripe.token';
 import Stripe from 'stripe';
 import { USER_REPO_TOKEN } from '../../application/users.constants';
 import { IUsersRepository } from '../interfaces/IUsersRepository';
-import { UsersService } from '../../application/users.service';
+import { UsersService } from 'src/modules/users/application/services/users.service';
 
 @Injectable()
 export class StripeSubscriptionChangeListener {

@@ -8,11 +8,10 @@ import { SubscriptionsModule } from '../../subscriptions/application/subscriptio
 import { StripeSubscriptionChangeListener } from '../domain/listeners/stripe-subscription-change.listener';
 import { UserCreatedListener } from '../domain/listeners/user-created.listener';
 import { UserDomainService } from '../domain/services/user.domain.service';
-import { USER_MFA_REPO_TOKEN, USER_REPO_TOKEN } from './users.constants';
+import { USER_REPO_TOKEN } from './users.constants';
 import { UsersController } from './users.controller';
-import { UsersRepository } from './users.repository';
-import { UsersService } from './users.service';
-import { UserMFARepository } from './user-mfa.repository';
+import { UsersRepository } from './repositories/users.repository';
+import { UsersService } from './services/users.service';
 
 @Module({
   imports: [
@@ -29,15 +28,11 @@ import { UserMFARepository } from './user-mfa.repository';
       provide: USER_REPO_TOKEN,
       useClass: UsersRepository,
     },
-    {
-      provide: USER_MFA_REPO_TOKEN,
-      useClass: UserMFARepository,
-    },
     UserCreatedListener,
     StripeSubscriptionChangeListener,
     UsersService,
     UserDomainService,
   ],
-  exports: [UserDomainService, USER_REPO_TOKEN, USER_MFA_REPO_TOKEN],
+  exports: [UserDomainService, USER_REPO_TOKEN],
 })
 export class UsersModule {}

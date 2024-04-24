@@ -2,10 +2,10 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User as PrismaUser } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/database/prisma.service';
-import { User as DomainUser } from './domain/model/User';
-import { UserResponseDto } from './dto/user-response.dto';
+import { User as DomainUser } from '../../domain/model/User';
+import { UserResponseDto } from '../../dto/user-response.dto';
 import { UsersRepository } from './users.repository';
-import { Email } from './domain/model/Email';
+import { Email } from '../../domain/model/Email';
 import { mockLogger } from 'src/tests/mocks/infra.mocks';
 import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
 

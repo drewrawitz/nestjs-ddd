@@ -19,9 +19,11 @@ import { SessionSerializer } from '../infrastructure/session.serializer';
 import { UserSessionManager } from '../infrastructure/user-session.manager';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { MFAModule } from 'src/modules/mfa/mfa.module';
 
 @Module({
   imports: [
+    MFAModule,
     RedisModule,
     EventModule,
     EmailModule,

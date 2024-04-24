@@ -17,7 +17,7 @@ import {
   ForgotPasswordDto,
   forgotPasswordSchema,
 } from '../dto/forgot-password.dto';
-import { ActivateTotpDto, activateTotpSchema } from '../dto/mfa.dto';
+import { ActivateTotpDto, activateTotpSchema } from '../../mfa/mfa.dto';
 import {
   ResetPasswordDto,
   resetPasswordSchema,
@@ -30,10 +30,14 @@ import {
 import { AuthenticatedGuard } from '../infrastructure/authenticated.guard';
 import { LocalAuthGuard } from '../infrastructure/local.auth.guard';
 import { AuthService } from './auth.service';
+import { MFAService } from 'src/modules/mfa/mfa.service';
 
 @Controller('v1/auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private mfaService: MFAService,
+  ) {}
 
   @Post('signup')
   @UsePipes(new ZodValidationPipe(signupSchema))
@@ -85,7 +89,7 @@ export class AuthController {
   @UseGuards(AuthenticatedGuard)
   @Post('mfa/totp/setup')
   async setupTotp() {
-    return await this.authService.setupTotp();
+    return await this.mfaService.setupTotp();
   }
 
   @UseGuards(AuthenticatedGuard)
@@ -95,6 +99,6 @@ export class AuthController {
     @Req() req: RequestWithUser,
     @Body() body: ActivateTotpDto,
   ) {
-    return await this.authService.activateTotp(req.user.id, body);
+    return await this.mfaService.activateTotp(req.user.id, body);
   }
 }
