@@ -11,7 +11,10 @@ import { EnvService } from 'src/infrastructure/env/env.service';
 import { IEventPublisher } from 'src/infrastructure/events/event.interface';
 import { EVENT_TOKEN } from 'src/infrastructure/events/event.token';
 import { ILogger } from 'src/infrastructure/logging/logger.interface';
-import { USER_REPO_TOKEN } from 'src/modules/users/application/users.constants';
+import {
+  USER_MFA_REPO_TOKEN,
+  USER_REPO_TOKEN,
+} from 'src/modules/users/application/users.constants';
 import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.event';
 import { IUsersRepository } from 'src/modules/users/domain/interfaces/IUsersRepository';
 import { User } from 'src/modules/users/domain/model/User';
@@ -34,6 +37,8 @@ import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
 import { ActivateTotpDto } from '../dto/mfa.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { SignupDto } from '../dto/signup.dto';
+import { IUserMFARepository } from 'src/modules/users/domain/interfaces/IUserMFARepository';
+import { MFAType } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -44,6 +49,8 @@ export class AuthService {
     @Inject(PASSWORD_RESET_MANAGER_TOKEN)
     private readonly passwordResetManager: IPasswordResetManager,
     @Inject(USER_REPO_TOKEN) private readonly userRepository: IUsersRepository,
+    @Inject(USER_MFA_REPO_TOKEN)
+    private readonly userMfaRepository: IUserMFARepository,
     @Inject(EVENT_TOKEN) private eventPublisher: IEventPublisher,
     @Inject(PASSWORD_HASHING_TOKEN)
     private passwordHashingService: IPasswordHashingService,
@@ -251,6 +258,14 @@ export class AuthService {
       this.envService.get('ENCRYPTION_SECRET_KEY'),
       secret,
     );
+
+    await this.userMfaRepository.create({
+      userId,
+      type: MFAType.TOTP,
+      secret: ciphertext,
+      iv,
+      isEnabled: true,
+    });
 
     return {
       userId,

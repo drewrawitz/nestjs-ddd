@@ -1,1 +1,2 @@
 export const USER_REPO_TOKEN = 'USER_REPO_TOKEN';
+export const USER_MFA_REPO_TOKEN = 'USER_MFA_REPO_TOKEN';
