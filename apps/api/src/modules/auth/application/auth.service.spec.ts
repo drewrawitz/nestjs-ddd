@@ -1,33 +1,33 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
-import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
-import { USER_REPO_TOKEN } from 'src/modules/users/users.constants';
 import {
-  PASSWORD_HASHING_TOKEN,
-  PASSWORD_RESET_MANAGER_TOKEN,
-  USER_SESSION_MANAGER_TOKEN,
-} from '../domain/auth.constants';
+  ForbiddenException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import { EVENT_TOKEN } from 'src/infrastructure/events/event.token';
-import { UserDomainService } from 'src/modules/users/domain/services/user.domain.service';
+import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
+import { USER_REPO_TOKEN } from 'src/modules/users/application/users.constants';
+import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.event';
 import { User } from 'src/modules/users/domain/model/User';
+import { UserDomainService } from 'src/modules/users/domain/services/user.domain.service';
 import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
+import {
+  mockPasswordHashingService,
+  mockPasswordResetManager,
+} from 'src/tests/mocks/auth.mocks';
+import { mockEventPublisher, mockLogger } from 'src/tests/mocks/infra.mocks';
 import {
   mockUserDomainService,
   mockUserRepository,
   mockUserSessionManager,
 } from 'src/tests/mocks/user.mocks';
 import {
-  mockPasswordHashingService,
-  mockPasswordResetManager,
-} from 'src/tests/mocks/auth.mocks';
-import { mockEventPublisher, mockLogger } from 'src/tests/mocks/infra.mocks';
-import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.event';
-import {
-  ForbiddenException,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+  PASSWORD_HASHING_TOKEN,
+  PASSWORD_RESET_MANAGER_TOKEN,
+  USER_SESSION_MANAGER_TOKEN,
+} from '../domain/auth.constants';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { AuthService } from './auth.service';
 
 jest.mock('src/utils/tokens', () => ({
   generateToken: jest.fn(() => 'securetoken123'),

@@ -1,35 +1,35 @@
 import {
   Body,
   Controller,
-  Req,
+  Get,
+  HttpCode,
   Post,
+  Query,
+  Req,
+  Res,
   UseGuards,
   UsePipes,
-  Res,
-  Get,
-  Query,
-  HttpCode,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import { AuthService } from './auth.service';
-import { SignupDto, signupSchema } from '../dto/signup.dto';
-import { RequestWithUser } from 'src/utils/types';
-import { LocalAuthGuard } from '../infrastructure/local.auth.guard';
-import { AuthenticatedGuard } from '../infrastructure/authenticated.guard';
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation-pipe';
+import { RequestWithUser } from 'src/utils/types';
 import {
   ForgotPasswordDto,
   forgotPasswordSchema,
 } from '../dto/forgot-password.dto';
+import { ActivateTotpDto, activateTotpSchema } from '../dto/mfa.dto';
 import {
   ResetPasswordDto,
   resetPasswordSchema,
 } from '../dto/reset-password.dto';
+import { SignupDto, signupSchema } from '../dto/signup.dto';
 import {
   VerifyResetTokenDto,
   verifyResetTokenSchema,
 } from '../dto/verify-reset-token.dto';
-import { ActivateTotpDto, activateTotpSchema } from '../dto/mfa.dto';
+import { AuthenticatedGuard } from '../infrastructure/authenticated.guard';
+import { LocalAuthGuard } from '../infrastructure/local.auth.guard';
+import { AuthService } from './auth.service';
 
 @Controller('v1/auth')
 export class AuthController {

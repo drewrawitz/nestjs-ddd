@@ -1,21 +1,21 @@
-import request from 'supertest';
-import session from 'express-session';
-import passport from 'passport';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
 import {
   INestApplication,
   MiddlewareConsumer,
   Module,
   NestModule,
 } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
+import { Test, TestingModule } from '@nestjs/testing';
+import session from 'express-session';
+import passport from 'passport';
+import { User } from 'src/modules/users/domain/model/User';
+import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
+import request from 'supertest';
 import { LocalAuthGuard } from '../infrastructure/local.auth.guard';
 import { LocalStrategy } from '../infrastructure/local.strategy';
-import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
-import { User } from 'src/modules/users/domain/model/User';
-import { PassportModule } from '@nestjs/passport';
 import { SessionSerializer } from '../infrastructure/session.serializer';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 
 const mockAuthService = {
   signup: jest.fn(),

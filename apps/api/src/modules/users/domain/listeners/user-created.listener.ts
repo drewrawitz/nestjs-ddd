@@ -5,8 +5,8 @@ import { EMAIL_TOKEN } from 'src/infrastructure/email/email.token';
 import { STRIPE_TOKEN } from 'src/infrastructure/stripe/stripe.token';
 import { IEmailService } from 'src/infrastructure/email/email.interface';
 import { UserCreatedEvent } from '../events/user-created.event';
-import { USER_REPO_TOKEN } from '../../users.constants';
-import { IUsersRepository } from '../interfaces/users.repository.interface';
+import { USER_REPO_TOKEN } from '../../application/users.constants';
+import { IUsersRepository } from '../interfaces/IUsersRepository';
 
 @Injectable()
 export class UserCreatedListener {

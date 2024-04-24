@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, Inject } from '@nestjs/common';
 import { User } from '../model/User';
-import { USER_REPO_TOKEN } from '../../users.constants';
-import { IUsersRepository } from '../interfaces/users.repository.interface';
+import { USER_REPO_TOKEN } from '../../application/users.constants';
+import { IUsersRepository } from '../interfaces/IUsersRepository';
 
 @Injectable()
 export class UserDomainService {

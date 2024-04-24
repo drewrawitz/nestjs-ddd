@@ -1,39 +1,39 @@
-import QRCode from 'qrcode';
-import speakeasy from 'speakeasy';
 import {
-  NotFoundException,
   ForbiddenException,
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
-import { LOGGER_TOKEN } from '../../../infrastructure/logging/logger.token';
-import { UserDomainService } from 'src/modules/users/domain/services/user.domain.service';
-import { USER_REPO_TOKEN } from 'src/modules/users/users.constants';
-import { IUsersRepository } from 'src/modules/users/domain/interfaces/users.repository.interface';
-import { EVENT_TOKEN } from 'src/infrastructure/events/event.token';
+import QRCode from 'qrcode';
+import speakeasy from 'speakeasy';
+import { EnvService } from 'src/infrastructure/env/env.service';
 import { IEventPublisher } from 'src/infrastructure/events/event.interface';
-import { SignupDto } from '../dto/signup.dto';
+import { EVENT_TOKEN } from 'src/infrastructure/events/event.token';
 import { ILogger } from 'src/infrastructure/logging/logger.interface';
+import { USER_REPO_TOKEN } from 'src/modules/users/application/users.constants';
 import { UserCreatedEvent } from 'src/modules/users/domain/events/user-created.event';
+import { IUsersRepository } from 'src/modules/users/domain/interfaces/IUsersRepository';
 import { User } from 'src/modules/users/domain/model/User';
+import { UserDomainService } from 'src/modules/users/domain/services/user.domain.service';
+import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
+import { getClientIp } from 'src/utils/ip';
+import { encrypt, generateTOTPSecret, generateToken } from 'src/utils/tokens';
+import { RequestWithUser } from 'src/utils/types';
+import { LOGGER_TOKEN } from '../../../infrastructure/logging/logger.token';
 import {
   PASSWORD_HASHING_TOKEN,
   PASSWORD_RESET_MANAGER_TOKEN,
   USER_SESSION_MANAGER_TOKEN,
 } from '../domain/auth.constants';
-import { IPasswordHashingService } from '../domain/interfaces/IPasswordHashingService';
-import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
-import { RequestWithUser } from 'src/utils/types';
-import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
-import { getClientIp } from 'src/utils/ip';
-import { encrypt, generateTOTPSecret, generateToken } from 'src/utils/tokens';
-import { IPasswordResetManager } from '../domain/interfaces/IPasswordResetManager';
-import { ForgotPasswordEvent } from '../domain/events/forgot-password.event';
-import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { ChangedPasswordEvent } from '../domain/events/changed-password.event';
-import { EnvService } from 'src/infrastructure/env/env.service';
+import { ForgotPasswordEvent } from '../domain/events/forgot-password.event';
+import { IPasswordHashingService } from '../domain/interfaces/IPasswordHashingService';
+import { IPasswordResetManager } from '../domain/interfaces/IPasswordResetManager';
+import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
 import { ActivateTotpDto } from '../dto/mfa.dto';
+import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { SignupDto } from '../dto/signup.dto';
 
 @Injectable()
 export class AuthService {

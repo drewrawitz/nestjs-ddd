@@ -6,11 +6,11 @@ import {
 } from '@nestjs/common';
 import { User as PrismaUser } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/database/prisma.service';
-import { IUsersRepository } from './domain/interfaces/users.repository.interface';
-import { User as DomainUser } from './domain/model/User';
-import { UserResponseDto } from './dto/user-response.dto';
-import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
 import { ILogger } from 'src/infrastructure/logging/logger.interface';
+import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
+import { IUsersRepository } from '../domain/interfaces/IUsersRepository';
+import { User as DomainUser } from '../domain/model/User';
+import { UserResponseDto } from '../dto/user-response.dto';
 
 @Injectable()
 export class UsersRepository implements IUsersRepository {

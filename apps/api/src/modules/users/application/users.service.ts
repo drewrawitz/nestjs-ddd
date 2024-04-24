@@ -1,14 +1,14 @@
 import ms from 'ms';
 import { Inject, Injectable } from '@nestjs/common';
 import { USER_REPO_TOKEN } from './users.constants';
-import { IUsersRepository } from './domain/interfaces/users.repository.interface';
-import { SubscriptionsService } from '../subscriptions/application/subscriptions.service';
-import { UserResponseDto } from './dto/user-response.dto';
-import { SubscriptionResponseDto } from '../subscriptions/dto/subscription-response.dto';
-import { AccessService } from '../access/application/access.service';
-import { AccessResponseDto } from '../access/dto/access-response.dto';
+import { IUsersRepository } from '../domain/interfaces/IUsersRepository';
+import { SubscriptionsService } from '../../subscriptions/application/subscriptions.service';
+import { UserResponseDto } from '../dto/user-response.dto';
+import { SubscriptionResponseDto } from '../../subscriptions/dto/subscription-response.dto';
+import { AccessService } from '../../access/application/access.service';
+import { AccessResponseDto } from '../../access/dto/access-response.dto';
 import { EnvService } from 'src/infrastructure/env/env.service';
-import { Subscription } from '../subscriptions/domain/model/Subscription';
+import { Subscription } from '../../subscriptions/domain/model/Subscription';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 

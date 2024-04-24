@@ -5,9 +5,9 @@ import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
 import { IStripeRepository } from 'src/infrastructure/stripe/stripe.interface';
 import { STRIPE_REPO_TOKEN } from 'src/infrastructure/stripe/stripe.token';
 import Stripe from 'stripe';
-import { USER_REPO_TOKEN } from '../../users.constants';
-import { IUsersRepository } from '../interfaces/users.repository.interface';
-import { UsersService } from '../../users.service';
+import { USER_REPO_TOKEN } from '../../application/users.constants';
+import { IUsersRepository } from '../interfaces/IUsersRepository';
+import { UsersService } from '../../application/users.service';
 
 @Injectable()
 export class StripeSubscriptionChangeListener {

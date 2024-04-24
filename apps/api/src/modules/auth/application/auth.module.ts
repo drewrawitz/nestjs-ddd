@@ -1,24 +1,24 @@
 import { Module } from '@nestjs/common';
-import { EventModule } from 'src/infrastructure/events/event.module';
-import { AuthController } from './auth.controller';
+import { PassportModule } from '@nestjs/passport';
 import { PrismaModule } from 'src/infrastructure/database/prisma.module';
-import { UsersModule } from 'src/modules/users/users.module';
-import { AuthService } from './auth.service';
+import { EmailModule } from 'src/infrastructure/email/email.module';
+import { EventModule } from 'src/infrastructure/events/event.module';
+import { RedisModule } from 'src/infrastructure/store/redis.module';
+import { UsersModule } from 'src/modules/users/application/users.module';
 import {
   PASSWORD_HASHING_TOKEN,
   PASSWORD_RESET_MANAGER_TOKEN,
   USER_SESSION_MANAGER_TOKEN,
 } from '../domain/auth.constants';
-import { PasswordHashingService } from '../infrastructure/password-hashing.service';
+import { ChangedPasswordListener } from '../domain/listeners/changed-password.listener';
+import { ForgotPasswordListener } from '../domain/listeners/forgot-password.listener';
 import { LocalStrategy } from '../infrastructure/local.strategy';
-import { PassportModule } from '@nestjs/passport';
+import { PasswordHashingService } from '../infrastructure/password-hashing.service';
+import { PasswordResetManager } from '../infrastructure/password-reset.manager';
 import { SessionSerializer } from '../infrastructure/session.serializer';
 import { UserSessionManager } from '../infrastructure/user-session.manager';
-import { RedisModule } from 'src/infrastructure/store/redis.module';
-import { PasswordResetManager } from '../infrastructure/password-reset.manager';
-import { ForgotPasswordListener } from '../domain/listeners/forgot-password.listener';
-import { EmailModule } from 'src/infrastructure/email/email.module';
-import { ChangedPasswordListener } from '../domain/listeners/changed-password.listener';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 
 @Module({
   imports: [
