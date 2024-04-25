@@ -68,7 +68,7 @@ export class AuthController {
   @Post('login/mfa')
   @UsePipes(new ZodValidationPipe(verifyMfaSchema))
   async loginMfa(@Req() req: RequestWithUser, @Body() body: VerifyMfaDto) {
-    if (!req.session.mfa || !req.session.mfa.required) {
+    if (!req.session.mfa?.required) {
       throw new ForbiddenException('MFA verification is not required.');
     }
 

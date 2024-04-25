@@ -23,7 +23,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     email: string,
     password: string,
   ): Promise<any> {
-    if (req.isAuthenticated && req.isAuthenticated()) {
+    if (req.isAuthenticated?.()) {
       throw new ForbiddenException(
         'Already authenticated with an active session',
       );
