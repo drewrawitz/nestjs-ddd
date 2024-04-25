@@ -89,6 +89,10 @@ describe('AuthController', () => {
     app.use((req: any, res: any, next: any) => {
       if (process.env.TEST_AUTHENTICATED) {
         req.isAuthenticated = () => true;
+        req.user = {
+          id: 'user_123',
+          email: 'test@test.com',
+        };
       }
 
       res.clearCookie = spyClearCookie;
@@ -322,6 +326,53 @@ describe('AuthController', () => {
         .expect(201)
         .expect(() => {
           expect(mockMfaService.setupTotp).toHaveBeenCalled();
+        });
+
+      delete process.env.TEST_AUTHENTICATED;
+    });
+  });
+
+  describe('POST /v1/auth/mfa/totp/activate', () => {
+    it('should return a 401 if the user is not authenticated', async () => {
+      await request(app.getHttpServer())
+        .post('/v1/auth/mfa/totp/activate')
+        .expect(401);
+    });
+
+    it('should fail with validation errors', async () => {
+      process.env.TEST_AUTHENTICATED = 'true';
+      const params = [
+        undefined,
+        {},
+        { key: 123, totp: '123456' },
+        { key: '123', totp: '123' },
+      ];
+
+      for (const param of params) {
+        await request(app.getHttpServer())
+          .post('/v1/auth/mfa/totp/activate')
+          .send(param)
+          .expect(400)
+          .expect((res) => {
+            expect(res.body.message).toContain('Validation failed');
+          });
+      }
+      delete process.env.TEST_AUTHENTICATED;
+    });
+
+    it('should call activateTotp when the endpoint is hit', async () => {
+      process.env.TEST_AUTHENTICATED = 'true';
+      const body = { key: '123', totp: '123456' };
+
+      await request(app.getHttpServer())
+        .post('/v1/auth/mfa/totp/activate')
+        .send(body)
+        .expect(201)
+        .expect(() => {
+          expect(mockMfaService.activateTotp).toHaveBeenCalledWith(
+            'user_123',
+            body,
+          );
         });
 
       delete process.env.TEST_AUTHENTICATED;
