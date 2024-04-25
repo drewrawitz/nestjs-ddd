@@ -40,7 +40,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
     // Check if MFA is enabled for this user
     const activeMFA = await this.mfaService.getAllActiveMFAForUser(user.id);
-    if (activeMFA.length > 0) {
+    if (activeMFA?.length > 0) {
       req.session.mfa = {
         required: true,
         userId: user.id,

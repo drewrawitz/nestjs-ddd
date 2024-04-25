@@ -16,6 +16,7 @@ import { LocalStrategy } from '../infrastructure/local.strategy';
 import { SessionSerializer } from '../infrastructure/session.serializer';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { MFAService } from 'src/modules/mfa/mfa.service';
 
 const mockAuthService = {
   signup: jest.fn(),
@@ -25,11 +26,24 @@ const mockAuthService = {
   validateUser: jest.fn(),
   verifyResetToken: jest.fn(),
   loginSuccess: jest.fn(),
+  setupTotp: jest.fn(),
+  activateTotp: jest.fn(),
+};
+
+const mockMfaService = {
+  getAllActiveMFAForUser: jest.fn(),
+  setupTotp: jest.fn(),
+  verifyTotpToken: jest.fn(),
+  activateTotp: jest.fn(),
+  verifyUserTotpToken: jest.fn(),
 };
 
 @Module({
   controllers: [AuthController],
-  providers: [{ provide: AuthService, useValue: mockAuthService }],
+  providers: [
+    { provide: MFAService, useValue: mockMfaService },
+    { provide: AuthService, useValue: mockAuthService },
+  ],
 })
 class TestAppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
@@ -61,6 +75,7 @@ describe('AuthController', () => {
       controllers: [AuthController],
       providers: [
         { provide: AuthService, useValue: mockAuthService },
+        { provide: MFAService, useValue: mockMfaService },
         { provide: LocalAuthGuard, useValue: mockAuthGuard },
         LocalStrategy,
         SessionSerializer,
@@ -289,6 +304,27 @@ describe('AuthController', () => {
         .expect(() => {
           expect(mockAuthService.verifyResetToken).toHaveBeenCalledWith('123');
         });
+    });
+  });
+
+  describe('POST /v1/auth/mfa/totp/setup', () => {
+    it('should return a 401 if the user is not authenticated', async () => {
+      await request(app.getHttpServer())
+        .post('/v1/auth/mfa/totp/setup')
+        .expect(401);
+    });
+
+    it('should call setupTotp when the endpoint is hit', async () => {
+      process.env.TEST_AUTHENTICATED = 'true';
+
+      await request(app.getHttpServer())
+        .post('/v1/auth/mfa/totp/setup')
+        .expect(201)
+        .expect(() => {
+          expect(mockMfaService.setupTotp).toHaveBeenCalled();
+        });
+
+      delete process.env.TEST_AUTHENTICATED;
     });
   });
 });
