@@ -91,8 +91,6 @@ export class StripeWebhookService {
         eventId: event.id,
       });
     }
-
-    return;
   }
 
   async addStripeEvent(data: StripeJobPayload['processEvent']) {

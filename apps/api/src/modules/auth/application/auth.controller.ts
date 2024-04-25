@@ -118,7 +118,6 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(resetPasswordSchema))
   async resetPassword(@Body() body: ResetPasswordDto) {
     await this.authService.resetPassword(body);
-    return;
   }
 
   @UseGuards(AuthenticatedGuard)

@@ -72,8 +72,6 @@ export class MFAService {
       authTag,
       isEnabled: true,
     });
-
-    return;
   }
 
   async verifyUserTotpToken(userId: string, token: string) {
