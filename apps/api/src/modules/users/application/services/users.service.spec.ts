@@ -2,7 +2,7 @@ import ms from 'ms';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
-import { USER_REPO_TOKEN } from 'src/modules/users/users.constants';
+import { USER_REPO_TOKEN } from 'src/modules/users/application/users.constants';
 import { EVENT_TOKEN } from 'src/infrastructure/events/event.token';
 import { UserDomainService } from 'src/modules/users/domain/services/user.domain.service';
 import {
@@ -17,12 +17,12 @@ import {
 } from 'src/tests/mocks/infra.mocks';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { mockSubscriptionsService } from 'src/tests/mocks/subscriptions.mock';
-import { SubscriptionsService } from '../subscriptions/application/subscriptions.service';
-import { AccessService } from '../access/application/access.service';
+import { SubscriptionsService } from 'src/modules/subscriptions/application/subscriptions.service';
+import { AccessService } from 'src/modules/access/application/access.service';
 import { mockAccessService } from 'src/tests/mocks/access.mocks';
 import { EnvService } from 'src/infrastructure/env/env.service';
-import { UserResponseDto } from './dto/user-response.dto';
-import { User as DomainUser } from './domain/model/User';
+import { UserResponseDto } from '../../dto/user-response.dto';
+import { User as DomainUser } from '../../domain/model/User';
 
 describe('UsersService', () => {
   let service: UsersService;
