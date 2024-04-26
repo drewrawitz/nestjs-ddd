@@ -206,9 +206,11 @@ describe('AuthController', () => {
       const userDto = new UserResponseDto(user);
 
       mockAuthService.validateUser.mockResolvedValue(userDto);
-      mockMfaService.getAllActiveMFAForUser.mockResolvedValue([{
-        type: 'TOTP',
-      }]);
+      mockMfaService.getAllActiveMFAForUser.mockResolvedValue([
+        {
+          type: 'TOTP',
+        },
+      ]);
 
       await request(app.getHttpServer())
         .post('/v1/auth/login')
