@@ -32,6 +32,12 @@
 $ pnpm install
 ```
 
+## Stripe Listener
+
+```bash
+stripe listen --forward-to localhost:3000/v1/webhooks/stripe
+```
+
 ## Running the app
 
 ```bash
