@@ -1,0 +1,25 @@
+services:
+  # Postgres Service
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: nestjs
+      POSTGRES_PASSWORD: "nestjs"
+      POSTGRES_DB: nestjs
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Redis Service
+  redis:
+    image: redis:latest
+    ports:
+      - "6380:6379"
+    volumes:
+      - redisdata:/data
+
+volumes:
+  postgres_data:
+  redisdata:
+    driver: "local"
