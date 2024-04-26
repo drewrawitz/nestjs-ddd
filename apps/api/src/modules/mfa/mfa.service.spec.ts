@@ -4,6 +4,9 @@ import { mockEnv } from 'src/tests/mocks/infra.mocks';
 import { EnvService } from 'src/infrastructure/env/env.service';
 import { USER_MFA_REPO_TOKEN } from './mfa.constants';
 import { mockUserMfaRepository } from 'src/tests/mocks/mfa.mocks';
+import speakeasy from 'speakeasy';
+import { ForbiddenException } from '@nestjs/common';
+import { MFAType } from '@prisma/client';
 
 const TOTP_SECRET = 'secret123';
 const TOTP_URL = 'url123';
@@ -17,6 +20,11 @@ jest.mock('src/utils/tokens', () => ({
   generateTOTPSecret: jest.fn(() => ({
     base32: TOTP_SECRET,
     otpauth_url: TOTP_URL,
+  })),
+  encrypt: jest.fn(() => ({
+    ciphertext: 'ciphertext',
+    iv: 'iv',
+    authTag: 'authTag',
   })),
 }));
 
@@ -44,6 +52,27 @@ describe('MFAService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('getAllActiveMFAForUser', () => {
+    it('should return a list of all active MFA entries for a user (empty)', async () => {
+      jest
+        .spyOn(mockUserMfaRepository, 'getAllActiveMFAForUser')
+        .mockResolvedValue([]);
+
+      const result = await service.getAllActiveMFAForUser('user123');
+      expect(result).toEqual([]);
+    });
+
+    it('should return a list of all active MFA entries for a user (results)', async () => {
+      const results = [{ id: 1, type: 'TOTP' }];
+      jest
+        .spyOn(mockUserMfaRepository, 'getAllActiveMFAForUser')
+        .mockResolvedValue(results);
+
+      const result = await service.getAllActiveMFAForUser('user123');
+      expect(result).toEqual(results);
+    });
+  });
+
   describe('setupTotp', () => {
     it('should generate a key, URL, and QR code', async () => {
       const result = await service.setupTotp();
@@ -51,6 +80,112 @@ describe('MFAService', () => {
       expect(result.key).toEqual(TOTP_SECRET);
       expect(result.url).toEqual(TOTP_URL);
       expect(result.qrcode).toEqual(QRCODE_URL);
+    });
+  });
+
+  describe('verifyTotpToken', () => {
+    it('should return true for a valid token', async () => {
+      jest.spyOn(speakeasy.totp, 'verify').mockReturnValue(true);
+
+      const secret = TOTP_SECRET;
+      const token = '123456';
+      const result = await service.verifyTotpToken(secret, token);
+
+      expect(result).toBe(true);
+    });
+
+    it('should throw an exception for an invalid token', async () => {
+      jest.spyOn(speakeasy.totp, 'verify').mockReturnValue(false);
+
+      const secret = TOTP_SECRET;
+      const token = 'invalid';
+
+      await expect(service.verifyTotpToken(secret, token)).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+  });
+
+  describe('activateTotp', () => {
+    it('should activate TOTP for the user', async () => {
+      jest.spyOn(service, 'verifyTotpToken').mockResolvedValue(true);
+      jest
+        .spyOn(mockUserMfaRepository, 'checkIfUserIsAuthenticatedWithType')
+        .mockResolvedValue(false);
+      jest.spyOn(mockUserMfaRepository, 'upsert').mockResolvedValue(undefined);
+
+      const userId = 'user1';
+      const dto = { totp: '123456', key: TOTP_SECRET };
+
+      await service.activateTotp(userId, dto);
+
+      expect(mockUserMfaRepository.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId,
+          type: MFAType.TOTP,
+          authTag: 'authTag',
+          iv: 'iv',
+          secret: 'ciphertext',
+          isEnabled: true,
+        }),
+      );
+    });
+
+    it('should throw if TOTP is already enabled', async () => {
+      jest.spyOn(service, 'verifyTotpToken').mockResolvedValue(true);
+      jest
+        .spyOn(mockUserMfaRepository, 'checkIfUserIsAuthenticatedWithType')
+        .mockResolvedValue(true);
+
+      const userId = 'user1';
+      const dto = { totp: '123456', key: TOTP_SECRET };
+
+      await expect(service.activateTotp(userId, dto)).rejects.toThrow(
+        ForbiddenException,
+      );
+
+      expect(mockUserMfaRepository.upsert).not.toHaveBeenCalled();
+    });
+
+    it('should throw if the TOTP code is invalid', async () => {
+      jest
+        .spyOn(service, 'verifyTotpToken')
+        .mockRejectedValue(new ForbiddenException('Invalid TOTP token'));
+
+      const userId = 'user1';
+      const dto = { totp: '123456', key: TOTP_SECRET };
+
+      await expect(service.activateTotp(userId, dto)).rejects.toThrow(
+        ForbiddenException,
+      );
+
+      expect(
+        mockUserMfaRepository.checkIfUserIsAuthenticatedWithType,
+      ).not.toHaveBeenCalled();
+      expect(mockUserMfaRepository.upsert).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('verifyUserTotpToken', () => {
+    it('should return false if no secret is found', async () => {
+      jest
+        .spyOn(mockUserMfaRepository, 'getSecretForUser')
+        .mockResolvedValue(null);
+
+      const result = await service.verifyUserTotpToken('user1', '123456');
+
+      expect(result).toBe(false);
+    });
+
+    it('should verify the token correctly if secret is found', async () => {
+      jest
+        .spyOn(mockUserMfaRepository, 'getSecretForUser')
+        .mockResolvedValue(TOTP_SECRET);
+      jest.spyOn(service, 'verifyTotpToken').mockResolvedValue(true);
+
+      const result = await service.verifyUserTotpToken('user1', '123456');
+
+      expect(result).toBe(true);
     });
   });
 });
