@@ -195,6 +195,32 @@ describe('AuthController', () => {
         });
     });
 
+    it('should not log the user in if they have MFA enabled', async () => {
+      const user = new User({
+        id: '1',
+        email: 'test@test.com',
+        firstName: 'test',
+        lastName: 'test',
+        passwordHash: 'correctpassword',
+      });
+      const userDto = new UserResponseDto(user);
+
+      mockAuthService.validateUser.mockResolvedValue(userDto);
+      mockMfaService.getAllActiveMFAForUser.mockResolvedValue([{
+        type: 'TOTP',
+      }]);
+
+      await request(app.getHttpServer())
+        .post('/v1/auth/login')
+        .send({ email: user.email.getValue(), password: user.passwordHash })
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.mfaRequired).toEqual(true);
+          expect(res.body.mfaTypes).toEqual(['TOTP']);
+          expect(mockAuthService.loginSuccess).not.toHaveBeenCalled();
+        });
+    });
+
     it('should return a 401 on invalid login credentials', async () => {
       mockAuthService.validateUser.mockReturnValue(null);
 
