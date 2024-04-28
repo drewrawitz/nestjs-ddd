@@ -19,6 +19,7 @@ model User {
   stripeSubscriptions StripeSubscription[]
   grantedAccess       GrantedAccess[]
   mfa                 UserMFA[]
+  backupCode          UserBackupCode?
 
   @@map("users")
 }
@@ -37,6 +38,17 @@ model UserMFA {
 
   @@unique([userId, type])
   @@map("user_mfa")
+}
+
+model UserBackupCode {
+  userId    String   @id @db.Uuid
+  code      String
+  iv        String
+  authTag   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_backup_codes")
 }
 
 model StripeSubscription {
