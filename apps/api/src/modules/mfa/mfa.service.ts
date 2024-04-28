@@ -69,7 +69,7 @@ export class MFAService {
       key,
     );
 
-    const backupCode = await this.generateBackupCode();
+    const backupCode = this.generateBackupCode();
 
     await this.userMfaRepository.setupUserMfaWithBackupCode({
       userId,
@@ -91,7 +91,7 @@ export class MFAService {
     };
   }
 
-  async generateBackupCode() {
+  generateBackupCode() {
     const key = generateBase64Key();
 
     return {

@@ -12,15 +12,28 @@ jest.mock('src/utils/tokens', () => ({
   decrypt: jest.fn(() => 'decryptedSecret'),
 }));
 
+const txMock = {
+  userMFA: {
+    upsert: jest.fn().mockResolvedValue(true),
+  },
+  userBackupCode: {
+    upsert: jest.fn().mockResolvedValue(true),
+  },
+};
+
 describe('UserMFARepository', () => {
   let repository: UserMFARepository;
   let mockPrismaService: any;
 
   beforeEach(async () => {
     mockPrismaService = {
+      $transaction: jest.fn((callback) => callback(txMock)),
       userMFA: {
         findMany: jest.fn(),
         findFirst: jest.fn(),
+        upsert: jest.fn(),
+      },
+      userBackupCode: {
         upsert: jest.fn(),
       },
     };
@@ -65,48 +78,70 @@ describe('UserMFARepository', () => {
     });
   });
 
-  describe('upsert', () => {
-    it('should successfully upsert a User MFA record', async () => {
-      const input = {
-        userId: 'user1',
-        type: MFAType.TOTP,
-        secret: 'encryptedsecret',
+  describe('setupUserMfaWithBackupCode', () => {
+    const input = {
+      userId: 'user1',
+      type: MFAType.TOTP,
+      secret: {
+        code: 'encryptedsecret',
         iv: 'iv',
         authTag: 'authTag',
-        isEnabled: true,
-      };
-      mockPrismaService.userMFA.upsert.mockResolvedValue(input);
+      },
+      backup: {
+        code: 'backupCode',
+        iv: 'backupIv',
+        authTag: 'backupAuthTag',
+      },
+    };
 
-      const result = await repository.upsert(input);
+    it('should successfully upsert a User MFA record and backup code', async () => {
+      await repository.setupUserMfaWithBackupCode(input);
 
-      expect(mockPrismaService.userMFA.upsert).toHaveBeenCalledWith({
-        where: { userId_type: { userId: 'user1', type: MFAType.TOTP } },
-        create: input,
-        update: { isEnabled: true },
+      expect(txMock.userMFA.upsert).toHaveBeenCalledWith({
+        where: { userId_type: { userId: input.userId, type: MFAType.TOTP } },
+        create: {
+          userId: input.userId,
+          type: input.type,
+          secret: input.secret.code,
+          iv: input.secret.iv,
+          authTag: input.secret.authTag,
+          isEnabled: true,
+        },
+        update: {
+          secret: input.secret.code,
+          iv: input.secret.iv,
+          authTag: input.secret.authTag,
+          isEnabled: true,
+        },
       });
-      expect(result).toBe(input);
+      expect(txMock.userBackupCode.upsert).toHaveBeenCalledWith({
+        where: { userId: input.userId },
+        create: {
+          userId: input.userId,
+          code: input.backup.code,
+          iv: input.backup.iv,
+          authTag: input.backup.authTag,
+        },
+        update: {
+          code: input.backup.code,
+          iv: input.backup.iv,
+          authTag: input.backup.authTag,
+        },
+      });
     });
 
     it('should log and throw on upsert failure', async () => {
       const error = new Error('DB error');
-      mockPrismaService.userMFA.upsert.mockRejectedValue(error);
-      const input = {
-        userId: 'user1',
-        type: MFAType.TOTP,
-        secret: 'encryptedsecret',
-        iv: 'iv',
-        authTag: 'authTag',
-        isEnabled: true,
-      };
+      txMock.userMFA.upsert.mockRejectedValue(error);
 
-      await expect(repository.upsert(input)).rejects.toThrow(
-        InternalServerErrorException,
-      );
+      await expect(
+        repository.setupUserMfaWithBackupCode(input),
+      ).rejects.toThrow(InternalServerErrorException);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Failed to upsert User MFA record',
+        'Failed to setup MFA for user',
         {
           error,
-          data: input,
+          userId: input.userId,
         },
       );
     });

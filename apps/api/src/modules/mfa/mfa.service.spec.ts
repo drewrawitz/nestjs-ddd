@@ -17,6 +17,7 @@ jest.mock('qrcode', () => ({
 }));
 
 jest.mock('src/utils/tokens', () => ({
+  generateBase64Key: jest.fn(() => 'base64Key'),
   generateTOTPSecret: jest.fn(() => ({
     base32: TOTP_SECRET,
     otpauth_url: TOTP_URL,
@@ -41,6 +42,14 @@ describe('MFAService', () => {
     }).compile();
 
     service = module.get<MFAService>(MFAService);
+    jest.spyOn(service, 'generateBackupCode').mockReturnValue({
+      raw: 'backup123',
+      encrypted: {
+        ciphertext: 'encrypted123',
+        iv: 'iv123',
+        authTag: 'authTag123',
+      },
+    });
   });
 
   afterEach(() => {
@@ -112,23 +121,33 @@ describe('MFAService', () => {
       jest
         .spyOn(mockUserMfaRepository, 'checkIfUserIsAuthenticatedWithType')
         .mockResolvedValue(false);
-      jest.spyOn(mockUserMfaRepository, 'upsert').mockResolvedValue(undefined);
+      jest
+        .spyOn(mockUserMfaRepository, 'setupUserMfaWithBackupCode')
+        .mockResolvedValue(undefined);
 
       const userId = 'user1';
       const dto = { totp: '123456', key: TOTP_SECRET };
 
-      await service.activateTotp(userId, dto);
+      const activate = await service.activateTotp(userId, dto);
 
-      expect(mockUserMfaRepository.upsert).toHaveBeenCalledWith(
+      expect(service.generateBackupCode).toHaveBeenCalled();
+      expect(
+        mockUserMfaRepository.setupUserMfaWithBackupCode,
+      ).toHaveBeenCalledWith(
         expect.objectContaining({
           userId,
           type: MFAType.TOTP,
-          authTag: 'authTag',
-          iv: 'iv',
-          secret: 'ciphertext',
-          isEnabled: true,
+          secret: {
+            authTag: 'authTag',
+            iv: 'iv',
+            code: 'ciphertext',
+          },
         }),
       );
+
+      expect(activate).toEqual({
+        backupCode: 'backup123',
+      });
     });
 
     it('should throw if TOTP is already enabled', async () => {
@@ -143,14 +162,17 @@ describe('MFAService', () => {
       await expect(service.activateTotp(userId, dto)).rejects.toThrow(
         ForbiddenException,
       );
-
-      expect(mockUserMfaRepository.upsert).not.toHaveBeenCalled();
+      expect(service.generateBackupCode).not.toHaveBeenCalled();
+      expect(service.verifyTotpToken).not.toHaveBeenCalled();
+      expect(
+        mockUserMfaRepository.setupUserMfaWithBackupCode,
+      ).not.toHaveBeenCalled();
     });
 
     it('should throw if the TOTP code is invalid', async () => {
       jest
-        .spyOn(service, 'verifyTotpToken')
-        .mockRejectedValue(new ForbiddenException('Invalid TOTP token'));
+        .spyOn(mockUserMfaRepository, 'checkIfUserIsAuthenticatedWithType')
+        .mockResolvedValue(false);
 
       const userId = 'user1';
       const dto = { totp: '123456', key: TOTP_SECRET };
@@ -159,10 +181,10 @@ describe('MFAService', () => {
         ForbiddenException,
       );
 
+      expect(service.generateBackupCode).not.toHaveBeenCalled();
       expect(
-        mockUserMfaRepository.checkIfUserIsAuthenticatedWithType,
+        mockUserMfaRepository.setupUserMfaWithBackupCode,
       ).not.toHaveBeenCalled();
-      expect(mockUserMfaRepository.upsert).not.toHaveBeenCalled();
     });
   });
 
