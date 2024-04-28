@@ -1,16 +1,20 @@
 import { MFAType, UserMFA } from '@prisma/client';
 
-export interface CreateUserMFAInput {
-  userId: string;
-  type: MFAType;
-  secret: string;
+interface EncryptedCode {
+  code: string;
   iv: string;
   authTag: string;
-  isEnabled: boolean;
+}
+
+export interface MfaSetupDataInput {
+  userId: string;
+  type: MFAType;
+  secret: EncryptedCode;
+  backup: EncryptedCode;
 }
 
 export interface IUserMFARepository {
-  upsert(userMFA: CreateUserMFAInput): Promise<UserMFA>;
+  setupUserMfaWithBackupCode(data: MfaSetupDataInput): Promise<void>;
   getAllActiveMFAForUser(userId: string): Promise<UserMFA[]>;
   getSecretForUser(userId: string, type: MFAType): Promise<string | null>;
   checkIfUserIsAuthenticatedWithType(

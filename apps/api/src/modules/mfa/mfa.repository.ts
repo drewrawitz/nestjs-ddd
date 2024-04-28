@@ -3,11 +3,11 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { UserMFA, MFAType } from '@prisma/client';
+import { MFAType } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/database/prisma.service';
 import { ILogger } from 'src/infrastructure/logging/logger.interface';
 import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
-import { CreateUserMFAInput, IUserMFARepository } from './mfa.interfaces';
+import { IUserMFARepository, MfaSetupDataInput } from './mfa.interfaces';
 import { decrypt } from 'src/utils/tokens';
 import { EnvService } from 'src/infrastructure/env/env.service';
 
@@ -28,27 +28,62 @@ export class UserMFARepository implements IUserMFARepository {
     });
   }
 
-  async upsert(data: CreateUserMFAInput): Promise<UserMFA> {
-    try {
-      const create = await this.db.userMFA.upsert({
-        where: {
-          userId_type: {
-            userId: data.userId,
-            type: data.type,
-          },
-        },
-        create: data,
-        update: { isEnabled: true },
-      });
-      this.logger.log('Successfully upserted a new User MFA record', {
-        data,
-      });
+  async setupUserMfaWithBackupCode(data: MfaSetupDataInput): Promise<void> {
+    const { userId, type, secret, backup } = data;
 
-      return create;
+    try {
+      await this.db.$transaction(async (tx) => {
+        await tx.userMFA.upsert({
+          where: {
+            userId_type: {
+              userId,
+              type,
+            },
+          },
+          create: {
+            userId,
+            type,
+            secret: secret.code,
+            iv: secret.iv,
+            authTag: secret.authTag,
+            isEnabled: true,
+          },
+          update: {
+            secret: secret.code,
+            iv: secret.iv,
+            authTag: secret.authTag,
+            isEnabled: true,
+          },
+        });
+
+        this.logger.log('Successfully upserted a new User MFA record', {
+          userId: data.userId,
+          type: data.type,
+        });
+
+        await tx.userBackupCode.upsert({
+          where: { userId },
+          create: {
+            userId,
+            code: backup.code,
+            iv: backup.iv,
+            authTag: backup.authTag,
+          },
+          update: {
+            code: backup.code,
+            iv: backup.iv,
+            authTag: backup.authTag,
+          },
+        });
+
+        this.logger.log('Successfully created a new User Backup Code', {
+          userId,
+        });
+      });
     } catch (error) {
-      this.logger.error('Failed to upsert User MFA record', {
+      this.logger.error('Failed to setup MFA for user', {
         error,
-        data,
+        userId,
       });
       throw new InternalServerErrorException('Something went wrong.');
     }

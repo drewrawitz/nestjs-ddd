@@ -11,5 +11,6 @@ export const envSchema = z.object({
   REDIS_PORT: z.coerce.number().optional().default(6379),
   PORT: z.coerce.number().optional().default(3000),
   ENCRYPTION_SECRET_KEY: z.string().min(32),
+  ENCRYPTION_MFA_BACKUP_CODE: z.string().min(32),
 });
 export type Env = z.infer<typeof envSchema>;

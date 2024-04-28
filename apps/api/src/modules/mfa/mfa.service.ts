@@ -1,7 +1,11 @@
 import QRCode from 'qrcode';
 import speakeasy from 'speakeasy';
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import { encrypt, generateTOTPSecret } from 'src/utils/tokens';
+import {
+  encrypt,
+  generateBase64Key,
+  generateTOTPSecret,
+} from 'src/utils/tokens';
 import { ActivateTotpDto } from './mfa.dto';
 import { EnvService } from 'src/infrastructure/env/env.service';
 import { MFAType } from '@prisma/client';
@@ -47,7 +51,6 @@ export class MFAService {
 
   async activateTotp(userId: string, body: ActivateTotpDto) {
     const { totp, key } = body;
-    await this.verifyTotpToken(key, totp);
 
     const existingMfa =
       await this.userMfaRepository.checkIfUserIsAuthenticatedWithType(
@@ -59,19 +62,45 @@ export class MFAService {
       throw new ForbiddenException('User already has TOTP enabled');
     }
 
+    await this.verifyTotpToken(key, totp);
+
     const { ciphertext, iv, authTag } = encrypt(
       this.envService.get('ENCRYPTION_SECRET_KEY'),
       key,
     );
 
-    await this.userMfaRepository.upsert({
+    const backupCode = await this.generateBackupCode();
+
+    await this.userMfaRepository.setupUserMfaWithBackupCode({
       userId,
       type: MFAType.TOTP,
-      secret: ciphertext,
-      iv,
-      authTag,
-      isEnabled: true,
+      secret: {
+        code: ciphertext,
+        iv,
+        authTag,
+      },
+      backup: {
+        code: backupCode.encrypted.ciphertext,
+        iv: backupCode.encrypted.iv,
+        authTag: backupCode.encrypted.authTag,
+      },
     });
+
+    return {
+      backupCode: backupCode.raw,
+    };
+  }
+
+  async generateBackupCode() {
+    const key = generateBase64Key();
+
+    return {
+      raw: key,
+      encrypted: encrypt(
+        this.envService.get('ENCRYPTION_MFA_BACKUP_CODE'),
+        key,
+      ),
+    };
   }
 
   async verifyUserTotpToken(userId: string, token: string) {
