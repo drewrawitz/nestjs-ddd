@@ -7,6 +7,8 @@ import { UserMFARepository } from './mfa.repository';
 import { EnvService } from 'src/infrastructure/env/env.service';
 import { MFAType } from '@prisma/client';
 import { InternalServerErrorException } from '@nestjs/common';
+import { PASSWORD_HASHING_TOKEN } from '../auth/domain/auth.constants';
+import { mockPasswordHashingService } from 'src/tests/mocks/auth.mocks';
 
 jest.mock('src/utils/tokens', () => ({
   decrypt: jest.fn(() => 'decryptedSecret'),
@@ -44,6 +46,10 @@ describe('UserMFARepository', () => {
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: LOGGER_TOKEN, useValue: mockLogger },
         { provide: EnvService, useValue: mockEnv },
+        {
+          provide: PASSWORD_HASHING_TOKEN,
+          useValue: mockPasswordHashingService,
+        },
       ],
     }).compile();
 
@@ -89,14 +95,18 @@ describe('UserMFARepository', () => {
       },
       backup: {
         code: 'backupCode',
-        iv: 'backupIv',
-        authTag: 'backupAuthTag',
       },
     };
 
     it('should successfully upsert a User MFA record and backup code', async () => {
+      const hashedCode = 'hashedCode123';
+
+      jest
+        .spyOn(mockPasswordHashingService, 'hash')
+        .mockResolvedValue(hashedCode);
       await repository.setupUserMfaWithBackupCode(input);
 
+      expect(mockPasswordHashingService.hash).toHaveBeenCalled();
       expect(txMock.userMFA.upsert).toHaveBeenCalledWith({
         where: { userId_type: { userId: input.userId, type: MFAType.TOTP } },
         create: {
@@ -118,14 +128,10 @@ describe('UserMFARepository', () => {
         where: { userId: input.userId },
         create: {
           userId: input.userId,
-          code: input.backup.code,
-          iv: input.backup.iv,
-          authTag: input.backup.authTag,
+          hashedCode,
         },
         update: {
-          code: input.backup.code,
-          iv: input.backup.iv,
-          authTag: input.backup.authTag,
+          hashedCode,
         },
       });
     });

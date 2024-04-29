@@ -10,6 +10,8 @@ import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
 import { IUserMFARepository, MfaSetupDataInput } from './mfa.interfaces';
 import { decrypt } from 'src/utils/tokens';
 import { EnvService } from 'src/infrastructure/env/env.service';
+import { IPasswordHashingService } from '../auth/domain/interfaces/IPasswordHashingService';
+import { PASSWORD_HASHING_TOKEN } from '../auth/domain/auth.constants';
 
 @Injectable()
 export class UserMFARepository implements IUserMFARepository {
@@ -17,6 +19,8 @@ export class UserMFARepository implements IUserMFARepository {
     @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
     private envService: EnvService,
     private db: PrismaService,
+    @Inject(PASSWORD_HASHING_TOKEN)
+    private passwordHashingService: IPasswordHashingService,
   ) {}
 
   async getAllActiveMFAForUser(userId: string) {
@@ -30,6 +34,7 @@ export class UserMFARepository implements IUserMFARepository {
 
   async setupUserMfaWithBackupCode(data: MfaSetupDataInput): Promise<void> {
     const { userId, type, secret, backup } = data;
+    const hashedCode = await this.passwordHashingService.hash(backup.code);
 
     try {
       await this.db.$transaction(async (tx) => {
@@ -65,14 +70,10 @@ export class UserMFARepository implements IUserMFARepository {
           where: { userId },
           create: {
             userId,
-            code: backup.code,
-            iv: backup.iv,
-            authTag: backup.authTag,
+            hashedCode,
           },
           update: {
-            code: backup.code,
-            iv: backup.iv,
-            authTag: backup.authTag,
+            hashedCode,
           },
         });
 

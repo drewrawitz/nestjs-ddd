@@ -41,13 +41,11 @@ model UserMFA {
 }
 
 model UserBackupCode {
-  userId    String   @id @db.Uuid
-  code      String
-  iv        String
-  authTag   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String   @id @db.Uuid
+  hashedCode String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_backup_codes")
 }

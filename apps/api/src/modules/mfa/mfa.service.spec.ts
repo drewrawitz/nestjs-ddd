@@ -42,14 +42,7 @@ describe('MFAService', () => {
     }).compile();
 
     service = module.get<MFAService>(MFAService);
-    jest.spyOn(service, 'generateBackupCode').mockReturnValue({
-      raw: 'backup123',
-      encrypted: {
-        ciphertext: 'encrypted123',
-        iv: 'iv123',
-        authTag: 'authTag123',
-      },
-    });
+    jest.spyOn(service, 'generateBackupCode').mockReturnValue('backup123');
   });
 
   afterEach(() => {

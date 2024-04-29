@@ -10,7 +10,9 @@ export interface MfaSetupDataInput {
   userId: string;
   type: MFAType;
   secret: EncryptedCode;
-  backup: EncryptedCode;
+  backup: {
+    code: string;
+  };
 }
 
 export interface IUserMFARepository {

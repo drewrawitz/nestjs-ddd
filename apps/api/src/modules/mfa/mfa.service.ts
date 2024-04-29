@@ -80,27 +80,17 @@ export class MFAService {
         authTag,
       },
       backup: {
-        code: backupCode.encrypted.ciphertext,
-        iv: backupCode.encrypted.iv,
-        authTag: backupCode.encrypted.authTag,
+        code: backupCode,
       },
     });
 
     return {
-      backupCode: backupCode.raw,
+      backupCode,
     };
   }
 
   generateBackupCode() {
-    const key = generateBase64Key();
-
-    return {
-      raw: key,
-      encrypted: encrypt(
-        this.envService.get('ENCRYPTION_MFA_BACKUP_CODE'),
-        key,
-      ),
-    };
+    return generateBase64Key();
   }
 
   async verifyUserTotpToken(userId: string, token: string) {
