@@ -6,8 +6,6 @@ import { Redis } from 'ioredis';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import { CustomThrottlerGuard } from './common/guards/throttler.guard';
 import { AppCacheModule } from './infrastructure/cache/cache.module';
-import { EnvModule } from './infrastructure/env/env.module';
-import { LoggerModule } from './infrastructure/logging/logger.module';
 import { RedisModule } from './infrastructure/store/redis.module';
 import { REDIS_CLIENT_TOKEN } from './infrastructure/store/store.constants';
 import { AuthModule } from './modules/auth/application/auth.module';
