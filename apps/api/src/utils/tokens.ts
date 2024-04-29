@@ -1,4 +1,9 @@
-import { randomBytes, createCipheriv, createDecipheriv } from 'crypto';
+import {
+  randomBytes,
+  createHash,
+  createCipheriv,
+  createDecipheriv,
+} from 'crypto';
 import * as speakeasy from 'speakeasy';
 
 export function generateBase64Key() {
@@ -7,6 +12,10 @@ export function generateBase64Key() {
 
 export function generateToken() {
   return randomBytes(32).toString('hex');
+}
+
+export async function hashToken(token: string): Promise<string> {
+  return createHash('sha256').update(token).digest('hex');
 }
 
 export function generateTOTPSecret() {

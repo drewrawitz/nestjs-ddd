@@ -15,7 +15,7 @@ import { User } from 'src/modules/users/domain/model/User';
 import { UserDomainService } from 'src/modules/users/domain/services/user.domain.service';
 import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
 import { getClientIp } from 'src/utils/ip';
-import { generateToken } from 'src/utils/tokens';
+import { generateToken, hashToken } from 'src/utils/tokens';
 import { RequestWithUser } from 'src/utils/types';
 import { LOGGER_TOKEN } from '../../../infrastructure/logging/logger.token';
 import {
@@ -210,8 +210,12 @@ export class AuthService {
   async resetPassword(body: ResetPasswordDto) {
     const { email, token, password } = body;
     const normalizedEmail = email.toLowerCase().trim();
+    const hashedToken = await hashToken(token);
 
-    const isValidToken = await this.validateResetToken(token, normalizedEmail);
+    const isValidToken = await this.validateResetToken(
+      hashedToken,
+      normalizedEmail,
+    );
     if (!isValidToken) {
       throw new ForbiddenException('Invalid or expired token.');
     }
@@ -226,15 +230,15 @@ export class AuthService {
     }
 
     await this.updateUserPassword(user, password);
-    await this.cleanupAfterPasswordReset(user.id!, email, token);
+    await this.cleanupAfterPasswordReset(user.id!, email, hashedToken);
   }
 
   private async validateResetToken(
-    token: string,
+    hashedToken: string,
     email: string,
   ): Promise<boolean> {
     const { isValidToken, email: tokenEmail } =
-      await this.verifyResetToken(token);
+      await this.verifyResetToken(hashedToken);
     return isValidToken && tokenEmail === email;
   }
 

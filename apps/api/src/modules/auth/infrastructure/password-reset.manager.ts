@@ -4,6 +4,7 @@ import { STORE_TOKEN } from 'src/infrastructure/store/store.constants';
 import { IStore } from 'src/infrastructure/store/store.interface';
 import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
 import { ILogger } from 'src/infrastructure/logging/logger.interface';
+import { hashToken } from 'src/utils/tokens';
 
 @Injectable()
 export class PasswordResetManager implements IPasswordResetManager {
@@ -42,10 +43,11 @@ export class PasswordResetManager implements IPasswordResetManager {
   async saveForgotPasswordToken(email: string, token: string) {
     const FORGOT_PASSWORD_TOKEN = `forgotPassword:${email}`;
     const FORGOT_PASSWORD_EXPIRATION = 15 * 60;
+    const hashedToken = await hashToken(token);
 
     const tokensToAdd = [
-      { key: `token:${token}`, value: email },
-      { key: FORGOT_PASSWORD_TOKEN, value: token },
+      { key: `token:${hashedToken}`, value: email },
+      { key: FORGOT_PASSWORD_TOKEN, value: hashedToken },
     ];
 
     await Promise.all(
@@ -72,6 +74,7 @@ export class PasswordResetManager implements IPasswordResetManager {
   }
 
   async getEmailFromForgotPasswordToken(token: string) {
+    console.log('get email', token);
     return await this.store.get(`token:${token}`);
   }
 }
