@@ -31,6 +31,7 @@ import { AuthService } from './auth.service';
 
 jest.mock('src/utils/tokens', () => ({
   generateToken: jest.fn(() => 'securetoken123'),
+  hashToken: jest.fn(() => 'hashedToken123'),
 }));
 
 jest.mock('src/utils/ip', () => ({
@@ -523,7 +524,7 @@ describe('AuthService', () => {
       );
       expect(
         mockPasswordResetManager.removeForgotPasswordTokens,
-      ).toHaveBeenCalledWith(body.email, body.token);
+      ).toHaveBeenCalledWith(body.email, 'hashedToken123');
       expect(mockUserSessionManager.removeAllUserSessions).toHaveBeenCalledWith(
         user.id,
       );
