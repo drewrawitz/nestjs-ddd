@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventPublisher } from './event.publisher';
 import { EVENT_TOKEN } from './event.token';
 
+@Global()
 @Module({
   providers: [
     {

@@ -13,6 +13,7 @@ import { REDIS_CLIENT_TOKEN } from './infrastructure/store/store.constants';
 import { AuthModule } from './modules/auth/application/auth.module';
 import { SubscriptionsModule } from './modules/subscriptions/application/subscriptions.module';
 import { UsersModule } from './modules/users/application/users.module';
+import { SharedModule } from './common/modules/shared.module';
 
 @Module({
   imports: [
@@ -25,13 +26,11 @@ import { UsersModule } from './modules/users/application/users.module';
       }),
       inject: [REDIS_CLIENT_TOKEN],
     }),
-    RedisModule,
     EventEmitterModule.forRoot(),
     AuthModule,
     UsersModule,
     SubscriptionsModule,
-    LoggerModule,
-    EnvModule,
+    SharedModule,
   ],
   controllers: [],
   providers: [
