@@ -39,6 +39,10 @@ import { AuthenticatedGuard } from '../infrastructure/authenticated.guard';
 import { LocalAuthGuard } from '../infrastructure/local.auth.guard';
 import { AuthService } from './auth.service';
 import { MFAService } from 'src/modules/mfa/mfa.service';
+import {
+  AuthChallengeDto,
+  authChallengeSchema,
+} from '../dto/auth-challenge.dto';
 
 @Controller('v1/auth')
 export class AuthController {
@@ -118,6 +122,16 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(resetPasswordSchema))
   async resetPassword(@Body() body: ResetPasswordDto) {
     await this.authService.resetPassword(body);
+  }
+
+  @UseGuards(AuthenticatedGuard)
+  @Post('challenge/initiate')
+  @UsePipes(new ZodValidationPipe(authChallengeSchema))
+  async initiateAuthChallenge(
+    @Req() req: RequestWithUser,
+    @Body() body: AuthChallengeDto,
+  ) {
+    return await this.authService.initiateChallenge(req.user.id, body);
   }
 
   @UseGuards(AuthenticatedGuard)

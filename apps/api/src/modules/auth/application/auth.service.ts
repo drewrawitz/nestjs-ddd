@@ -30,6 +30,7 @@ import { IPasswordResetManager } from '../domain/interfaces/IPasswordResetManage
 import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { SignupDto } from '../dto/signup.dto';
+import { AuthChallengeDto } from '../dto/auth-challenge.dto';
 
 @Injectable()
 export class AuthService {
@@ -231,6 +232,13 @@ export class AuthService {
 
     await this.updateUserPassword(user, password);
     await this.cleanupAfterPasswordReset(user.id!, email, hashedToken);
+  }
+
+  async initiateChallenge(userId: string, body: AuthChallengeDto) {
+    return {
+      userId,
+      body,
+    };
   }
 
   private async validateResetToken(
