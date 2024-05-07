@@ -19,6 +19,7 @@ import { generateToken, hashToken } from 'src/utils/tokens';
 import { RequestWithUser } from 'src/utils/types';
 import { LOGGER_TOKEN } from '../../../infrastructure/logging/logger.token';
 import {
+  AUTH_CHALLENGE_MANAGER_TOKEN,
   PASSWORD_HASHING_TOKEN,
   PASSWORD_RESET_MANAGER_TOKEN,
   USER_SESSION_MANAGER_TOKEN,
@@ -31,6 +32,7 @@ import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { SignupDto } from '../dto/signup.dto';
 import { AuthChallengeDto } from '../dto/auth-challenge.dto';
+import { IAuthChallengeManager } from '../domain/interfaces/IAuthChallengeManager';
 
 @Injectable()
 export class AuthService {
@@ -45,6 +47,8 @@ export class AuthService {
     @Inject(PASSWORD_HASHING_TOKEN)
     private passwordHashingService: IPasswordHashingService,
     private userDomainService: UserDomainService,
+    @Inject(AUTH_CHALLENGE_MANAGER_TOKEN)
+    private readonly authChallengeManager: IAuthChallengeManager,
   ) {}
 
   async getUserById(userId: string) {
@@ -235,10 +239,10 @@ export class AuthService {
   }
 
   async initiateChallenge(userId: string, body: AuthChallengeDto) {
-    return {
+    return this.authChallengeManager.saveAuthChallengeToken(
       userId,
-      body,
-    };
+      body.action,
+    );
   }
 
   private async validateResetToken(

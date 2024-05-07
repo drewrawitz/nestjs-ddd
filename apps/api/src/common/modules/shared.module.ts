@@ -28,10 +28,12 @@ import {
 import { ACCESS_REPO_TOKEN } from 'src/modules/access/application/access.constants';
 import { AccessRepository } from 'src/modules/access/application/access.repository';
 import {
+  AUTH_CHALLENGE_MANAGER_TOKEN,
   PASSWORD_HASHING_TOKEN,
   PASSWORD_RESET_MANAGER_TOKEN,
   USER_SESSION_MANAGER_TOKEN,
 } from 'src/modules/auth/domain/auth.constants';
+import { AuthChallengeManager } from 'src/modules/auth/infrastructure/auth-challenge.manager';
 import { PasswordHashingService } from 'src/modules/auth/infrastructure/password-hashing.service';
 import { PasswordResetManager } from 'src/modules/auth/infrastructure/password-reset.manager';
 import { UserSessionManager } from 'src/modules/auth/infrastructure/user-session.manager';
@@ -112,6 +114,10 @@ import { USER_REPO_TOKEN } from 'src/modules/users/application/users.constants';
       useClass: PasswordResetManager,
     },
     {
+      provide: AUTH_CHALLENGE_MANAGER_TOKEN,
+      useClass: AuthChallengeManager,
+    },
+    {
       provide: USER_SESSION_MANAGER_TOKEN,
       useClass: UserSessionManager,
     },
@@ -134,6 +140,7 @@ import { USER_REPO_TOKEN } from 'src/modules/users/application/users.constants';
     PASSWORD_RESET_MANAGER_TOKEN,
     USER_SESSION_MANAGER_TOKEN,
     USER_REPO_TOKEN,
+    AUTH_CHALLENGE_MANAGER_TOKEN,
   ],
 })
 export class SharedModule {}
