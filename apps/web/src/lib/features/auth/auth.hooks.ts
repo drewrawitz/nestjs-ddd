@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { login } from "./auth.mutations";
+import { login, logout } from "./auth.mutations";
 import { getCurrentUser } from "./auth.queries";
 
 type LoginParams = {
@@ -12,6 +12,7 @@ export function useCurrentUserQuery() {
     queryKey: ["me"],
     queryFn: getCurrentUser,
     staleTime: 1000 * 60 * 60, // 1 hour
+    retry: 0,
   });
 }
 
@@ -20,5 +21,11 @@ export function useLoginMutation() {
     mutationFn: ({ email, password }: LoginParams) => {
       return login(email, password);
     },
+  });
+}
+
+export function useLogoutMutation() {
+  return useMutation({
+    mutationFn: logout,
   });
 }

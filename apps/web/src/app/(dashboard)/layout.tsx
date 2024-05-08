@@ -15,13 +15,11 @@ export default async function DashboardLayout({
   const queryClient = new QueryClient();
   const { headers } = getHeaderInfo();
 
-  await queryClient.prefetchQuery({
-    queryKey: ["me"],
-    queryFn: () =>
-      getCurrentUser({
-        headers,
-      }),
+  const user = await getCurrentUser({
+    headers,
   });
+  queryClient.setQueryData(["me"], user);
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="container">
