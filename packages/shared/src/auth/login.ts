@@ -1,15 +1,16 @@
 export enum MFAType {
   TOTP,
+  SMS,
 }
 
-interface LoginMfaResponseType {
+export interface LoginMfaResponseType {
   type: "MFA_REQUIRED";
   message: string;
   mfaRequired: boolean;
   mfaTypes: MFAType[];
 }
 
-interface LoginSuccessResponseType {
+export interface LoginSuccessResponseType {
   type: "LOGIN_SUCCESS";
   id: string;
   email: string;

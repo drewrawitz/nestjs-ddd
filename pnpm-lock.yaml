@@ -10,6 +10,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@app/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@bull-board/api':
         specifier: ^5.15.3
         version: 5.15.3(@bull-board/ui@5.15.3)
@@ -307,7 +310,11 @@ importers:
         specifier: ^5
         version: 5.4.4
 
-  packages/shared: {}
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: ^5.4.5
+        version: 5.4.5
 
 packages:
 
@@ -4457,6 +4464,11 @@ packages:
 
   typescript@5.4.4:
     resolution: {integrity: sha512-dGE2Vv8cpVvw28v8HCPqyb08EzbBURxDpuhJvTrusShUfGnhHBafDsLdS1EhhxyL6BJQE+2cT3dDPAv+MQ6oLw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+  typescript@5.4.5:
+    resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -9488,6 +9500,8 @@ snapshots:
   typescript@5.3.3: {}
 
   typescript@5.4.4: {}
+
+  typescript@5.4.5: {}
 
   uid-safe@2.1.5:
     dependencies:

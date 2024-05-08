@@ -23,6 +23,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@app/shared": "workspace:*",
     "@bull-board/api": "^5.15.3",
     "@bull-board/express": "^5.15.3",
     "@bull-board/nestjs": "^5.15.3",
