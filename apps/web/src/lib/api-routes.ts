@@ -4,6 +4,9 @@ export const apiRoutes = {
   auth: {
     login: `${PREFIX}/auth/login`,
   },
+  users: {
+    me: `${PREFIX}/users/me`,
+  },
 };
 
 export const getApiRoute = (
