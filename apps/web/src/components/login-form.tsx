@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useLoginMutation } from "@/lib/features/auth/auth.hooks";
+import { useState } from "react";
+import { MFAType } from "@app/shared";
 
 const FormSchema = z.object({
   email: z.string().email({
@@ -38,6 +40,7 @@ export function LoginError({ message }: { message: string }) {
 }
 
 export function LoginForm() {
+  const [view, setView] = useState<"login" | "totp">("login");
   const router = useRouter();
   const login = useLoginMutation();
 
@@ -50,9 +53,21 @@ export function LoginForm() {
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    await login.mutateAsync({ email: data.email, password: data.password });
+    const res = await login.mutateAsync({
+      email: data.email,
+      password: data.password,
+    });
 
-    router.push("/");
+    if (res.type === "MFA_REQUIRED") {
+      // TODO: The user should choose which method they want to authenticate with if there is more than one value in this Array.
+      if (res.mfaTypes.includes(MFAType.TOTP)) {
+        setView("totp");
+      }
+    }
+
+    if (res.type === "LOGIN_SUCCESS") {
+      router.push("/");
+    }
   }
 
   return (

@@ -1,6 +1,10 @@
 import { apiRoutes, getApiRoute } from "../../api-routes";
+import { LoginResponseDto } from "@app/shared";
 
-export const login = async (email: string, password: string): Promise<any> => {
+export const login = async (
+  email: string,
+  password: string,
+): Promise<LoginResponseDto> => {
   try {
     const res = await fetch(getApiRoute(apiRoutes.auth.login), {
       method: "POST",
