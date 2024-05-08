@@ -13,14 +13,15 @@ export const login = async (email: string, password: string): Promise<any> => {
         "Content-Type": "application/json",
       },
     });
+    const data = await res.json();
 
     if (!res.ok) {
-      throw new Error("Something went wrong");
+      throw new Error(data.message);
     }
 
-    return res.json();
+    return data;
   } catch (e) {
-    throw new Error("Something went wrong");
+    throw e;
   }
 };
 

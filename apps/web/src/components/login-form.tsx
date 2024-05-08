@@ -1,5 +1,8 @@
 "use client";
 
+import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Icons } from "./icons";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -15,7 +18,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/components/ui/use-toast";
 import { useLoginMutation } from "@/lib/features/auth/auth.hooks";
 
 const FormSchema = z.object({
@@ -24,6 +26,16 @@ const FormSchema = z.object({
   }),
   password: z.string(),
 });
+
+export function LoginError({ message }: { message: string }) {
+  return (
+    <Alert variant="destructive">
+      <ExclamationTriangleIcon className="h-4 w-4" />
+      <AlertTitle>Error</AlertTitle>
+      <AlertDescription>{message}</AlertDescription>
+    </Alert>
+  );
+}
 
 export function LoginForm() {
   const router = useRouter();
@@ -40,14 +52,6 @@ export function LoginForm() {
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     await login.mutateAsync({ email: data.email, password: data.password });
 
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
     router.push("/");
   }
 
@@ -56,6 +60,12 @@ export function LoginForm() {
       <h1 className="text-center text-2xl font-semibold tracking-tight mb-6">
         Sign in to your account
       </h1>
+      {login.isError && (
+        <div className="mb-4">
+          <LoginError message={login.error.message} />
+        </div>
+      )}
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
@@ -89,7 +99,15 @@ export function LoginForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" size="xl">
+          <Button
+            type="submit"
+            className="w-full"
+            size="xl"
+            disabled={login.isPending}
+          >
+            {login.isPending && (
+              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+            )}
             Sign in
           </Button>
         </form>
