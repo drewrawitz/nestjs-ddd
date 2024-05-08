@@ -1,5 +1,7 @@
 "use client";
 
+import { Icons } from "./icons";
+import { Settings, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,17 +11,25 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useCurrentUserQuery } from "@/lib/features/auth/auth.hooks";
+import {
+  useCurrentUserQuery,
+  useLogoutMutation,
+} from "@/lib/features/auth/auth.hooks";
 
 function ProfileNav() {
+  const logout = useLogoutMutation();
   const { data } = useCurrentUserQuery();
 
   if (!data?.id) {
     return;
   }
+
+  const onClickLogout = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    logout.mutate();
+  };
 
   return (
     <DropdownMenu>
@@ -43,13 +53,18 @@ function ProfileNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
+            <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          Log out
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+        <DropdownMenuItem onClick={onClickLogout} disabled={logout.isPending}>
+          {logout.isPending ? (
+            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <LogOut className="mr-2 h-4 w-4" />
+          )}
+          <span>Sign out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,3 +1,4 @@
+import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { login, logout } from "./auth.mutations";
 import { getCurrentUser } from "./auth.queries";
@@ -25,7 +26,12 @@ export function useLoginMutation() {
 }
 
 export function useLogoutMutation() {
+  const router = useRouter();
+
   return useMutation({
-    mutationFn: logout,
+    mutationFn: () => logout(),
+    onSuccess: () => {
+      router.push("/login");
+    },
   });
 }
