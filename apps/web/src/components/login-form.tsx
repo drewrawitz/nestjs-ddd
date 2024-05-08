@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
+import { useLoginMutation } from "@/lib/features/auth/auth.hooks";
 
 const FormSchema = z.object({
   email: z.string().email({
@@ -24,6 +26,9 @@ const FormSchema = z.object({
 });
 
 export function LoginForm() {
+  const router = useRouter();
+  const login = useLoginMutation();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -32,8 +37,9 @@ export function LoginForm() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log("submit", data);
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    await login.mutateAsync({ email: data.email, password: data.password });
+
     toast({
       title: "You submitted the following values:",
       description: (
@@ -42,6 +48,7 @@ export function LoginForm() {
         </pre>
       ),
     });
+    router.push("/");
   }
 
   return (

@@ -38,6 +38,16 @@ async function bootstrap() {
       saveUninitialized: false,
     }),
   );
+
+  /**
+   * Cors
+   */
+  app.enableCors({
+    origin: ['http://localhost:4200'],
+    methods: ['GET', 'POST'],
+    credentials: true,
+  });
+
   app.use(passport.initialize());
   app.use(passport.session());
   app.use(new UserAgentMiddleware().use);
