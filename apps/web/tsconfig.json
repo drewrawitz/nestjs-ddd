@@ -19,9 +19,9 @@
     ],
     "paths": {
       "@app/shared": ["../../packages/shared/src"],
-      "@app/prisma/client": ["../../packages/prisma/generated/index.d.ts"],
-      "@app/prisma/server": ["../../packages/prisma/generated/index.d.ts"],
-      "@app/prisma/edge": ["../prisma/generated/edge.d.ts"],
+      "@app/prisma/client": ["../../packages/prisma/generated/index-browser.js"],
+      "@app/prisma/server": ["../../packages/prisma/generated/index.js"],
+      "@app/prisma/edge": ["../prisma/generated/edge.ts"],
       "@/*": ["./src/*"]
     }
   },
