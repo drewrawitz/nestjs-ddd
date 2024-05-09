@@ -78,28 +78,34 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(verifyMfaSchema))
   async loginMfa(@Req() req: RequestWithUser, @Body() body: VerifyMfaDto) {
     const { totp, tempKey } = body;
-    const getKey = await this.userSessionManager.getMfaSession(tempKey);
 
-    if (!getKey) {
-      throw new ForbiddenException('Could not verify MFA');
+    try {
+      const getKey = await this.userSessionManager.getMfaSession(tempKey);
+
+      if (!getKey) {
+        throw new ForbiddenException('Session validation failed.');
+      }
+
+      const { userId } = getKey;
+
+      const isValid = await this.mfaService.verifyUserTotpToken(userId, totp);
+      if (!isValid) {
+        throw new UnauthorizedException('Verification failed.');
+      }
+
+      const user = await this.authService.getUserById(userId);
+      if (!user) {
+        throw new NotFoundException('User lookup failed.');
+      }
+
+      await this.authService.login(req, user);
+      await this.userSessionManager.removeMfaSession(tempKey);
+
+      return user;
+    } catch (error) {
+      console.error(`MFA Login Error: ${error.message}`);
+      throw error;
     }
-
-    const { userId } = getKey;
-
-    const isValid = await this.mfaService.verifyUserTotpToken(userId, totp);
-    if (!isValid) {
-      throw new UnauthorizedException('Invalid MFA token.');
-    }
-
-    const user = await this.authService.getUserById(userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    await this.authService.login(req, user);
-    await this.userSessionManager.removeMfaSession(tempKey);
-
-    return user;
   }
 
   @UseGuards(AuthenticatedGuard)
