@@ -2,15 +2,37 @@ import { Inject, Injectable } from '@nestjs/common';
 import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
 import { STORE_TOKEN } from 'src/infrastructure/store/store.constants';
 import { IStore } from 'src/infrastructure/store/store.interface';
-import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
-import { ILogger } from 'src/infrastructure/logging/logger.interface';
 
 @Injectable()
 export class UserSessionManager implements IUserSessionManager {
-  constructor(
-    @Inject(LOGGER_TOKEN) private readonly logger: ILogger,
-    @Inject(STORE_TOKEN) private readonly store: IStore,
-  ) {}
+  constructor(@Inject(STORE_TOKEN) private readonly store: IStore) {}
+
+  async saveMfaSession(
+    key: string,
+    userId: string,
+    types: string[],
+  ): Promise<void> {
+    await this.store.setWithExpiry(
+      `mfa:${key}`,
+      JSON.stringify({
+        userId,
+        types,
+      }),
+      300,
+    );
+  }
+
+  async getMfaSession(key: string): Promise<{
+    userId: string;
+    types: string[];
+  } | null> {
+    const data = await this.store.get(`mfa:${key}`);
+    return data ? JSON.parse(data) : null;
+  }
+
+  async removeMfaSession(key: string): Promise<void> {
+    await this.store.del(`mfa:${key}`);
+  }
 
   async saveUserSession(
     userId: string,

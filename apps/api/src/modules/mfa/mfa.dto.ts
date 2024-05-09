@@ -13,6 +13,7 @@ export type ActivateTotpDto = z.infer<typeof activateTotpSchema>;
 
 export const verifyMfaSchema = z
   .object({
+    tempKey: z.string(),
     totp,
   })
   .required();

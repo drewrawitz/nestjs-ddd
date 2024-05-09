@@ -1,4 +1,5 @@
 import {
+  randomUUID,
   randomBytes,
   createHash,
   createCipheriv,
@@ -8,6 +9,10 @@ import * as speakeasy from 'speakeasy';
 
 export function generateBase64Key() {
   return randomBytes(32).toString('base64');
+}
+
+export function generateUUID() {
+  return randomUUID();
 }
 
 export function generateToken() {

@@ -12,6 +12,7 @@ import {
   NotFoundException,
   UseGuards,
   UsePipes,
+  Inject,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation-pipe';
@@ -43,12 +44,16 @@ import {
   AuthChallengeDto,
   authChallengeSchema,
 } from '../dto/auth-challenge.dto';
+import { USER_SESSION_MANAGER_TOKEN } from '../domain/auth.constants';
+import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
 
 @Controller('v1/auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private mfaService: MFAService,
+    @Inject(USER_SESSION_MANAGER_TOKEN)
+    private readonly userSessionManager: IUserSessionManager,
   ) {}
 
   @Post('signup')
@@ -72,12 +77,14 @@ export class AuthController {
   @Post('login/mfa')
   @UsePipes(new ZodValidationPipe(verifyMfaSchema))
   async loginMfa(@Req() req: RequestWithUser, @Body() body: VerifyMfaDto) {
-    if (!req.session.mfa?.required) {
-      throw new ForbiddenException('MFA verification is not required.');
+    const { totp, tempKey } = body;
+    const getKey = await this.userSessionManager.getMfaSession(tempKey);
+
+    if (!getKey) {
+      throw new ForbiddenException('Could not verify MFA');
     }
 
-    const { totp } = body;
-    const { userId } = req.session.mfa;
+    const { userId } = getKey;
 
     const isValid = await this.mfaService.verifyUserTotpToken(userId, totp);
     if (!isValid) {
@@ -85,12 +92,12 @@ export class AuthController {
     }
 
     const user = await this.authService.getUserById(userId);
-
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
     await this.authService.login(req, user);
+    await this.userSessionManager.removeMfaSession(tempKey);
 
     return user;
   }

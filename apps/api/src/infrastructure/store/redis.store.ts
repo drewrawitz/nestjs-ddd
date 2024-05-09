@@ -50,7 +50,7 @@ export class RedisStoreService implements IStore {
     }
   }
 
-  async get(key: string) {
+  async get(key: string): Promise<any> {
     try {
       return await this.client.get(key);
     } catch (error) {
