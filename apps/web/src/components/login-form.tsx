@@ -1,7 +1,5 @@
 "use client";
 
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Icons } from "./icons";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,6 +20,7 @@ import { useLoginMutation } from "@/lib/features/auth/auth.hooks";
 import { useState } from "react";
 import TotpLogin from "./totp-login";
 import { MFAType } from "@app/prisma/client";
+import { AlertError } from "./alert-error";
 
 const FormSchema = z.object({
   email: z.string().email({
@@ -29,16 +28,6 @@ const FormSchema = z.object({
   }),
   password: z.string(),
 });
-
-export function LoginError({ message }: { message: string }) {
-  return (
-    <Alert variant="destructive">
-      <ExclamationTriangleIcon className="h-4 w-4" />
-      <AlertTitle>Error</AlertTitle>
-      <AlertDescription>{message}</AlertDescription>
-    </Alert>
-  );
-}
 
 export function LoginForm() {
   const [view, setView] = useState<"login" | "totp">("login");
@@ -64,7 +53,7 @@ export function LoginForm() {
       // TODO: The user should choose which method they want to authenticate with if there is more than one value in this Array.
       if (res.mfaTypes.includes(MFAType.TOTP)) {
         setView("totp");
-        console.log(res);
+        setTempKey(res.tempKey);
       }
     }
 
@@ -74,7 +63,7 @@ export function LoginForm() {
   }
 
   if (view === "totp") {
-    return <TotpLogin />;
+    return <TotpLogin tempKey={tempKey} />;
   }
 
   return (
@@ -84,7 +73,7 @@ export function LoginForm() {
       </h1>
       {login.isError && (
         <div className="mb-4">
-          <LoginError message={login.error.message} />
+          <AlertError message={login.error.message} />
         </div>
       )}
 

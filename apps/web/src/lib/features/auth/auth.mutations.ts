@@ -33,6 +33,7 @@ export const loginMFA = async (body: VerifyMfaDto): Promise<void> => {
   try {
     const res = await fetch(getApiRoute(apiRoutes.auth.loginMfa), {
       method: "POST",
+      credentials: "include",
       body: JSON.stringify({
         ...body,
       }),

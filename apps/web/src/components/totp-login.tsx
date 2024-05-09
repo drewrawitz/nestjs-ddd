@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Icons } from "./icons";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,8 @@ import {
 } from "@/components/ui/input-otp";
 import { useEffect, useState } from "react";
 import { useLoginMfaMutation } from "@/lib/features/auth/auth.hooks";
+import { useRouter } from "next/navigation";
+import { AlertError } from "./alert-error";
 
 const MAX_LENGTH = 6;
 const FormSchema = z.object({
@@ -28,7 +31,8 @@ const FormSchema = z.object({
   }),
 });
 
-export default function TotpLogin() {
+export default function TotpLogin({ tempKey }: { tempKey: string }) {
+  const router = useRouter();
   const loginMFA = useLoginMfaMutation();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -48,10 +52,17 @@ export default function TotpLogin() {
   }, [pin, submitted, form]);
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    await loginMFA.mutateAsync({
-      totp: data.pin,
-      tempKey: "ok",
-    });
+    try {
+      await loginMFA.mutateAsync({
+        totp: data.pin,
+        tempKey,
+      });
+      router.push("/");
+    } catch (err) {
+      console.error(err);
+      form.resetField("pin");
+      setSubmitted(false);
+    }
   }
 
   return (
@@ -94,7 +105,20 @@ export default function TotpLogin() {
               )}
             />
 
-            <Button type="submit" className="w-full">
+            {loginMFA.isError && (
+              <div className="mb-4">
+                <AlertError message={loginMFA.error.message} simple />
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loginMFA.isPending}
+            >
+              {loginMFA.isPending && (
+                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Submit
             </Button>
           </form>
