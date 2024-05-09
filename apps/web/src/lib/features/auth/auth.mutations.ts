@@ -1,5 +1,5 @@
 import { apiRoutes, getApiRoute } from "../../api-routes";
-import { LoginResponseDto } from "@app/shared";
+import { LoginResponseDto, VerifyMfaDto } from "@app/shared";
 
 export const login = async (
   email: string,
@@ -17,6 +17,30 @@ export const login = async (
         "Content-Type": "application/json",
       },
     });
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const loginMFA = async (body: VerifyMfaDto): Promise<void> => {
+  try {
+    const res = await fetch(getApiRoute(apiRoutes.auth.loginMfa), {
+      method: "POST",
+      body: JSON.stringify({
+        ...body,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
     const data = await res.json();
 
     if (!res.ok) {

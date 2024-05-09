@@ -1,6 +1,6 @@
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { login, logout } from "./auth.mutations";
+import { login, loginMFA, logout } from "./auth.mutations";
 import { getCurrentUser } from "./auth.queries";
 
 type LoginParams = {
@@ -22,6 +22,12 @@ export function useLoginMutation() {
     mutationFn: ({ email, password }: LoginParams) => {
       return login(email, password);
     },
+  });
+}
+
+export function useLoginMfaMutation() {
+  return useMutation({
+    mutationFn: loginMFA,
   });
 }
 

@@ -1,15 +1,24 @@
 {
   "name": "@app/shared",
   "version": "1.0.0",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js"
+    }
+  },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch",
-    "clean": "rimraf dist"
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
+    "watch": "concurrently \"tsc --watch --project tsconfig.json\" \"tsc --watch --project tsconfig.cjs.json\""
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
   }
 }

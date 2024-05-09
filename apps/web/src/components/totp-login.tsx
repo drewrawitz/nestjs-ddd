@@ -19,6 +19,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { useEffect, useState } from "react";
+import { useLoginMfaMutation } from "@/lib/features/auth/auth.hooks";
 
 const MAX_LENGTH = 6;
 const FormSchema = z.object({
@@ -28,6 +29,7 @@ const FormSchema = z.object({
 });
 
 export default function TotpLogin() {
+  const loginMFA = useLoginMfaMutation();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -45,8 +47,11 @@ export default function TotpLogin() {
     }
   }, [pin, submitted, form]);
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log("submit", data);
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    await loginMFA.mutateAsync({
+      totp: data.pin,
+      tempKey: "ok",
+    });
   }
 
   return (

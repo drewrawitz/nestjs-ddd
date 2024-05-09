@@ -6,7 +6,7 @@ import {
   generateBase64Key,
   generateTOTPSecret,
 } from 'src/utils/tokens';
-import { ActivateTotpDto } from './mfa.dto';
+import { ActivateTotpDto } from '@app/shared';
 import { EnvService } from 'src/infrastructure/env/env.service';
 import { MFAType } from '@prisma/client';
 import { USER_MFA_REPO_TOKEN } from './mfa.constants';

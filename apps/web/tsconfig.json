@@ -18,10 +18,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@app/shared": ["../../packages/shared/src"]
+      "@app/shared": ["../../packages/shared/src"],
+      "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "../../packages/shared/src/**/*"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }

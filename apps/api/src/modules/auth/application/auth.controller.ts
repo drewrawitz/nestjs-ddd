@@ -22,11 +22,11 @@ import {
   forgotPasswordSchema,
 } from '../dto/forgot-password.dto';
 import {
-  ActivateTotpDto,
-  VerifyMfaDto,
+  type ActivateTotpDto,
+  type VerifyMfaDto,
   activateTotpSchema,
   verifyMfaSchema,
-} from '../../mfa/mfa.dto';
+} from '@app/shared';
 import {
   ResetPasswordDto,
   resetPasswordSchema,

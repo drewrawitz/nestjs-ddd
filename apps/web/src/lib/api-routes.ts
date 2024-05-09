@@ -3,6 +3,7 @@ const PREFIX = "/v1";
 export const apiRoutes = {
   auth: {
     login: `${PREFIX}/auth/login`,
+    loginMfa: `${PREFIX}/auth/login/mfa`,
     logout: `${PREFIX}/auth/logout`,
   },
   users: {

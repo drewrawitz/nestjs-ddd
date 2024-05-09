@@ -21,7 +21,7 @@ export class LocalAuthGuard extends AuthGuard('local') {
           mfaRequired: true,
           mfaTypes: error.mfaTypes,
           tempKey: error.tempKey,
-        } as LoginMfaResponseType;
+        };
 
         response.status(HttpStatus.OK).json(responseObject);
         return false;
