@@ -313,6 +313,14 @@ importers:
         specifier: ^5
         version: 5.4.4
 
+  packages/prisma:
+    dependencies:
+      '@prisma/client':
+        specifier: 5.13.0
+        version: 5.13.0(prisma@5.13.0)
+
+  packages/prisma/generated: {}
+
   packages/shared:
     dependencies:
       zod:

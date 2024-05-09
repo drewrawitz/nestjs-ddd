@@ -5,6 +5,11 @@
     "declaration": true,
     "outDir": "dist",
     "rootDir": "src",
+    "paths": {
+      "@app/prisma/client": ["../prisma/generated/index.d.ts"],
+      "@app/prisma/server": ["../prisma/generated/index.d.ts"],
+      "@app/prisma/edge": ["../prisma/generated/edge.d.ts"]
+    },
     "strict": true,
     "esModuleInterop": true,
     "moduleResolution": "node",

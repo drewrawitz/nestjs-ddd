@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { useLoginMutation } from "@/lib/features/auth/auth.hooks";
 import { useState } from "react";
 import TotpLogin from "./totp-login";
-import { MFAType } from "@app/shared";
+import { MFAType } from "@app/prisma/client";
 
 const FormSchema = z.object({
   email: z.string().email({
@@ -41,7 +41,8 @@ export function LoginError({ message }: { message: string }) {
 }
 
 export function LoginForm() {
-  const [view, setView] = useState<"login" | "totp">("totp");
+  const [view, setView] = useState<"login" | "totp">("login");
+  const [tempKey, setTempKey] = useState("");
   const router = useRouter();
   const login = useLoginMutation();
 
@@ -63,6 +64,7 @@ export function LoginForm() {
       // TODO: The user should choose which method they want to authenticate with if there is more than one value in this Array.
       if (res.mfaTypes.includes(MFAType.TOTP)) {
         setView("totp");
+        console.log(res);
       }
     }
 

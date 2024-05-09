@@ -1,2 +1,4 @@
 node_modules
 dist
+packages/prisma/generated
+.DS_Store
