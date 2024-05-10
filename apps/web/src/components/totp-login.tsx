@@ -59,7 +59,6 @@ export default function TotpLogin({ tempKey }: { tempKey: string }) {
       });
       router.push("/");
     } catch (err) {
-      console.error(err);
       form.resetField("pin");
       setSubmitted(false);
     }
@@ -86,7 +85,12 @@ export default function TotpLogin({ tempKey }: { tempKey: string }) {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <InputOTP maxLength={6} {...field} autoFocus>
+                    <InputOTP
+                      maxLength={6}
+                      {...field}
+                      autoFocus
+                      containerClassName="justify-center"
+                    >
                       <InputOTPGroup>
                         <InputOTPSlot index={0} />
                         <InputOTPSlot index={1} />

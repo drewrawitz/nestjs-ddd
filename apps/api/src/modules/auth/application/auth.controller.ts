@@ -83,7 +83,9 @@ export class AuthController {
       const getKey = await this.userSessionManager.getMfaSession(tempKey);
 
       if (!getKey) {
-        throw new ForbiddenException('Session validation failed.');
+        throw new ForbiddenException(
+          'You have tried to login for too long. Please refresh this page.',
+        );
       }
 
       const { userId } = getKey;
