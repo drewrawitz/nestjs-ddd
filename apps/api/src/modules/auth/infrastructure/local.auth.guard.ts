@@ -1,3 +1,4 @@
+import { LoginMfaResponseType } from '@app/shared';
 import { ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { MfaRequiredException } from 'src/modules/mfa/mfa.exceptions';
@@ -14,12 +15,14 @@ export class LocalAuthGuard extends AuthGuard('local') {
       return result;
     } catch (error) {
       if (error instanceof MfaRequiredException) {
-        const responseObject = {
+        const responseObject: LoginMfaResponseType = {
           type: 'MFA_REQUIRED',
-          message: 'MFA required',
-          mfaRequired: true,
-          mfaTypes: error.mfaTypes,
-          tempKey: error.tempKey,
+          data: {
+            message: 'MFA required',
+            mfaRequired: true,
+            mfaTypes: error.mfaTypes,
+            tempKey: error.tempKey,
+          },
         };
 
         response.status(HttpStatus.OK).json(responseObject);

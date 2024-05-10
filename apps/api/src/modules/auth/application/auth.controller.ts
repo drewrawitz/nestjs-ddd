@@ -26,6 +26,7 @@ import {
   type VerifyMfaDto,
   activateTotpSchema,
   verifyMfaSchema,
+  LoginSuccessResponseType,
 } from '@app/shared';
 import {
   ResetPasswordDto,
@@ -70,7 +71,13 @@ export class AuthController {
   @Post('login')
   async login(@Req() req: RequestWithUser) {
     await this.authService.loginSuccess(req);
-    return req.user;
+
+    return {
+      type: 'LOGIN_SUCCESS',
+      data: {
+        ...req.user,
+      },
+    };
   }
 
   @HttpCode(200)

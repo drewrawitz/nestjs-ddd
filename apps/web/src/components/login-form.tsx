@@ -51,9 +51,9 @@ export function LoginForm() {
 
     if (res.type === "MFA_REQUIRED") {
       // TODO: The user should choose which method they want to authenticate with if there is more than one value in this Array.
-      if (res.mfaTypes.includes(MFAType.TOTP)) {
+      if (res.data.mfaTypes.includes(MFAType.TOTP)) {
         setView("totp");
-        setTempKey(res.tempKey);
+        setTempKey(res.data.tempKey);
       }
     }
 

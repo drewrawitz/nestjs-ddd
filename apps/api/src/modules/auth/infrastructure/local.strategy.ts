@@ -13,6 +13,7 @@ import { USER_SESSION_MANAGER_TOKEN } from '../domain/auth.constants';
 import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
 import { generateUUID } from 'src/utils/tokens';
 import { MfaRequiredException } from 'src/modules/mfa/mfa.exceptions';
+import { IUserResponse } from '@app/shared';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -29,7 +30,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     req: RequestWithUser,
     email: string,
     password: string,
-  ): Promise<any> {
+  ): Promise<IUserResponse> {
     if (req.isAuthenticated?.()) {
       throw new ForbiddenException(
         'Already authenticated with an active session',

@@ -1,17 +1,19 @@
 import { MFAType } from "@app/prisma/client";
+import { IUserResponse } from "../user/user.interface";
 
 export interface LoginMfaResponseType {
   type: "MFA_REQUIRED";
-  message: string;
-  mfaRequired: boolean;
-  mfaTypes: MFAType[];
-  tempKey: string;
+  data: {
+    message: string;
+    mfaRequired: boolean;
+    mfaTypes: MFAType[];
+    tempKey: string;
+  };
 }
 
 export interface LoginSuccessResponseType {
   type: "LOGIN_SUCCESS";
-  id: string;
-  email: string;
+  data: IUserResponse;
 }
 
 export type LoginResponseDto = LoginMfaResponseType | LoginSuccessResponseType;

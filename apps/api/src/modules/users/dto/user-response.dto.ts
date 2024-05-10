@@ -1,6 +1,7 @@
 import { User } from '../domain/model/User';
+import { IUserResponse } from '@app/shared';
 
-export class UserResponseDto {
+export class UserResponseDto implements IUserResponse {
   id: string;
   email: string;
   firstName: string | null;
