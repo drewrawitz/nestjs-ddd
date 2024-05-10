@@ -17,6 +17,7 @@ import {
   useCurrentUserQuery,
   useLogoutMutation,
 } from "@/lib/features/auth/auth.hooks";
+import Link from "next/link";
 
 function ProfileNav() {
   const logout = useLogoutMutation();
@@ -52,10 +53,12 @@ function ProfileNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
-          </DropdownMenuItem>
+          <Link href="/settings" passHref>
+            <DropdownMenuItem className="cursor-pointer">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+            </DropdownMenuItem>
+          </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={onClickLogout} disabled={logout.isPending}>

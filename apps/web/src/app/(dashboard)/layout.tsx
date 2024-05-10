@@ -6,6 +6,7 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
+import Link from "next/link";
 
 export default async function DashboardLayout({
   children,
@@ -25,7 +26,9 @@ export default async function DashboardLayout({
       <div className="container">
         <div className="border-b">
           <div className="flex items-center px-4">
-            <div className="w-[100px] py-4">Logo</div>
+            <div className="w-[100px] py-4">
+              <Link href="/">Logo</Link>
+            </div>
             <div className="ml-auto flex items-center space-x-4">
               <ProfileNav />
             </div>
