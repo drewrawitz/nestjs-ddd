@@ -15,7 +15,7 @@ import { MFAModule } from 'src/modules/mfa/mfa.module';
     MFAModule,
     EmailModule,
     UsersModule,
-    PassportModule.register({ session: true }),
+    PassportModule.register({ defaultStrategy: 'local', session: true }),
   ],
   controllers: [AuthController],
   providers: [

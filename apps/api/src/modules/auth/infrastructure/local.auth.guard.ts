@@ -1,4 +1,3 @@
-import { LoginMfaResponseType } from '@app/shared';
 import { ExecutionContext, HttpStatus, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { MfaRequiredException } from 'src/modules/mfa/mfa.exceptions';
