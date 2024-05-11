@@ -153,7 +153,7 @@ export class AuthController {
     @Req() req: RequestWithUser,
     @Body() body: AuthChallengeDto,
   ) {
-    return await this.authService.initiateChallenge(req.user.id, body);
+    return await this.authService.initiateChallenge(req.user, body);
   }
 
   @UseGuards(AuthenticatedGuard)

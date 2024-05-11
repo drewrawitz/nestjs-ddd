@@ -33,6 +33,7 @@ import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { SignupDto } from '../dto/signup.dto';
 import { AuthChallengeDto } from '../dto/auth-challenge.dto';
 import { IAuthChallengeManager } from '../domain/interfaces/IAuthChallengeManager';
+import { AuthChallengeInitEvent } from '../domain/events/auth-challenge.event';
 
 @Injectable()
 export class AuthService {
@@ -238,11 +239,23 @@ export class AuthService {
     await this.cleanupAfterPasswordReset(user.id!, email, hashedToken);
   }
 
-  async initiateChallenge(userId: string, body: AuthChallengeDto) {
-    return this.authChallengeManager.saveAuthChallengeToken(
-      userId,
+  async initiateChallenge(
+    user: RequestWithUser['user'],
+    body: AuthChallengeDto,
+  ) {
+    const token = await this.authChallengeManager.saveAuthChallengeToken(
+      user.id,
       body.action,
     );
+
+    this.eventPublisher.publish(
+      'auth.challengeInit',
+      new AuthChallengeInitEvent(user, token, body),
+    );
+
+    return {
+      token,
+    };
   }
 
   private async validateResetToken(

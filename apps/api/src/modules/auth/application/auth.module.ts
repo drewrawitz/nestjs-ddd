@@ -9,6 +9,7 @@ import { SessionSerializer } from '../infrastructure/session.serializer';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { MFAModule } from 'src/modules/mfa/mfa.module';
+import { AuthChallengeInitListener } from '../domain/listeners/auth-challenge.listener';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { MFAModule } from 'src/modules/mfa/mfa.module';
     LocalStrategy,
     ForgotPasswordListener,
     ChangedPasswordListener,
+    AuthChallengeInitListener,
     SessionSerializer,
   ],
   exports: [AuthService],

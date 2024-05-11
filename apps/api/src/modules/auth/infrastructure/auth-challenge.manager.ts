@@ -24,10 +24,12 @@ export class AuthChallengeManager implements IAuthChallengeManager {
       action,
     });
 
-    return this.store.setWithExpiry(
+    await this.store.setWithExpiry(
       AUTH_CHALLENGE_TOKEN,
       hashedToken,
       AUTH_CHALLENGE_EXPIRATION,
     );
+
+    return token;
   }
 }
