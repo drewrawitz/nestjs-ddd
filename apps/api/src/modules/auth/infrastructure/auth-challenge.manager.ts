@@ -15,20 +15,39 @@ export class AuthChallengeManager implements IAuthChallengeManager {
   ) {}
 
   async saveAuthChallengeToken(userId: string, action: VerifyAuthAction) {
-    const AUTH_CHALLENGE_TOKEN = `authChallenge:${userId}:${action}`;
-    const AUTH_CHALLENGE_EXPIRATION = 15 * 60;
     const token = generateToken();
     const hashedToken = await hashToken(token);
-    this.logger.log(`Saving auth challenge token: ${action}`, {
-      userId,
-      action,
-    });
+    const USER_CHALLENGE_TOKEN = `userChallenge:${userId}:${action}`;
+    const AUTH_CHALLENGE_TOKEN = `authChallenge:${hashedToken}`;
+    const TOKEN_EXPIRATION = 15 * 60;
 
-    await this.store.setWithExpiry(
-      AUTH_CHALLENGE_TOKEN,
-      hashedToken,
-      AUTH_CHALLENGE_EXPIRATION,
-    );
+    try {
+      await Promise.all([
+        this.store.setWithExpiry(
+          USER_CHALLENGE_TOKEN,
+          hashedToken,
+          TOKEN_EXPIRATION,
+        ),
+        this.store.setWithExpiry(
+          AUTH_CHALLENGE_TOKEN,
+          JSON.stringify({
+            userId,
+            action,
+          }),
+          TOKEN_EXPIRATION,
+        ),
+      ]);
+      this.logger.log(`Saved auth challenge tokens: ${action}`, {
+        userId,
+        action,
+      });
+    } catch (err) {
+      this.logger.error(`Failed to save auth challenge tokens: ${action}`, {
+        error: err,
+        userId,
+        action,
+      });
+    }
 
     return token;
   }
