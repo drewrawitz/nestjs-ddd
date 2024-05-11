@@ -1,11 +1,12 @@
 "use client";
 
 import Add2faButton from "@/components/add-2fa-button";
+import UserAuthTable from "./user-auth-table";
 
 function TwoStepAuth() {
   return (
     <>
-      <div className="flex items-center justify-between border-b pb-4 mb-4">
+      <div className="flex items-center justify-between border-b pb-4">
         <div>
           <h1 className="text-xl font-medium">Two-step authentication</h1>
           <p className="text-gray-400">
@@ -15,7 +16,7 @@ function TwoStepAuth() {
         </div>
         <Add2faButton />
       </div>
-      <p>You don&apos;t have any authentication methods added.</p>
+      <UserAuthTable />
     </>
   );
 }
