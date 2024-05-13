@@ -1,48 +1,76 @@
-import { CopyIcon } from "@radix-ui/react-icons";
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   DialogClose,
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuthenticatorMachineContext } from "@/lib/features/mfa/authenticator.hooks";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import type { SelectedVerificationType } from "@/lib/features/mfa/authenticator.machine";
+import { Icons } from "../icons";
 
 export function VerificationRequiredDialog() {
+  const [state, send] = useAuthenticatorMachineContext();
+
+  console.log("state", state);
+
+  const onChangeRadio = (value: SelectedVerificationType) => {
+    send({ type: "Selection.Update", value });
+  };
+
   return (
-    <DialogContent className="sm:max-w-md">
+    <>
       <DialogHeader>
-        <DialogTitle>Share link</DialogTitle>
+        <DialogTitle>Verification required</DialogTitle>
         <DialogDescription>
-          Anyone who has this link will be able to view this.
+          To make changes to your account, verify using one of the options
+          below.
         </DialogDescription>
       </DialogHeader>
-      <div className="flex items-center space-x-2">
-        <div className="grid flex-1 gap-2">
-          <Label htmlFor="link" className="sr-only">
-            Link
-          </Label>
-          <Input
-            id="link"
-            defaultValue="https://ui.shadcn.com/docs/installation"
-            readOnly
-          />
-        </div>
-        <Button type="submit" size="sm" className="px-3">
-          <span className="sr-only">Copy</span>
-          <CopyIcon className="h-4 w-4" />
-        </Button>
+      <div>
+        <RadioGroup
+          defaultValue="email"
+          className="space-y-2"
+          onValueChange={onChangeRadio}
+        >
+          {state.context.hasSecurityKey && (
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="securityKey" id="securityKey" />
+              <Label htmlFor="securityKey">
+                Use a security key or Touch ID
+              </Label>
+            </div>
+          )}
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="email" id="email" />
+            <Label htmlFor="email">
+              Receive a link in your email + more verification
+            </Label>
+          </div>
+        </RadioGroup>
       </div>
-      <DialogFooter className="sm:justify-start">
+      <DialogFooter>
         <DialogClose asChild>
-          <Button type="button" variant="secondary">
+          <Button type="button" variant="ghost">
             Close
           </Button>
         </DialogClose>
+        <Button
+          type="button"
+          onClick={() => send({ type: "Continue" })}
+          disabled={state.matches("Sending Email")}
+        >
+          {state.matches("Sending Email") && (
+            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+          )}
+          Continue
+        </Button>
       </DialogFooter>
-    </DialogContent>
+    </>
   );
 }
