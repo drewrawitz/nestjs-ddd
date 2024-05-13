@@ -24,9 +24,10 @@ import {
 import {
   type ActivateTotpDto,
   type VerifyMfaDto,
+  type AuthChallengeDto,
   activateTotpSchema,
   verifyMfaSchema,
-  LoginSuccessResponseType,
+  authChallengeSchema,
 } from '@app/shared';
 import {
   ResetPasswordDto,
@@ -41,10 +42,6 @@ import { AuthenticatedGuard } from '../infrastructure/authenticated.guard';
 import { LocalAuthGuard } from '../infrastructure/local.auth.guard';
 import { AuthService } from './auth.service';
 import { MFAService } from 'src/modules/mfa/mfa.service';
-import {
-  AuthChallengeDto,
-  authChallengeSchema,
-} from '../dto/auth-challenge.dto';
 import { USER_SESSION_MANAGER_TOKEN } from '../domain/auth.constants';
 import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
 

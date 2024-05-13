@@ -1,5 +1,5 @@
 import { RequestWithUser } from 'src/utils/types';
-import { AuthChallengeDto } from '../../dto/auth-challenge.dto';
+import { AuthChallengeDto } from '@app/shared';
 
 export class AuthChallengeInitEvent {
   constructor(

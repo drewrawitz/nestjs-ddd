@@ -31,7 +31,7 @@ import { IPasswordResetManager } from '../domain/interfaces/IPasswordResetManage
 import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { SignupDto } from '../dto/signup.dto';
-import { AuthChallengeDto } from '../dto/auth-challenge.dto';
+import { AuthChallengeDto } from '@app/shared';
 import { IAuthChallengeManager } from '../domain/interfaces/IAuthChallengeManager';
 import { AuthChallengeInitEvent } from '../domain/events/auth-challenge.event';
 

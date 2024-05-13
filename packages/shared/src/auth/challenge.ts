@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export enum AuthChallengeType {
-  Email = 'email',
+  Email = "email",
 }
 
 export enum VerifyAuthAction {
-  GenerateBackupCode = 'generateBackupCode',
+  GenerateBackupCode = "generateBackupCode",
 }
 
 export const authChallengeSchema = z

@@ -3,7 +3,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { EMAIL_TOKEN } from 'src/infrastructure/email/email.token';
 import { IEmailService } from 'src/infrastructure/email/email.interface';
 import { AuthChallengeInitEvent } from '../events/auth-challenge.event';
-import { AuthChallengeType } from '../../dto/auth-challenge.dto';
+import { AuthChallengeType } from '@app/shared';
 
 @Injectable()
 export class AuthChallengeInitListener {

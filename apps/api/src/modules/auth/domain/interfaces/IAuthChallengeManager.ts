@@ -1,4 +1,4 @@
-import { VerifyAuthAction } from '../../dto/auth-challenge.dto';
+import { VerifyAuthAction } from '@app/shared';
 
 export interface IAuthChallengeManager {
   saveAuthChallengeToken(

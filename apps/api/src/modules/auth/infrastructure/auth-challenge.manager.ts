@@ -4,7 +4,7 @@ import { IStore } from 'src/infrastructure/store/store.interface';
 import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
 import { ILogger } from 'src/infrastructure/logging/logger.interface';
 import { IAuthChallengeManager } from '../domain/interfaces/IAuthChallengeManager';
-import { VerifyAuthAction } from '../dto/auth-challenge.dto';
+import { VerifyAuthAction } from '@app/shared';
 import { generateToken, hashToken } from 'src/utils/tokens';
 
 @Injectable()
