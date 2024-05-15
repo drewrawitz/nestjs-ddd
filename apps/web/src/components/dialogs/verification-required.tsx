@@ -9,18 +9,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { useAuthenticatorMachineContext } from "@/lib/features/mfa/authenticator.hooks";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { SelectedVerificationType } from "@/lib/features/mfa/authenticator.machine";
 import { Icons } from "../icons";
+import { AddAuthenticatorAppContext } from "@/app/providers";
 
 export function VerificationRequiredDialog() {
-  const [state, send] = useAuthenticatorMachineContext();
-
-  console.log("state", state);
+  const actorRef = AddAuthenticatorAppContext.useActorRef();
+  const { send } = actorRef;
+  const state = actorRef.getSnapshot();
 
   const onChangeRadio = (value: SelectedVerificationType) => {
-    send({ type: "Selection.Update", value });
+    console.log("radio", value);
   };
 
   return (
@@ -38,19 +38,9 @@ export function VerificationRequiredDialog() {
           className="space-y-2"
           onValueChange={onChangeRadio}
         >
-          {state.context.hasSecurityKey && (
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="securityKey" id="securityKey" />
-              <Label htmlFor="securityKey">
-                Use a security key or Touch ID
-              </Label>
-            </div>
-          )}
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="email" id="email" />
-            <Label htmlFor="email">
-              Receive a link in your email + more verification
-            </Label>
+            <Label htmlFor="email">Receive a link in your email</Label>
           </div>
         </RadioGroup>
       </div>
@@ -62,10 +52,10 @@ export function VerificationRequiredDialog() {
         </DialogClose>
         <Button
           type="button"
-          onClick={() => send({ type: "Continue" })}
-          disabled={state.matches("Sending Email")}
+          onClick={() => send({ type: "continue" })}
+          disabled={!state.can({ type: "continue" })}
         >
-          {state.matches("Sending Email") && (
+          {state.matches("sendingEmail") && (
             <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
           )}
           Continue

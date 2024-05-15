@@ -1,5 +1,5 @@
 import { apiRoutes, getApiRoute } from "../../api-routes";
-import { LoginResponseDto, VerifyMfaDto } from "@app/shared";
+import { AuthChallengeDto, LoginResponseDto, VerifyMfaDto } from "@app/shared";
 
 export const login = async (
   email: string,
@@ -69,5 +69,32 @@ export const logout = async (opts: RequestInit = {}): Promise<void> => {
     return;
   } catch (err) {
     console.error("Error logging out:", err);
+  }
+};
+
+export const initiateAuthChallenge = async (
+  body: AuthChallengeDto,
+): Promise<{ token: string }> => {
+  try {
+    const res = await fetch(getApiRoute(apiRoutes.auth.challenge.initiate), {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({
+        ...body,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (e) {
+    throw e;
   }
 };

@@ -1,7 +1,14 @@
 "use client";
 
+import GlobalDialog from "@/components/dialogs/global-dialog";
+import { addAuthenticatorAppMachine } from "@/lib/machines/add-auth-method.machine";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { createActorContext } from "@xstate/react";
+
+export const AddAuthenticatorAppContext = createActorContext(
+  addAuthenticatorAppMachine,
+);
 
 function makeQueryClient() {
   return new QueryClient({
@@ -34,8 +41,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      <ReactQueryDevtools initialIsOpen={false} />
+      <AddAuthenticatorAppContext.Provider>
+        {children}
+        <GlobalDialog />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </AddAuthenticatorAppContext.Provider>
     </QueryClientProvider>
   );
 }

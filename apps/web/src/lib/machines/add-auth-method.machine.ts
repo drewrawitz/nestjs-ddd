@@ -1,19 +1,18 @@
+import { AuthChallengeType, VerifyAuthAction } from "@app/shared";
 import { assign, fromPromise, setup } from "xstate";
-
-const wait = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
+import { initiateAuthChallenge } from "../features/auth/auth.mutations";
 
 const submitTotpCode = fromPromise(async (data: any) => {
   console.log("submit totp code", data);
   return "123";
 });
 
-const sendEmail = fromPromise(async (data: any) => {
-  console.log("Send Email", data);
-  await wait(3000);
-  console.log("Done");
-  return "derp";
+const sendEmail = fromPromise(async () => {
+  const { token } = await initiateAuthChallenge({
+    type: AuthChallengeType.Email,
+    action: VerifyAuthAction.AddAuthenticatorApp,
+  });
+  return token;
 });
 
 export const addAuthenticatorAppMachine = setup({

@@ -5,6 +5,7 @@ export enum AuthChallengeType {
 }
 
 export enum VerifyAuthAction {
+  AddAuthenticatorApp = "addAuthenticatorApp",
   GenerateBackupCode = "generateBackupCode",
 }
 

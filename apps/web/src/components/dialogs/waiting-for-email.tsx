@@ -1,5 +1,6 @@
 "use client";
 
+import { AddAuthenticatorAppContext } from "@/app/providers";
 import { Button } from "@/components/ui/button";
 import {
   DialogClose,
@@ -8,10 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAuthenticatorMachineContext } from "@/lib/features/mfa/authenticator.hooks";
 
 export function WaitingForEmailDialog() {
-  const [state, send] = useAuthenticatorMachineContext();
+  const actorRef = AddAuthenticatorAppContext.useActorRef();
+  const state = actorRef.getSnapshot();
 
   return (
     <>
@@ -29,9 +30,6 @@ export function WaitingForEmailDialog() {
             Cancel
           </Button>
         </DialogClose>
-        <Button type="button" onClick={() => send({ type: "Clicked Link" })}>
-          Continue
-        </Button>
       </DialogFooter>
     </>
   );

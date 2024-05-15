@@ -1,4 +1,3 @@
-import { VerifyAuthAction } from "@app/shared";
 import { setup, assign, fromPromise } from "xstate";
 
 export type SelectedVerificationType = "email" | "securityKey";
@@ -11,18 +10,16 @@ export const authenticatorMachine = setup({
   types: {
     input: {} as {
       email: string;
-      action: VerifyAuthAction;
     },
     context: {
       hasVerifiedEmail: true,
       hasSecurityKey: false,
       selectedVerification: "email",
-      action: undefined,
     } as {
+      email: string;
       hasSecurityKey: boolean;
       hasVerifiedEmail: boolean;
       selectedVerification: SelectedVerificationType;
-      action?: VerifyAuthAction;
     },
     events: {} as
       | { type: "Cancel" }
@@ -92,7 +89,6 @@ export const authenticatorMachine = setup({
 }).createMachine({
   context: ({ input }) => ({
     email: input.email,
-    action: input.action,
     hasSecurityKey: false,
     hasVerifiedEmail: true,
     selectedVerification: "email",
