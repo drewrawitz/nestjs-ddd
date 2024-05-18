@@ -7,6 +7,7 @@ export const apiRoutes = {
     logout: `${PREFIX}/auth/logout`,
     challenge: {
       initiate: `${PREFIX}/auth/challenge/initiate`,
+      verify: `${PREFIX}/auth/challenge/verify`,
     },
   },
   users: {

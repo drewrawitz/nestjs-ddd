@@ -16,5 +16,6 @@ export const getCurrentUser = async (opts: RequestInit = {}): Promise<any> => {
     throw new Error("Something went wrong");
   }
 
-  return res.json();
+  const data = await res.json();
+  return data;
 };

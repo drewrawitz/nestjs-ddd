@@ -5,7 +5,19 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const clonedPathname = url.pathname;
 
-  if (url.pathname !== "/login") {
+  // Define the routes that a guest should be able to view
+  const guestRoutes = [
+    "/forgot-password",
+    "/reset-password",
+    "/auth-challenge",
+  ];
+
+  // Check if the current path matches any of the guest routes
+  const isGuestRoute = guestRoutes.some((route) =>
+    clonedPathname.startsWith(route),
+  );
+
+  if (url.pathname !== "/login" && !isGuestRoute) {
     if (!request.cookies.has("connect.sid")) {
       url.pathname = `/login`;
 

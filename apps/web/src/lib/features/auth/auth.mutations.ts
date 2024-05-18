@@ -1,5 +1,10 @@
 import { apiRoutes, getApiRoute } from "../../api-routes";
-import { AuthChallengeDto, LoginResponseDto, VerifyMfaDto } from "@app/shared";
+import {
+  AuthChallengeDto,
+  LoginResponseDto,
+  VerifyAuthChallengeDto,
+  VerifyMfaDto,
+} from "@app/shared";
 
 export const login = async (
   email: string,
@@ -96,5 +101,37 @@ export const initiateAuthChallenge = async (
     return data;
   } catch (e) {
     throw e;
+  }
+};
+
+export const verifyAuthChallenge = async (
+  opts: RequestInit = {},
+  body: VerifyAuthChallengeDto,
+): Promise<{
+  verified: boolean;
+  action: string | null;
+}> => {
+  try {
+    const res = await fetch(getApiRoute(apiRoutes.auth.challenge.verify), {
+      method: "POST",
+      credentials: "include",
+      ...opts,
+      body: JSON.stringify({
+        ...body,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (e) {
+    return {
+      verified: false,
+      action: null,
+    };
   }
 };
