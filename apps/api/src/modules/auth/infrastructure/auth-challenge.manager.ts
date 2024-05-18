@@ -51,4 +51,25 @@ export class AuthChallengeManager implements IAuthChallengeManager {
 
     return token;
   }
+
+  async verifyAuthChallengeToken(
+    userId: string,
+    token: string,
+  ): Promise<null | string> {
+    const hashedToken = await hashToken(token);
+    const AUTH_CHALLENGE_TOKEN = `authChallenge:${hashedToken}`;
+    const value = await this.store.get(AUTH_CHALLENGE_TOKEN);
+
+    if (!value) {
+      return null;
+    }
+
+    const parsedValue = JSON.parse(value);
+
+    if (parsedValue.userId !== userId) {
+      return null;
+    }
+
+    return parsedValue.action;
+  }
 }

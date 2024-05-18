@@ -17,3 +17,11 @@ export const authChallengeSchema = z
   .required();
 
 export type AuthChallengeDto = z.infer<typeof authChallengeSchema>;
+
+export const verifyAuthChallengeSchema = z
+  .object({
+    token: z.string(),
+  })
+  .required();
+
+export type VerifyAuthChallengeDto = z.infer<typeof verifyAuthChallengeSchema>;

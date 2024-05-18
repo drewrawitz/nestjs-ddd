@@ -31,7 +31,7 @@ import { IPasswordResetManager } from '../domain/interfaces/IPasswordResetManage
 import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { SignupDto } from '../dto/signup.dto';
-import { AuthChallengeDto } from '@app/shared';
+import { AuthChallengeDto, VerifyAuthChallengeDto } from '@app/shared';
 import { IAuthChallengeManager } from '../domain/interfaces/IAuthChallengeManager';
 import { AuthChallengeInitEvent } from '../domain/events/auth-challenge.event';
 
@@ -255,6 +255,21 @@ export class AuthService {
 
     return {
       token,
+    };
+  }
+
+  async verifyChallenge(
+    user: RequestWithUser['user'],
+    body: VerifyAuthChallengeDto,
+  ) {
+    const action = await this.authChallengeManager.verifyAuthChallengeToken(
+      user.id,
+      body.token,
+    );
+
+    return {
+      verified: Boolean(action),
+      action,
     };
   }
 

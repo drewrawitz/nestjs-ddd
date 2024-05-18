@@ -28,6 +28,8 @@ import {
   activateTotpSchema,
   verifyMfaSchema,
   authChallengeSchema,
+  verifyAuthChallengeSchema,
+  VerifyAuthChallengeDto,
 } from '@app/shared';
 import {
   ResetPasswordDto,
@@ -151,6 +153,16 @@ export class AuthController {
     @Body() body: AuthChallengeDto,
   ) {
     return await this.authService.initiateChallenge(req.user, body);
+  }
+
+  @UseGuards(AuthenticatedGuard)
+  @Post('challenge/verify')
+  @UsePipes(new ZodValidationPipe(verifyAuthChallengeSchema))
+  async verifyAuthChallenge(
+    @Req() req: RequestWithUser,
+    @Body() body: VerifyAuthChallengeDto,
+  ) {
+    return await this.authService.verifyChallenge(req.user, body);
   }
 
   @UseGuards(AuthenticatedGuard)
