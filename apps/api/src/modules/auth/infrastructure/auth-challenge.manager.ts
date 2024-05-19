@@ -21,6 +21,12 @@ export class AuthChallengeManager implements IAuthChallengeManager {
     const AUTH_CHALLENGE_TOKEN = `authChallenge:${hashedToken}`;
     const TOKEN_EXPIRATION = 15 * 60;
 
+    // Check if the user has an existing token active and remove
+    const existingToken = await this.store.get(USER_CHALLENGE_TOKEN);
+    if (existingToken) {
+      await this.store.del(`authChallenge:${existingToken}`);
+    }
+
     try {
       await Promise.all([
         this.store.setWithExpiry(
