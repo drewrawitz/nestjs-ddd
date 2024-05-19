@@ -1,6 +1,7 @@
 import ms from 'ms';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import RedisStore from 'connect-redis';
 import session from 'express-session';
 import passport from 'passport';
@@ -22,6 +23,8 @@ async function bootstrap() {
   const redisStore = new RedisStore({
     client: redisClient,
   });
+
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   /**
    * Sessions

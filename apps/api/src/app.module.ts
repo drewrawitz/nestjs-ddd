@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/application/auth.module';
 import { SubscriptionsModule } from './modules/subscriptions/application/subscriptions.module';
 import { UsersModule } from './modules/users/application/users.module';
 import { SharedModule } from './common/modules/shared.module';
+import { WebsocketsModule } from './infrastructure/websockets/websockets.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { SharedModule } from './common/modules/shared.module';
     UsersModule,
     SubscriptionsModule,
     SharedModule,
+    WebsocketsModule,
   ],
   controllers: [],
   providers: [

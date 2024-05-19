@@ -34,6 +34,7 @@ import { SignupDto } from '../dto/signup.dto';
 import { AuthChallengeDto, VerifyAuthChallengeDto } from '@app/shared';
 import { IAuthChallengeManager } from '../domain/interfaces/IAuthChallengeManager';
 import { AuthChallengeInitEvent } from '../domain/events/auth-challenge.event';
+import { AppWebsocketsGateway } from 'src/infrastructure/websockets/websockets.gateway';
 
 @Injectable()
 export class AuthService {
@@ -50,6 +51,7 @@ export class AuthService {
     private userDomainService: UserDomainService,
     @Inject(AUTH_CHALLENGE_MANAGER_TOKEN)
     private readonly authChallengeManager: IAuthChallengeManager,
+    private readonly websocketsGateway: AppWebsocketsGateway,
   ) {}
 
   async getUserById(userId: string) {
@@ -276,6 +278,11 @@ export class AuthService {
         action,
       );
       // Send a WS event to the client
+      this.websocketsGateway.emitToUser(
+        user.id,
+        `authChallengeVerified.${action}`,
+        null,
+      );
     }
 
     return {

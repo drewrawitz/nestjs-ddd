@@ -10,9 +10,11 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { MFAModule } from 'src/modules/mfa/mfa.module';
 import { AuthChallengeInitListener } from '../domain/listeners/auth-challenge.listener';
+import { WebsocketsModule } from 'src/infrastructure/websockets/websockets.module';
 
 @Module({
   imports: [
+    WebsocketsModule,
     MFAModule,
     EmailModule,
     UsersModule,

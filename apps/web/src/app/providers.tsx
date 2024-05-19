@@ -2,6 +2,7 @@
 
 import GlobalDialog from "@/components/dialogs/global-dialog";
 import { addAuthenticatorAppMachine } from "@/lib/machines/add-auth-method.machine";
+import { SocketProvider } from "@/lib/providers/socket.provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createActorContext } from "@xstate/react";
@@ -41,11 +42,13 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AddAuthenticatorAppContext.Provider>
-        {children}
-        <GlobalDialog />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </AddAuthenticatorAppContext.Provider>
+      <SocketProvider>
+        <AddAuthenticatorAppContext.Provider>
+          {children}
+          <GlobalDialog />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </AddAuthenticatorAppContext.Provider>
+      </SocketProvider>
     </QueryClientProvider>
   );
 }

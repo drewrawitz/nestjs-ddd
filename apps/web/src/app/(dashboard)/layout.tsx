@@ -1,6 +1,7 @@
 import ProfileNav from "@/components/profile-nav";
 import { getHeaderInfo } from "@/lib/cookies";
 import { getCurrentUser } from "@/lib/features/auth/auth.queries";
+import { SocketProvider } from "@/lib/providers/socket.provider";
 import {
   dehydrate,
   HydrationBoundary,

@@ -8,10 +8,30 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Icons } from "../icons";
+import { useSocket } from "@/lib/providers/socket.provider";
+import { useEffect } from "react";
+import { VerifyAuthAction } from "@app/shared";
+
+const socketName = `authChallengeVerified.${VerifyAuthAction.AddAuthenticatorApp}`;
 
 export function WaitingForEmailDialog() {
   const actorRef = AddAuthenticatorAppContext.useActorRef();
   const state = actorRef.getSnapshot();
+  const socket = useSocket();
+
+  useEffect(() => {
+    if (socket) {
+      const handleAuthChallengeVerified = () => {
+        actorRef.send({ type: "verified" });
+      };
+
+      socket.on(socketName, handleAuthChallengeVerified);
+
+      return () => {
+        socket.off(socketName, handleAuthChallengeVerified);
+      };
+    }
+  }, [socket]);
 
   return (
     <>
