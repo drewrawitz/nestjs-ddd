@@ -6,6 +6,7 @@ import { useDialog } from "@/lib/hooks/useDialog";
 import { VerificationRequiredDialog } from "./verification-required";
 import { useSelector } from "@xstate/react";
 import { WaitingForEmailDialog } from "./waiting-for-email";
+import { ScanQRDialog } from "./scan-qr";
 
 function GlobalDialog() {
   const { isOpen, onClose } = useDialog();
@@ -18,6 +19,9 @@ function GlobalDialog() {
         {(state.matches("verificationRequired") ||
           state.matches("sendingEmail")) && <VerificationRequiredDialog />}
         {state.matches("waiting") && <WaitingForEmailDialog />}
+        {(state.matches("scanQR") || state.matches("manualCode")) && (
+          <ScanQRDialog />
+        )}
       </DialogContent>
     </Dialog>
   );

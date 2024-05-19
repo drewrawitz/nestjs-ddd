@@ -1,10 +1,17 @@
 import { AuthChallengeType, VerifyAuthAction } from "@app/shared";
 import { assign, fromPromise, setup } from "xstate";
-import { initiateAuthChallenge } from "../features/auth/auth.mutations";
+import {
+  initiateAuthChallenge,
+  mfaTotpSetup,
+} from "../features/auth/auth.mutations";
 
 const submitTotpCode = fromPromise(async (data: any) => {
   console.log("submit totp code", data);
   return "123";
+});
+
+const setupTotp = fromPromise(async () => {
+  return await mfaTotpSetup();
 });
 
 const sendEmail = fromPromise(async () => {
@@ -29,6 +36,7 @@ export const addAuthenticatorAppMachine = setup({
   },
   actors: {
     submitTotpCode,
+    setupTotp,
     sendEmail,
   },
 }).createMachine({
@@ -39,6 +47,7 @@ export const addAuthenticatorAppMachine = setup({
     totp: "",
     backupCode: "",
     error: "",
+    qrCode: "",
   },
   on: {
     close: {
@@ -80,7 +89,21 @@ export const addAuthenticatorAppMachine = setup({
           target: "sendingEmail",
         },
         verified: {
+          target: "settingUpTotp",
+        },
+      },
+    },
+    settingUpTotp: {
+      invoke: {
+        src: "setupTotp",
+        onDone: {
           target: "scanQR",
+          actions: assign({
+            qrCode: ({ event }) => event.output.qrcode,
+          }),
+        },
+        onError: {
+          target: "failure",
         },
       },
     },

@@ -135,3 +135,29 @@ export const verifyAuthChallenge = async (
     };
   }
 };
+
+export const mfaTotpSetup = async (
+  opts: RequestInit = {},
+): Promise<{
+  key: string;
+  url: string;
+  qrcode: string;
+}> => {
+  try {
+    const res = await fetch(getApiRoute(apiRoutes.auth.mfa.totp.setup), {
+      method: "POST",
+      credentials: "include",
+      ...opts,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (e) {
+    throw e;
+  }
+};

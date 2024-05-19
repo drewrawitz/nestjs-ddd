@@ -5,6 +5,11 @@ export const apiRoutes = {
     login: `${PREFIX}/auth/login`,
     loginMfa: `${PREFIX}/auth/login/mfa`,
     logout: `${PREFIX}/auth/logout`,
+    mfa: {
+      totp: {
+        setup: `${PREFIX}/auth/mfa/totp/setup`,
+      },
+    },
     challenge: {
       initiate: `${PREFIX}/auth/challenge/initiate`,
       verify: `${PREFIX}/auth/challenge/verify`,
