@@ -8,6 +8,8 @@ import { useSelector } from "@xstate/react";
 import { WaitingForEmailDialog } from "./waiting-for-email";
 import { ScanQRDialog } from "./scan-qr";
 import { EnterTotpCode } from "./enter-totp-code";
+import { SaveBackupCodeDialog } from "./save-backup-code";
+import { AuthenticatorSuccessDialog } from "./success";
 
 function GlobalDialog() {
   const { isOpen, onClose } = useDialog();
@@ -26,6 +28,8 @@ function GlobalDialog() {
         {(state.matches("enterTotp") || state.matches("submitting")) && (
           <EnterTotpCode />
         )}
+        {state.matches("success") && <SaveBackupCodeDialog />}
+        {state.matches("done") && <AuthenticatorSuccessDialog />}
       </DialogContent>
     </Dialog>
   );

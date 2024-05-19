@@ -14,11 +14,12 @@ export class AuthChallengeInitListener {
     const { user, token, body } = event;
 
     if (body.type === AuthChallengeType.Email) {
+      const link = `http://localhost:4200/auth-challenge/${token}`;
       await this.emailService.sendEmail({
         to: user.email,
         from: '"App Name" <no-reply@myapp.com>',
         subject: 'Your verification link',
-        message: `<strong>Code:</strong> ${token}`,
+        message: `<a href="${link}">${link}</a>`,
       });
     }
   }

@@ -164,7 +164,7 @@ export const addAuthenticatorAppMachine = setup({
         onDone: {
           target: "success",
           actions: assign({
-            backupCode: ({ event }) => event.output,
+            backupCode: ({ event }) => event.output.backupCode,
           }),
         },
         onError: {
@@ -179,6 +179,13 @@ export const addAuthenticatorAppMachine = setup({
     closed: {},
     failure: {},
     success: {
+      on: {
+        continue: {
+          target: "done",
+        },
+      },
+    },
+    done: {
       type: "final",
     },
   },
