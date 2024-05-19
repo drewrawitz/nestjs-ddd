@@ -8,5 +8,10 @@ export interface IAuthChallengeManager {
   verifyAuthChallengeToken(
     userId: string,
     token: string,
-  ): Promise<null | string>;
+  ): Promise<null | VerifyAuthAction>;
+  removeAuthChallengeToken(
+    userId: string,
+    token: string,
+    action: VerifyAuthAction,
+  ): Promise<void>;
 }

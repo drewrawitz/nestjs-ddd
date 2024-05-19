@@ -55,7 +55,7 @@ export class AuthChallengeManager implements IAuthChallengeManager {
   async verifyAuthChallengeToken(
     userId: string,
     token: string,
-  ): Promise<null | string> {
+  ): Promise<null | VerifyAuthAction> {
     const hashedToken = await hashToken(token);
     const AUTH_CHALLENGE_TOKEN = `authChallenge:${hashedToken}`;
     const value = await this.store.get(AUTH_CHALLENGE_TOKEN);
@@ -70,6 +70,19 @@ export class AuthChallengeManager implements IAuthChallengeManager {
       return null;
     }
 
-    return parsedValue.action;
+    return parsedValue.action as VerifyAuthAction;
+  }
+
+  async removeAuthChallengeToken(
+    userId: string,
+    token: string,
+    action: VerifyAuthAction,
+  ): Promise<void> {
+    const hashedToken = await hashToken(token);
+    const AUTH_CHALLENGE_TOKEN = `authChallenge:${hashedToken}`;
+    const USER_CHALLENGE_TOKEN = `userChallenge:${userId}:${action}`;
+
+    await this.store.del(AUTH_CHALLENGE_TOKEN);
+    await this.store.del(USER_CHALLENGE_TOKEN);
   }
 }
