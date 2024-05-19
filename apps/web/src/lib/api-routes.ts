@@ -8,6 +8,7 @@ export const apiRoutes = {
     mfa: {
       totp: {
         setup: `${PREFIX}/auth/mfa/totp/setup`,
+        activate: `${PREFIX}/auth/mfa/totp/activate`,
       },
     },
     challenge: {

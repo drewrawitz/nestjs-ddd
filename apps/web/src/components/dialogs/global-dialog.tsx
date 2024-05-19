@@ -23,7 +23,9 @@ function GlobalDialog() {
         {(state.matches("scanQR") || state.matches("manualCode")) && (
           <ScanQRDialog />
         )}
-        {state.matches("enterTotp") && <EnterTotpCode />}
+        {(state.matches("enterTotp") || state.matches("submitting")) && (
+          <EnterTotpCode />
+        )}
       </DialogContent>
     </Dialog>
   );

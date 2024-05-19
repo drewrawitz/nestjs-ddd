@@ -14,11 +14,21 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { Icons } from "../icons";
+import { AlertError } from "../alert-error";
+import { useEffect, useRef } from "react";
 
 export function EnterTotpCode() {
   const actorRef = AddAuthenticatorAppContext.useActorRef();
+  const inputRef = useRef<HTMLInputElement>(null);
   const { send } = actorRef;
   const state = actorRef.getSnapshot();
+
+  useEffect(() => {
+    if (!state.context.totp) {
+      inputRef?.current?.focus();
+    }
+  }, [state.context.totp]);
 
   return (
     <>
@@ -31,6 +41,7 @@ export function EnterTotpCode() {
       </DialogHeader>
       <div>
         <InputOTP
+          ref={inputRef}
           maxLength={6}
           autoFocus
           containerClassName="justify-center"
@@ -49,6 +60,13 @@ export function EnterTotpCode() {
             <InputOTPSlot index={5} />
           </InputOTPGroup>
         </InputOTP>
+        {state.context.error && (
+          <div className="text-center">
+            <div className="mt-4 inline-flex">
+              <AlertError message={state.context.error} simple />
+            </div>
+          </div>
+        )}
       </div>
       <DialogFooter className="border-t pt-4 mt-4">
         <Button
@@ -63,6 +81,9 @@ export function EnterTotpCode() {
           onClick={() => send({ type: "submit" })}
           disabled={!state.can({ type: "submit" })}
         >
+          {state.matches("submitting") && (
+            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+          )}
           Continue
         </Button>
       </DialogFooter>

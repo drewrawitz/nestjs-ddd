@@ -2,14 +2,18 @@ import { AuthChallengeType, VerifyAuthAction } from "@app/shared";
 import { assign, fromPromise, setup } from "xstate";
 import {
   initiateAuthChallenge,
+  mfaTotpActivate,
   mfaTotpSetup,
 } from "../features/auth/auth.mutations";
 
-const submitTotpCode = fromPromise(async ({ input }) => {
-  console.log("submit totp code", input);
-  // get the machine context here
-  return "123";
-});
+const submitTotpCode = fromPromise(
+  async ({ input }: { input: { key: string; totp: string } }) => {
+    return await mfaTotpActivate({
+      key: input.key,
+      totp: input.totp,
+    });
+  },
+);
 
 const setupTotp = fromPromise(async () => {
   return await mfaTotpSetup();
@@ -164,9 +168,10 @@ export const addAuthenticatorAppMachine = setup({
           }),
         },
         onError: {
-          target: "failure",
+          target: "enterTotp",
           actions: assign({
-            error: ({ event }) => event.error,
+            error: ({ event }: any) => event.error.message,
+            totp: "",
           }),
         },
       },

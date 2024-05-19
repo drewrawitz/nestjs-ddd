@@ -1,5 +1,6 @@
 import { apiRoutes, getApiRoute } from "../../api-routes";
 import {
+  ActivateTotpDto,
   AuthChallengeDto,
   LoginResponseDto,
   VerifyAuthChallengeDto,
@@ -160,4 +161,29 @@ export const mfaTotpSetup = async (
   } catch (e) {
     throw e;
   }
+};
+
+export const mfaTotpActivate = async (
+  body: ActivateTotpDto,
+): Promise<{
+  backupCode: string;
+}> => {
+  const res = await fetch(getApiRoute(apiRoutes.auth.mfa.totp.activate), {
+    method: "POST",
+    credentials: "include",
+    body: JSON.stringify({
+      ...body,
+    }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message);
+  }
+
+  return data;
 };
