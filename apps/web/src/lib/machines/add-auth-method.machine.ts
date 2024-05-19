@@ -5,8 +5,9 @@ import {
   mfaTotpSetup,
 } from "../features/auth/auth.mutations";
 
-const submitTotpCode = fromPromise(async (data: any) => {
-  console.log("submit totp code", data);
+const submitTotpCode = fromPromise(async ({ input }) => {
+  console.log("submit totp code", input);
+  // get the machine context here
   return "123";
 });
 
@@ -32,6 +33,8 @@ export const addAuthenticatorAppMachine = setup({
       | { type: "resendEmail" }
       | { type: "verified" }
       | { type: "toggleMethod" }
+      | { type: "back" }
+      | { type: "totpInput"; value: string }
       | { type: "submit" },
   },
   actors: {
@@ -48,6 +51,7 @@ export const addAuthenticatorAppMachine = setup({
     backupCode: "",
     error: "",
     qrCode: "",
+    manualCode: "",
   },
   on: {
     close: {
@@ -100,6 +104,7 @@ export const addAuthenticatorAppMachine = setup({
           target: "scanQR",
           actions: assign({
             qrCode: ({ event }) => event.output.qrcode,
+            manualCode: ({ event }) => event.output.key,
           }),
         },
         onError: {
@@ -129,6 +134,16 @@ export const addAuthenticatorAppMachine = setup({
     },
     enterTotp: {
       on: {
+        totpInput: {
+          actions: assign(({ event }) => {
+            return {
+              totp: event.value,
+            };
+          }),
+        },
+        back: {
+          target: "scanQR",
+        },
         submit: {
           guard: ({ context }) => context.totp.length === 6,
           target: "submitting",
@@ -138,6 +153,10 @@ export const addAuthenticatorAppMachine = setup({
     submitting: {
       invoke: {
         src: "submitTotpCode",
+        input: ({ context }) => ({
+          totp: context.totp,
+          key: context.manualCode,
+        }),
         onDone: {
           target: "success",
           actions: assign({
