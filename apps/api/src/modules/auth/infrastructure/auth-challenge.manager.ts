@@ -7,6 +7,10 @@ import { IAuthChallengeManager } from '../domain/interfaces/IAuthChallengeManage
 import { VerifyAuthAction } from '@app/shared';
 import { generateToken, hashToken } from 'src/utils/tokens';
 
+const TOKEN_EXPIRATION = 15 * 60;
+const USER_CHALLENGE_PREFIX = 'userChallenge:';
+const AUTH_CHALLENGE_PREFIX = 'authChallenge:';
+
 @Injectable()
 export class AuthChallengeManager implements IAuthChallengeManager {
   constructor(
@@ -14,18 +18,30 @@ export class AuthChallengeManager implements IAuthChallengeManager {
     @Inject(STORE_TOKEN) private readonly store: IStore,
   ) {}
 
+  private async getHashedToken(token: string): Promise<string> {
+    return hashToken(token);
+  }
+
+  private async removeExistingToken(
+    userId: string,
+    action: VerifyAuthAction,
+  ): Promise<void> {
+    const existingToken = await this.store.get(
+      `${USER_CHALLENGE_PREFIX}${userId}:${action}`,
+    );
+    if (existingToken) {
+      await this.store.del(`${AUTH_CHALLENGE_PREFIX}${existingToken}`);
+    }
+  }
+
   async saveAuthChallengeToken(userId: string, action: VerifyAuthAction) {
     const token = generateToken();
-    const hashedToken = await hashToken(token);
-    const USER_CHALLENGE_TOKEN = `userChallenge:${userId}:${action}`;
-    const AUTH_CHALLENGE_TOKEN = `authChallenge:${hashedToken}`;
-    const TOKEN_EXPIRATION = 15 * 60;
+    const hashedToken = await this.getHashedToken(token);
 
-    // Check if the user has an existing token active and remove
-    const existingToken = await this.store.get(USER_CHALLENGE_TOKEN);
-    if (existingToken) {
-      await this.store.del(`authChallenge:${existingToken}`);
-    }
+    const USER_CHALLENGE_TOKEN = `${USER_CHALLENGE_PREFIX}${userId}:${action}`;
+    const AUTH_CHALLENGE_TOKEN = `${AUTH_CHALLENGE_PREFIX}${hashedToken}`;
+
+    await this.removeExistingToken(userId, action);
 
     try {
       await Promise.all([
@@ -62,17 +78,21 @@ export class AuthChallengeManager implements IAuthChallengeManager {
     userId: string,
     token: string,
   ): Promise<null | VerifyAuthAction> {
-    const hashedToken = await hashToken(token);
-    const AUTH_CHALLENGE_TOKEN = `authChallenge:${hashedToken}`;
+    const hashedToken = await this.getHashedToken(token);
+    const AUTH_CHALLENGE_TOKEN = `${AUTH_CHALLENGE_PREFIX}${hashedToken}`;
     const value = await this.store.get(AUTH_CHALLENGE_TOKEN);
 
     if (!value) {
+      this.logger.warn(`No auth challenge token found for user: ${userId}`);
       return null;
     }
 
     const parsedValue = JSON.parse(value);
 
     if (parsedValue.userId !== userId) {
+      this.logger.warn(
+        `Auth challenge token user mismatch: expected ${userId}, found ${parsedValue.userId}`,
+      );
       return null;
     }
 
@@ -84,11 +104,23 @@ export class AuthChallengeManager implements IAuthChallengeManager {
     token: string,
     action: VerifyAuthAction,
   ): Promise<void> {
-    const hashedToken = await hashToken(token);
-    const AUTH_CHALLENGE_TOKEN = `authChallenge:${hashedToken}`;
-    const USER_CHALLENGE_TOKEN = `userChallenge:${userId}:${action}`;
+    const hashedToken = await this.getHashedToken(token);
+    const AUTH_CHALLENGE_TOKEN = `${AUTH_CHALLENGE_PREFIX}${hashedToken}`;
+    const USER_CHALLENGE_TOKEN = `${USER_CHALLENGE_PREFIX}${userId}:${action}`;
 
-    await this.store.del(AUTH_CHALLENGE_TOKEN);
-    await this.store.del(USER_CHALLENGE_TOKEN);
+    try {
+      await Promise.all([
+        this.store.del(AUTH_CHALLENGE_TOKEN),
+        this.store.del(USER_CHALLENGE_TOKEN),
+      ]);
+      this.logger.log(
+        `Removed auth challenge tokens for user: ${userId}, action: ${action}`,
+      );
+    } catch (err) {
+      this.logger.error(
+        `Failed to remove auth challenge tokens for user: ${userId}, action: ${action}`,
+        { error: err, userId, action },
+      );
+    }
   }
 }
