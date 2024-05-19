@@ -20,6 +20,7 @@ export default async function DashboardLayout({
   const user = await getCurrentUser({
     headers,
   });
+
   queryClient.setQueryData(["me"], user);
 
   return (

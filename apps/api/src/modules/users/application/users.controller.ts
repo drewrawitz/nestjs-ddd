@@ -17,7 +17,7 @@ export class UsersController {
   @UseGuards(AuthenticatedGuard)
   @Get('/me')
   async getCurrentUser(@Req() req: RequestWithUser) {
-    return req.user;
+    return await this.usersService.getCurrentUser(req.user);
   }
 
   @Get('/:userId')

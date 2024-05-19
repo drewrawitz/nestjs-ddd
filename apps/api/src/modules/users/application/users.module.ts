@@ -8,6 +8,7 @@ import { UserCreatedListener } from '../domain/listeners/user-created.listener';
 import { UserDomainService } from '../domain/services/user.domain.service';
 import { UsersController } from './users.controller';
 import { UsersService } from './services/users.service';
+import { MFAService } from 'src/modules/mfa/mfa.service';
 
 @Module({
   imports: [EmailModule, StripeModule, SubscriptionsModule, AccessModule],
@@ -16,6 +17,7 @@ import { UsersService } from './services/users.service';
     UserCreatedListener,
     StripeSubscriptionChangeListener,
     UsersService,
+    MFAService,
     UserDomainService,
   ],
   exports: [UserDomainService],
