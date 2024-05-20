@@ -32,6 +32,15 @@ const sendEmail = fromPromise(async () => {
   return token;
 });
 
+const initialContext = {
+  totp: "",
+  backupCode: "",
+  error: "",
+  qrCode: "",
+  manualCode: "",
+  challengeToken: "",
+};
+
 export const addAuthenticatorAppMachine = setup({
   types: {
     events: {} as
@@ -54,14 +63,7 @@ export const addAuthenticatorAppMachine = setup({
 }).createMachine({
   id: "Add an authenticator app",
   initial: "idle",
-  context: {
-    totp: "",
-    backupCode: "",
-    error: "",
-    qrCode: "",
-    manualCode: "",
-    challengeToken: "",
-  },
+  context: initialContext,
   on: {
     close: {
       target: ".closed",
@@ -185,7 +187,14 @@ export const addAuthenticatorAppMachine = setup({
         },
       },
     },
-    closed: {},
+    closed: {
+      entry: assign({
+        ...initialContext,
+      }),
+      always: {
+        target: "idle",
+      },
+    },
     failure: {},
     success: {
       on: {

@@ -16,8 +16,13 @@ function GlobalDialog() {
   const actorRef = AddAuthenticatorAppContext.useActorRef();
   const state = useSelector(actorRef, (state) => state);
 
+  const onDialogClose = () => {
+    actorRef.send({ type: "close" });
+    onClose();
+  };
+
   return (
-    <Dialog onOpenChange={onClose} open={isOpen} defaultOpen={isOpen}>
+    <Dialog onOpenChange={onDialogClose} open={isOpen} defaultOpen={isOpen}>
       <DialogContent>
         {(state.matches("verificationRequired") ||
           state.matches("sendingEmail")) && <VerificationRequiredDialog />}
