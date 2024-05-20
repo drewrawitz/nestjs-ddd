@@ -1,43 +1,34 @@
-import ProfileNav from "@/components/profile-nav";
-import { getHeaderInfo } from "@/lib/cookies";
-import { getCurrentUser } from "@/lib/features/auth/auth.queries";
-import { SocketProvider } from "@/lib/providers/socket.provider";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
-import Link from "next/link";
+"use client";
 
-export default async function DashboardLayout({
+import ProfileNav from "@/components/profile-nav";
+import { useCurrentUserQuery } from "@/lib/features/auth/auth.hooks";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const queryClient = new QueryClient();
-  const { headers } = getHeaderInfo();
+  const { data: user } = useCurrentUserQuery();
 
-  const user = await getCurrentUser({
-    headers,
-  });
-
-  queryClient.setQueryData(["me"], user);
+  if (!user?.id) {
+    redirect("/login");
+  }
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="container">
-        <div className="border-b">
-          <div className="flex items-center px-4">
-            <div className="w-[100px] py-4">
-              <Link href="/">Logo</Link>
-            </div>
-            <div className="ml-auto flex items-center space-x-4">
-              <ProfileNav />
-            </div>
+    <div className="container">
+      <div className="border-b">
+        <div className="flex items-center px-4">
+          <div className="w-[100px] py-4">
+            <Link href="/">Logo</Link>
+          </div>
+          <div className="ml-auto flex items-center space-x-4">
+            <ProfileNav />
           </div>
         </div>
-        <div className="py-6">{children}</div>
       </div>
-    </HydrationBoundary>
+      <div className="py-6">{children}</div>
+    </div>
   );
 }

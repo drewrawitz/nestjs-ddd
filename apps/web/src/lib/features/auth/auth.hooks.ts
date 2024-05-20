@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { login, loginMFA, logout } from "./auth.mutations";
 import { getCurrentUser } from "./auth.queries";
 
@@ -26,8 +26,13 @@ export function useLoginMutation() {
 }
 
 export function useLoginMfaMutation() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: loginMFA,
+    onSuccess: (data) => {
+      queryClient.setQueryData(["me"], data);
+    },
   });
 }
 
