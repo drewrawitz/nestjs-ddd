@@ -18,8 +18,6 @@ export function VerificationRequiredDialog() {
   const { send } = actorRef;
   const state = actorRef.getSnapshot();
 
-  console.log(state);
-
   return (
     <>
       <DialogHeader>

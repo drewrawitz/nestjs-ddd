@@ -11,12 +11,13 @@ import { Icons } from "../icons";
 import { useSocket } from "@/lib/providers/socket.provider";
 import { useEffect } from "react";
 import { VerifyAuthAction } from "@app/shared";
+import { useCurrentUserQuery } from "@/lib/features/auth/auth.hooks";
 
 const socketName = `authChallengeVerified.${VerifyAuthAction.AddAuthenticatorApp}`;
 
 export function WaitingForEmailDialog() {
+  const { data: user } = useCurrentUserQuery();
   const actorRef = AddAuthenticatorAppContext.useActorRef();
-  const state = actorRef.getSnapshot();
   const socket = useSocket();
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export function WaitingForEmailDialog() {
         </div>
         <DialogDescription>
           To continue, please use this browser to click the link sent to{" "}
-          {state.context.email} while keeping this page open. This page will
+          {user?.email} while keeping this page open. This page will
           automatically update once you do so.
         </DialogDescription>
         <div className="flex items-center justify-center">
