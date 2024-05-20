@@ -1,4 +1,4 @@
-import { Icons } from "@/components/icons";
+import AuthChallengeVerified from "@/components/auth-challenge-verified";
 import { Button } from "@/components/ui/button";
 import { getHeaderInfo } from "@/lib/cookies";
 import { verifyAuthChallenge } from "@/lib/features/auth/auth.mutations";
@@ -47,13 +47,5 @@ export default async function AuthChallenge({
     );
   }
 
-  return (
-    <div className="text-center px-4">
-      <Icons.spinner className="h-10 w-10 animate-spin mx-auto mb-4" />
-      <p>
-        We are good to go! Please return to the original tab. This page will try
-        to automatically close in 5 seconds.
-      </p>
-    </div>
-  );
+  return <AuthChallengeVerified />;
 }
