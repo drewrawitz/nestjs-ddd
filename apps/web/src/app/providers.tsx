@@ -3,7 +3,6 @@
 import GlobalDialog from "@/components/dialogs/global-dialog";
 import { addAuthenticatorAppMachine } from "@/lib/machines/add-auth-method.machine";
 import { SocketProvider } from "@/lib/providers/socket.provider";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createActorContext } from "@xstate/react";
 
 export const AddAuthenticatorAppContext = createActorContext(
@@ -16,7 +15,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <AddAuthenticatorAppContext.Provider>
         {children}
         <GlobalDialog />
-        <ReactQueryDevtools initialIsOpen={false} />
       </AddAuthenticatorAppContext.Provider>
     </SocketProvider>
   );

@@ -1,11 +1,10 @@
-import { fetchWrapper } from "@/lib/fetch";
 import { apiRoutes, getApiRoute } from "../../api-routes";
 import { IUserResponse } from "@app/shared";
 
 export const getCurrentUser = async (
   opts: RequestInit = {},
 ): Promise<IUserResponse> => {
-  const res = await fetchWrapper(getApiRoute(apiRoutes.users.me), {
+  const res = await fetch(getApiRoute(apiRoutes.users.me), {
     method: "GET",
     credentials: "include",
     ...opts,

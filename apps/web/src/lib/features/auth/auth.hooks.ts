@@ -11,7 +11,7 @@ type LoginParams = {
 export function useCurrentUserQuery() {
   return useQuery({
     queryKey: ["me"],
-    queryFn: getCurrentUser,
+    queryFn: () => getCurrentUser(),
     staleTime: 1000 * 60 * 60, // 1 hour
     retry: 0,
   });
@@ -47,8 +47,10 @@ export function useLogoutMutation() {
 
   return useMutation({
     mutationFn: () => logout(),
-    onSuccess: () => {
-      queryClient.setQueryData(["me"], null);
+    onSuccess: async () => {
+      await queryClient.resetQueries({
+        queryKey: ["me"],
+      });
       router.push("/login");
     },
   });

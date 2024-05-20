@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,14 +17,6 @@ function Add2faButton() {
   const { data: user } = useCurrentUserQuery();
   const actorRef = AddAuthenticatorAppContext.useActorRef();
   const { onOpen } = useDialog();
-
-  useEffect(() => {
-    const subscription = actorRef.subscribe((snapshot) => {
-      console.log("Value", snapshot.value);
-    });
-
-    return subscription.unsubscribe;
-  }, [actorRef]);
 
   const addAuthenticatorApp = () => {
     actorRef.send({ type: "start" });

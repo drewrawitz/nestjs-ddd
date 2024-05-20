@@ -8,11 +8,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useCurrentUserQuery } from "@/lib/features/auth/auth.hooks";
+import { useEffect } from "react";
 
 export function SaveBackupCodeDialog() {
+  const { refetch } = useCurrentUserQuery();
   const actorRef = AddAuthenticatorAppContext.useActorRef();
   const { send } = actorRef;
   const state = actorRef.getSnapshot();
+
+  useEffect(() => {
+    refetch();
+  }, []);
 
   return (
     <>
