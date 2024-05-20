@@ -6,11 +6,13 @@ import {
   generateBase64Key,
   generateTOTPSecret,
 } from 'src/utils/tokens';
-import { ActivateTotpDto } from '@app/shared';
+import { ActivateTotpDto, VerifyAuthAction } from '@app/shared';
 import { EnvService } from 'src/infrastructure/env/env.service';
 import { MFAType } from '@prisma/client';
 import { USER_MFA_REPO_TOKEN } from './mfa.constants';
 import { IUserMFARepository } from './mfa.interfaces';
+import { AUTH_CHALLENGE_MANAGER_TOKEN } from '../auth/domain/auth.constants';
+import { IAuthChallengeManager } from '../auth/domain/interfaces/IAuthChallengeManager';
 
 @Injectable()
 export class MFAService {
@@ -18,7 +20,17 @@ export class MFAService {
     private envService: EnvService,
     @Inject(USER_MFA_REPO_TOKEN)
     private readonly userMfaRepository: IUserMFARepository,
+    @Inject(AUTH_CHALLENGE_MANAGER_TOKEN)
+    private readonly authChallengeManager: IAuthChallengeManager,
   ) {}
+
+  private async checkForValidChallengeToken(userId: string, token: string) {
+    const action = await this.authChallengeManager.verifyAuthChallengeToken(
+      userId,
+      token,
+    );
+    return action === VerifyAuthAction.AddAuthenticatorApp;
+  }
 
   async getAllActiveMFAForUser(userId: string) {
     return this.userMfaRepository.getAllActiveMFAForUser(userId);
@@ -50,7 +62,16 @@ export class MFAService {
   }
 
   async activateTotp(userId: string, body: ActivateTotpDto) {
-    const { totp, key } = body;
+    const { totp, key, challengeToken } = body;
+
+    const check = await this.checkForValidChallengeToken(
+      userId,
+      challengeToken,
+    );
+
+    if (!check) {
+      throw new ForbiddenException('Invalid challenge token');
+    }
 
     const existingMfa =
       await this.userMfaRepository.checkIfUserIsAuthenticatedWithType(
