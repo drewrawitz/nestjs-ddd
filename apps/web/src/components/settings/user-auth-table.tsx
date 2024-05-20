@@ -78,13 +78,15 @@ export default function UserAuthTable() {
           </TableBody>
         )}
       </Table>
-      <p className="mt-6 text-gray-300 text-sm text-center">
-        If you lose your mobile device or security key, you can{" "}
-        <button className="text-amber-600 hover:underline">
-          generate a backup code
-        </button>{" "}
-        to sign in to your account.
-      </p>
+      {user?.mfa && user?.mfa?.length > 0 && (
+        <p className="mt-6 text-gray-300 text-sm text-center">
+          If you lose your mobile device or security key, you can{" "}
+          <button className="text-amber-600 hover:underline">
+            generate a backup code
+          </button>{" "}
+          to sign in to your account.
+        </p>
+      )}
     </>
   );
 }

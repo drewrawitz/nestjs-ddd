@@ -43,8 +43,8 @@ export function WaitingForEmailDialog() {
         </div>
         <DialogDescription>
           To continue, please use this browser to click the link sent to{" "}
-          {user?.email} while keeping this page open. This page will
-          automatically update once you do so.
+          <strong>{user?.email}</strong> while keeping this page open. This page
+          will automatically update once you do so.
         </DialogDescription>
         <div className="flex items-center justify-center">
           <Button variant="outline">Resend link</Button>

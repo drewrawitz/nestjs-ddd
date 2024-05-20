@@ -29,7 +29,7 @@ export function VerificationRequiredDialog() {
       </DialogHeader>
       <div>
         <RadioGroup defaultValue="email" className="space-y-2">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 border p-4 rounded-md border-primary/30">
             <RadioGroupItem value="email" id="email" />
             <Label htmlFor="email">Receive a link in your email</Label>
           </div>
