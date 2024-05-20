@@ -7,10 +7,15 @@ import {
 } from "../features/auth/auth.mutations";
 
 const submitTotpCode = fromPromise(
-  async ({ input }: { input: { key: string; totp: string } }) => {
+  async ({
+    input,
+  }: {
+    input: { key: string; totp: string; challengeToken: string };
+  }) => {
     return await mfaTotpActivate({
       key: input.key,
       totp: input.totp,
+      challengeToken: input.challengeToken,
     });
   },
 );
@@ -50,12 +55,12 @@ export const addAuthenticatorAppMachine = setup({
   id: "Add an authenticator app",
   initial: "idle",
   context: {
-    email: undefined,
     totp: "",
     backupCode: "",
     error: "",
     qrCode: "",
     manualCode: "",
+    challengeToken: "",
   },
   on: {
     close: {
@@ -82,6 +87,9 @@ export const addAuthenticatorAppMachine = setup({
         src: "sendEmail",
         onDone: {
           target: "waiting",
+          actions: assign({
+            challengeToken: ({ event }) => event.output,
+          }),
         },
         onError: {
           target: "failure",
@@ -160,6 +168,7 @@ export const addAuthenticatorAppMachine = setup({
         input: ({ context }) => ({
           totp: context.totp,
           key: context.manualCode,
+          challengeToken: context.challengeToken,
         }),
         onDone: {
           target: "success",
