@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import type { SelectedVerificationType } from "@/lib/features/mfa/authenticator.machine";
 import { Icons } from "../icons";
 import { AddAuthenticatorAppContext } from "@/app/providers";
 
@@ -19,9 +18,7 @@ export function VerificationRequiredDialog() {
   const { send } = actorRef;
   const state = actorRef.getSnapshot();
 
-  const onChangeRadio = (value: SelectedVerificationType) => {
-    console.log("radio", value);
-  };
+  console.log(state);
 
   return (
     <>
@@ -33,11 +30,7 @@ export function VerificationRequiredDialog() {
         </DialogDescription>
       </DialogHeader>
       <div>
-        <RadioGroup
-          defaultValue="email"
-          className="space-y-2"
-          onValueChange={onChangeRadio}
-        >
+        <RadioGroup defaultValue="email" className="space-y-2">
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="email" id="email" />
             <Label htmlFor="email">Receive a link in your email</Label>

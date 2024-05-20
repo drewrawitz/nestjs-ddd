@@ -261,12 +261,6 @@ export class AuthService {
     const verified = Boolean(action);
 
     if (verified && action) {
-      // Remove the token from Redis
-      await this.authChallengeManager.removeAuthChallengeToken(
-        user.id,
-        body.token,
-        action,
-      );
       // Send a WS event to the client
       this.websocketsGateway.emitToUser(
         user.id,

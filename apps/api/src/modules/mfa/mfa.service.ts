@@ -105,6 +105,13 @@ export class MFAService {
       },
     });
 
+    // Remove the token from Redis
+    await this.authChallengeManager.removeAuthChallengeToken(
+      userId,
+      challengeToken,
+      VerifyAuthAction.AddAuthenticatorApp,
+    );
+
     return {
       backupCode,
     };
