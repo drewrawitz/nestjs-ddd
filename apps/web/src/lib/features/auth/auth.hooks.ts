@@ -18,9 +18,14 @@ export function useCurrentUserQuery() {
 }
 
 export function useLoginMutation() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({ email, password }: LoginParams) => {
       return login(email, password);
+    },
+    onSuccess: ({ data }) => {
+      queryClient.setQueryData(["me"], data);
     },
   });
 }
@@ -37,11 +42,13 @@ export function useLoginMfaMutation() {
 }
 
 export function useLogoutMutation() {
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
     mutationFn: () => logout(),
     onSuccess: () => {
+      queryClient.setQueryData(["me"], null);
       router.push("/login");
     },
   });

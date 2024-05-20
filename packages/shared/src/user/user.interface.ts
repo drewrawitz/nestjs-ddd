@@ -1,5 +1,10 @@
 import { MFAType } from "@app/prisma/client";
 
+export interface MFAResponse {
+  type: MFAType;
+  createdAt: Date;
+}
+
 export interface IUserResponse {
   id: string;
   email: string;
@@ -7,9 +12,5 @@ export interface IUserResponse {
   lastName: string | null;
   fullName: string | null;
   isEmailVerified: boolean;
-}
-
-export interface MFAResponse {
-  type: MFAType;
-  createdAt: Date;
+  mfa: MFAResponse[];
 }
