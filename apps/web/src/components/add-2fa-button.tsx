@@ -16,11 +16,15 @@ import { MFAType } from "@app/prisma/client";
 function Add2faButton() {
   const { data: user } = useCurrentUserQuery();
   const actorRef = AddAuthenticatorAppContext.useActorRef();
-  const { onOpen } = useDialog();
+  const { openDialog } = useDialog();
 
   const addAuthenticatorApp = () => {
     actorRef.send({ type: "start" });
-    onOpen();
+    openDialog("AddAuthenticatorApp", {
+      onCloseHandler: () => {
+        actorRef.send({ type: "close" });
+      },
+    });
   };
 
   return (

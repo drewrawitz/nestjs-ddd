@@ -14,8 +14,8 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { Icons } from "../icons";
-import { AlertError } from "../alert-error";
+import { Icons } from "../../icons";
+import { AlertError } from "../../alert-error";
 import { useEffect, useRef } from "react";
 
 export function EnterTotpCode() {

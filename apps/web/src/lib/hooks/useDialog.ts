@@ -1,17 +1,41 @@
 import { create } from "zustand";
 
-interface DialogProps {
+type DialogType = "AddAuthenticatorApp" | "RemoveAuthenticatorApp";
+
+interface DialogState {
   isOpen: boolean;
-  onOpen: () => void;
-  onClose: () => void;
+  dialogType: DialogType | null;
   data: any;
-  setData: (data: any) => void;
+  onCloseHandler: (() => void) | null;
+  openDialog: (
+    type: DialogType,
+    options?: { data?: any; onCloseHandler?: () => void },
+  ) => void;
+  closeDialog: () => void;
 }
 
-export const useDialog = create<DialogProps>((set) => ({
+export const useDialog = create<DialogState>((set) => ({
   isOpen: false,
-  onOpen: () => set({ isOpen: true }),
-  onClose: () => set({ isOpen: false }),
+  dialogType: null,
   data: {},
-  setData: (data) => set({ data: { data } }),
+  onCloseHandler: null,
+  openDialog: (type, options = {}) =>
+    set({
+      isOpen: true,
+      dialogType: type,
+      data: options.data || {},
+      onCloseHandler: options.onCloseHandler || null,
+    }),
+  closeDialog: () =>
+    set((state) => {
+      if (state.onCloseHandler) {
+        state.onCloseHandler();
+      }
+      return {
+        isOpen: false,
+        dialogType: null,
+        data: {},
+        onCloseHandler: null,
+      };
+    }),
 }));

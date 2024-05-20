@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Icons } from "../icons";
+import { Icons } from "../../icons";
 import { useSocket } from "@/lib/providers/socket.provider";
 import { useEffect } from "react";
 import { VerifyAuthAction } from "@app/shared";
