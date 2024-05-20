@@ -9,11 +9,7 @@ export interface IUserResponse {
   isEmailVerified: boolean;
 }
 
-export interface ICurrentUserResponse {
-  id: string;
-  email: string;
-  mfa: {
-    type: MFAType;
-    createdAt: Date;
-  }[];
+export interface MFAResponse {
+  type: MFAType;
+  createdAt: Date;
 }

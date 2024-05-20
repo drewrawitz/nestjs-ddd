@@ -33,17 +33,14 @@ export class UsersService {
     await this.cacheManager.del(this.cacheKey(userId));
   }
 
-  async getCurrentUser(user: RequestWithUser['user']) {
-    const mfa = await this.mfaService.getAllActiveMFAForUser(user.id);
-    const filteredMfa = mfa.map((m) => ({
-      type: m.type,
-      createdAt: m.createdAt,
-    }));
+  async getUserById(userId: string) {
+    const user = await this.userRepository.getUserById(userId);
 
-    return {
-      ...user,
-      mfa: filteredMfa,
-    };
+    if (!user) {
+      return null;
+    }
+
+    return new UserResponseDto(user);
   }
 
   async getUserDetails(userId: string) {

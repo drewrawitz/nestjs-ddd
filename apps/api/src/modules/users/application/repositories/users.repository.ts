@@ -4,13 +4,17 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { User as PrismaUser } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/database/prisma.service';
 import { ILogger } from 'src/infrastructure/logging/logger.interface';
 import { LOGGER_TOKEN } from 'src/infrastructure/logging/logger.token';
 import { IUsersRepository } from '../../domain/interfaces/IUsersRepository';
 import { User as DomainUser } from '../../domain/model/User';
 import { UserResponseDto } from '../../dto/user-response.dto';
+
+type UserWithMfa = Prisma.UserGetPayload<{
+  include: { mfa: true };
+}>;
 
 @Injectable()
 export class UsersRepository implements IUsersRepository {
@@ -19,7 +23,7 @@ export class UsersRepository implements IUsersRepository {
     private db: PrismaService,
   ) {}
 
-  private toDomainUser(user: PrismaUser): DomainUser {
+  private toDomainUser(user: UserWithMfa): DomainUser {
     return new DomainUser({
       id: user.id,
       email: user.email,
@@ -27,6 +31,7 @@ export class UsersRepository implements IUsersRepository {
       firstName: user.firstName,
       lastName: user.lastName,
       stripeCustomerId: user.stripeCustomerId,
+      mfa: user.mfa,
     });
   }
 
@@ -65,6 +70,13 @@ export class UsersRepository implements IUsersRepository {
       where: {
         id: userId,
       },
+      include: {
+        mfa: {
+          where: {
+            isEnabled: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -79,6 +91,13 @@ export class UsersRepository implements IUsersRepository {
     const user = await this.db.user.findUnique({
       where: {
         email: formattedEmail,
+      },
+      include: {
+        mfa: {
+          where: {
+            isEnabled: true,
+          },
+        },
       },
     });
 
@@ -97,6 +116,13 @@ export class UsersRepository implements IUsersRepository {
         passwordHash,
         firstName,
         lastName,
+      },
+      include: {
+        mfa: {
+          where: {
+            isEnabled: true,
+          },
+        },
       },
     });
 

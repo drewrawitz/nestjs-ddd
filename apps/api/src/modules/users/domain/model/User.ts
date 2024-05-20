@@ -1,5 +1,6 @@
 import { IPasswordHashingService } from 'src/modules/auth/domain/interfaces/IPasswordHashingService';
 import { Email } from './Email';
+import { UserMFA } from '@prisma/client';
 
 export class User {
   constructor(
@@ -11,6 +12,7 @@ export class User {
       stripeCustomerId?: string | null;
       emailVerifiedAt?: Date;
       passwordHash?: string | null;
+      mfa?: UserMFA[];
     },
   ) {}
 
@@ -46,6 +48,16 @@ export class User {
 
   get isEmailVerified(): boolean {
     return Boolean(this.props.emailVerifiedAt);
+  }
+
+  get mfa() {
+    const { mfa } = this.props;
+    return (
+      mfa?.map((m) => ({
+        type: m.type,
+        createdAt: m.createdAt,
+      })) ?? []
+    );
   }
 
   async setPassword(

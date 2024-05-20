@@ -20,6 +20,6 @@ import { MFAService } from 'src/modules/mfa/mfa.service';
     MFAService,
     UserDomainService,
   ],
-  exports: [UserDomainService],
+  exports: [UsersService, UserDomainService],
 })
 export class UsersModule {}

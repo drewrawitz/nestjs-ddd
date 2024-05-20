@@ -46,10 +46,12 @@ import { AuthService } from './auth.service';
 import { MFAService } from 'src/modules/mfa/mfa.service';
 import { USER_SESSION_MANAGER_TOKEN } from '../domain/auth.constants';
 import { IUserSessionManager } from '../domain/interfaces/IUserSessionManager';
+import { UsersService } from 'src/modules/users/application/services/users.service';
 
 @Controller('v1/auth')
 export class AuthController {
   constructor(
+    private usersService: UsersService,
     private authService: AuthService,
     private mfaService: MFAService,
     @Inject(USER_SESSION_MANAGER_TOKEN)
@@ -101,7 +103,7 @@ export class AuthController {
         throw new UnauthorizedException('Verification failed.');
       }
 
-      const user = await this.authService.getUserById(userId);
+      const user = await this.usersService.getUserById(userId);
       if (!user) {
         throw new NotFoundException('User lookup failed.');
       }
