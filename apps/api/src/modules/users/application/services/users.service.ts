@@ -11,8 +11,6 @@ import { EnvService } from 'src/infrastructure/env/env.service';
 import { Subscription } from 'src/modules/subscriptions/domain/model/Subscription';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { RequestWithUser } from 'src/utils/types';
-import { MFAService } from 'src/modules/mfa/mfa.service';
 
 @Injectable()
 export class UsersService {
@@ -22,7 +20,6 @@ export class UsersService {
     private subscriptionService: SubscriptionsService,
     private accessService: AccessService,
     private envService: EnvService,
-    private mfaService: MFAService,
   ) {}
 
   private cacheKey(userId: string) {
