@@ -17,6 +17,11 @@ import { SessionSerializer } from '../infrastructure/session.serializer';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { MFAService } from 'src/modules/mfa/mfa.service';
+import { mockUserSessionManager } from 'src/tests/mocks/user.mocks';
+import { USER_SESSION_MANAGER_TOKEN } from '../domain/auth.constants';
+import { UsersService } from 'src/modules/users/application/services/users.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { mockCache } from 'src/tests/mocks/infra.mocks';
 
 const mockAuthService = {
   signup: jest.fn(),
@@ -38,11 +43,20 @@ const mockMfaService = {
   verifyUserTotpToken: jest.fn(),
 };
 
+const mockUsersService = {
+  getUserById: jest.fn(),
+};
+
 @Module({
   controllers: [AuthController],
   providers: [
     { provide: MFAService, useValue: mockMfaService },
     { provide: AuthService, useValue: mockAuthService },
+    { provide: UsersService, useValue: mockUsersService },
+    {
+      provide: USER_SESSION_MANAGER_TOKEN,
+      useValue: mockUserSessionManager,
+    },
   ],
 })
 class TestAppModule implements NestModule {
@@ -74,9 +88,15 @@ describe('AuthController', () => {
       imports: [TestAppModule, PassportModule.register({ session: true })],
       controllers: [AuthController],
       providers: [
+        { provide: CACHE_MANAGER, useValue: mockCache },
         { provide: AuthService, useValue: mockAuthService },
         { provide: MFAService, useValue: mockMfaService },
+        { provide: UsersService, useValue: mockUsersService },
         { provide: LocalAuthGuard, useValue: mockAuthGuard },
+        {
+          provide: USER_SESSION_MANAGER_TOKEN,
+          useValue: mockUserSessionManager,
+        },
         LocalStrategy,
         SessionSerializer,
       ],
@@ -190,7 +210,10 @@ describe('AuthController', () => {
         .send({ email: user.email.getValue(), password: user.passwordHash })
         .expect(200)
         .expect((res) => {
-          expect(res.body).toEqual(userDto);
+          expect(res.body).toEqual({
+            type: 'LOGIN_SUCCESS',
+            data: userDto,
+          });
           expect(mockAuthService.loginSuccess).toHaveBeenCalled();
         });
     });
@@ -217,8 +240,10 @@ describe('AuthController', () => {
         .send({ email: user.email.getValue(), password: user.passwordHash })
         .expect(200)
         .expect((res) => {
-          expect(res.body.mfaRequired).toEqual(true);
-          expect(res.body.mfaTypes).toEqual(['TOTP']);
+          expect(res.body.type).toEqual('MFA_REQUIRED');
+          expect(res.body.data.mfaRequired).toEqual(true);
+          expect(res.body.data.mfaTypes).toEqual(['TOTP']);
+          expect(res.body.data.tempKey).toEqual(expect.any(String));
           expect(mockAuthService.loginSuccess).not.toHaveBeenCalled();
         });
     });
@@ -390,7 +415,7 @@ describe('AuthController', () => {
 
     it('should call activateTotp when the endpoint is hit', async () => {
       process.env.TEST_AUTHENTICATED = 'true';
-      const body = { key: '123', totp: '123456' };
+      const body = { key: '123', totp: '123456', challengeToken: '123' };
 
       await request(app.getHttpServer())
         .post('/v1/auth/mfa/totp/activate')

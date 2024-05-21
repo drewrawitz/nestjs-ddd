@@ -14,6 +14,9 @@ export const mockUserDomainService = {
 
 export const mockUserSessionManager = {
   saveUserSession: jest.fn(),
+  getMfaSession: jest.fn(),
+  saveMfaSession: jest.fn(),
+  removeMfaSession: jest.fn(),
   removeSessionFromRedis: jest.fn(),
   removeAllUserSessions: jest.fn(),
 };
