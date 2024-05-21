@@ -135,6 +135,13 @@ describe('UsersRepository', () => {
 
       expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
         where: { id: '1' },
+        include: {
+          mfa: {
+            where: {
+              isEnabled: true,
+            },
+          },
+        },
       });
       expect(result).toBeInstanceOf(DomainUser);
       expect(result.id).toEqual('1');
@@ -165,6 +172,13 @@ describe('UsersRepository', () => {
 
       expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
         where: { email: 'ok@ok.com' },
+        include: {
+          mfa: {
+            where: {
+              isEnabled: true,
+            },
+          },
+        },
       });
       expect(result).toBeInstanceOf(DomainUser);
       expect(result.email).toBeInstanceOf(Email);
@@ -209,6 +223,13 @@ describe('UsersRepository', () => {
           passwordHash: domainUser.passwordHash,
           firstName: domainUser.firstName,
           lastName: domainUser.lastName,
+        },
+        include: {
+          mfa: {
+            where: {
+              isEnabled: true,
+            },
+          },
         },
       });
       expect(result).toBeInstanceOf(UserResponseDto);
