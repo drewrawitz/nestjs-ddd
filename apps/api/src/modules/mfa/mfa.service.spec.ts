@@ -7,6 +7,9 @@ import { mockUserMfaRepository } from 'src/tests/mocks/mfa.mocks';
 import speakeasy from 'speakeasy';
 import { ForbiddenException } from '@nestjs/common';
 import { MFAType } from '@prisma/client';
+import { AUTH_CHALLENGE_MANAGER_TOKEN } from '../auth/domain/auth.constants';
+import { mockAuthChallengeManager } from 'src/tests/mocks/auth.mocks';
+import { VerifyAuthAction } from '@app/shared';
 
 const TOTP_SECRET = 'secret123';
 const TOTP_URL = 'url123';
@@ -38,6 +41,10 @@ describe('MFAService', () => {
         MFAService,
         { provide: USER_MFA_REPO_TOKEN, useValue: mockUserMfaRepository },
         { provide: EnvService, useValue: mockEnv },
+        {
+          provide: AUTH_CHALLENGE_MANAGER_TOKEN,
+          useValue: mockAuthChallengeManager,
+        },
       ],
     }).compile();
 
@@ -117,9 +124,12 @@ describe('MFAService', () => {
       jest
         .spyOn(mockUserMfaRepository, 'setupUserMfaWithBackupCode')
         .mockResolvedValue(undefined);
+      jest
+        .spyOn(service, 'checkForValidChallengeToken')
+        .mockResolvedValue(true);
 
       const userId = 'user1';
-      const dto = { totp: '123456', key: TOTP_SECRET };
+      const dto = { totp: '123456', key: TOTP_SECRET, challengeToken: '123' };
 
       const activate = await service.activateTotp(userId, dto);
 
@@ -137,6 +147,13 @@ describe('MFAService', () => {
           },
         }),
       );
+      expect(
+        mockAuthChallengeManager.removeAuthChallengeToken,
+      ).toHaveBeenCalledWith(
+        userId,
+        '123',
+        VerifyAuthAction.AddAuthenticatorApp,
+      );
 
       expect(activate).toEqual({
         backupCode: 'backup123',
@@ -150,7 +167,7 @@ describe('MFAService', () => {
         .mockResolvedValue(true);
 
       const userId = 'user1';
-      const dto = { totp: '123456', key: TOTP_SECRET };
+      const dto = { totp: '123456', key: TOTP_SECRET, challengeToken: '123' };
 
       await expect(service.activateTotp(userId, dto)).rejects.toThrow(
         ForbiddenException,
@@ -168,7 +185,7 @@ describe('MFAService', () => {
         .mockResolvedValue(false);
 
       const userId = 'user1';
-      const dto = { totp: '123456', key: TOTP_SECRET };
+      const dto = { totp: '123456', key: TOTP_SECRET, challengeToken: '123' };
 
       await expect(service.activateTotp(userId, dto)).rejects.toThrow(
         ForbiddenException,

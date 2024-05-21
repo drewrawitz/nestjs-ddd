@@ -13,4 +13,5 @@ export const mockPasswordResetManager = {
 export const mockAuthChallengeManager = {
   saveAuthChallengeToken: jest.fn(),
   verifyAuthChallengeToken: jest.fn(),
+  removeAuthChallengeToken: jest.fn(),
 };

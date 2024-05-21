@@ -24,7 +24,7 @@ export class MFAService {
     private readonly authChallengeManager: IAuthChallengeManager,
   ) {}
 
-  private async checkForValidChallengeToken(userId: string, token: string) {
+  async checkForValidChallengeToken(userId: string, token: string) {
     const action = await this.authChallengeManager.verifyAuthChallengeToken(
       userId,
       token,
