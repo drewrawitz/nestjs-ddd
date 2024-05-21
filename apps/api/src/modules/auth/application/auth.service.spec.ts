@@ -12,6 +12,7 @@ import { User } from 'src/modules/users/domain/model/User';
 import { UserDomainService } from 'src/modules/users/domain/services/user.domain.service';
 import { UserResponseDto } from 'src/modules/users/dto/user-response.dto';
 import {
+  mockAuthChallengeManager,
   mockPasswordHashingService,
   mockPasswordResetManager,
 } from 'src/tests/mocks/auth.mocks';
@@ -22,12 +23,15 @@ import {
   mockUserSessionManager,
 } from 'src/tests/mocks/user.mocks';
 import {
+  AUTH_CHALLENGE_MANAGER_TOKEN,
   PASSWORD_HASHING_TOKEN,
   PASSWORD_RESET_MANAGER_TOKEN,
   USER_SESSION_MANAGER_TOKEN,
 } from '../domain/auth.constants';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { AuthService } from './auth.service';
+import { AppWebsocketsGateway } from 'src/infrastructure/websockets/websockets.gateway';
+import { mockWebsockets } from 'src/tests/mocks/websockets.mock';
 
 jest.mock('src/utils/tokens', () => ({
   generateToken: jest.fn(() => 'securetoken123'),
@@ -50,6 +54,10 @@ describe('AuthService', () => {
         { provide: USER_REPO_TOKEN, useValue: mockUserRepository },
         { provide: EVENT_TOKEN, useValue: mockEventPublisher },
         {
+          provide: AUTH_CHALLENGE_MANAGER_TOKEN,
+          useValue: mockAuthChallengeManager,
+        },
+        {
           provide: PASSWORD_HASHING_TOKEN,
           useValue: mockPasswordHashingService,
         },
@@ -64,6 +72,10 @@ describe('AuthService', () => {
         {
           provide: UserDomainService,
           useValue: mockUserDomainService,
+        },
+        {
+          provide: AppWebsocketsGateway,
+          useValue: mockWebsockets,
         },
       ],
     }).compile();
